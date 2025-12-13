@@ -319,7 +319,7 @@ export default function AuthPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Login Form */}
               {mode === "login" && (
                 <>

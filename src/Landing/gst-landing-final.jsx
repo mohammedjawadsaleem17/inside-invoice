@@ -718,12 +718,16 @@ export default function GSTBillingLanding() {
             streamline their operations
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="px-8 py-3 bg-white text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-medium text-base shadow-xl hover:scale-[1.02]">
-              Try Now - Free Forever →
-            </button>
-            <button className="px-8 py-3 bg-transparent text-white border border-white rounded-lg hover:bg-white hover:text-slate-700 transition-all duration-200 font-medium text-base hover:scale-[1.02]">
-              Watch Demo
-            </button>
+            <Link to="/signup">
+              <button className="px-8 py-3 bg-white text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-medium text-base shadow-xl hover:scale-[1.02]">
+                Try Now - Free Forever →
+              </button>
+            </Link>
+            <Link to="/contact">
+              <button className="px-8 py-3 bg-transparent text-white border border-white rounded-lg hover:bg-white hover:text-slate-700 transition-all duration-200 font-medium text-base hover:scale-[1.02]">
+                Contact US
+              </button>
+            </Link>
           </div>
 
           <div className="mt-12 flex items-center justify-center gap-8 text-white">
