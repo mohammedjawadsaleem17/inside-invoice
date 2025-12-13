@@ -12,6 +12,7 @@ import GSTCalculator from "./Landing/Services/GSTCalculator";
 import QRCodeGenerator from "./Landing/Services/QRCodeGenerator";
 import Login from "./Authentication/Login";
 import AuthPage from "./Authentication/Login";
+import BarcodeGenerator from "./Landing/Services/BarcodeGenerator";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/video" element={<InsideInvoiceVideoTutorials />} />
         <Route path="/gst-calculator" element={<GSTCalculator />} />
         <Route path="/qr-generator" element={<QRCodeGenerator />} />
+        <Route path="/barcode-generator" element={<BarcodeGenerator />} />
       </Routes>
     </>
   );

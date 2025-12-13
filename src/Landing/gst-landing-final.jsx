@@ -832,12 +832,12 @@ export default function GSTBillingLanding() {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#testimonials"
+                  <Link
+                    to="/barcode-generator"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    Reviews
-                  </a>
+                    Barcode Generator
+                  </Link>
                 </li>
                 <li>
                   <Link

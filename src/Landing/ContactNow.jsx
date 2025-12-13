@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InvoiceNav from "./Navigation/InvoiceNav";
 
 export default function ContactNow() {
@@ -30,6 +30,9 @@ export default function ContactNow() {
       message: "",
     });
   };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <>
