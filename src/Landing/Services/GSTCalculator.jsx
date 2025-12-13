@@ -20,6 +20,10 @@ const GSTCalculator = () => {
     sgst: 0,
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Calculation Logic
   useEffect(() => {
     const price = parseFloat(amount) || 0;
@@ -58,22 +62,17 @@ const GSTCalculator = () => {
     }).format(val);
   };
 
-  // Simple Section Component
+  // Simple Section Component - Made Lighter
   const ContentSection = ({ title, children }) => {
     return (
-      <div className="mb-8 border-b border-gray-100 pb-6 last:border-0 hover:bg-white p-6 rounded-2xl transition-all duration-300 hover:shadow-sm">
-        <h3 className="text-xl font-bold text-slate-800 mb-3 font-heading">
+      <div className="mb-6 p-6 rounded-2xl bg-white border border-slate-50 hover:border-slate-100 hover:shadow-lg hover:shadow-slate-50/50 transition-all duration-300">
+        <h3 className="text-lg font-bold text-slate-700 mb-2 font-heading">
           {title}
         </h3>
-        <div className="text-slate-600 leading-relaxed text-sm md:text-base">
-          {children}
-        </div>
+        <div className="text-slate-500 leading-relaxed text-sm">{children}</div>
       </div>
     );
   };
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     <>
@@ -81,53 +80,52 @@ const GSTCalculator = () => {
         scrolled={true}
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
-      />
-      <div className="fixed top-0 left-0 w-full h-20 bg-white/90 backdrop-blur-md z-40 border-b border-gray-100"></div>
-      {/* Injecting Trendy Fonts */}
-
+      />{" "}
+      <div className="fixed top-0 left-0 w-full h-20 bg-white/90 backdrop-blur-md z-40 border-b border-gray-100 "></div>
+      {/* Injecting Fonts */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-          
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
           .font-heading { font-family: 'Outfit', sans-serif; }
           .font-body { font-family: 'Plus Jakarta Sans', sans-serif; }
         `}
       </style>
-
-      <div className="min-h-screen bg-[#F3F6F8] font-body text-slate-800 py-12 px-4 mt-10">
+      {/* Background - Very light gray/slate tint */}
+      <div className="min-h-screen bg-slate-50/50 font-body text-slate-600 py-12 px-4 mt-16">
         <div className="max-w-6xl mx-auto">
           {/* --- CALCULATOR CARD --- */}
-          <div className="bg-white rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] overflow-hidden mb-16 border border-white/50">
-            {/* Header */}
-            <div className="p-8 md:p-10 text-center border-b border-gray-100 bg-white relative">
-              <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-bold tracking-wider uppercase mb-3">
-                Inside Invoice Tool
+          {/* Removed heavy shadow, used distinct border and white bg */}
+          <div className="bg-white rounded-[24px] shadow-xl shadow-slate-200/60 overflow-hidden mb-12 border border-slate-100">
+            {/* Header - Centered and Clean */}
+            <div className="p-8 text-center bg-white">
+              <span className="inline-block py-1 px-3 rounded-full bg-slate-50 text-slate-500 text-[11px] font-bold tracking-wider uppercase mb-3">
+                Free Tool
               </span>
-              <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-                GST Calculator{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                  India
-                </span>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-800 font-heading">
+                GST Calculator
               </h1>
+              <p className="text-slate-400 mt-2 text-sm">
+                Calculate GST for India instantly
+              </p>
             </div>
 
             <div className="flex flex-col lg:flex-row">
               {/* LEFT SIDE: INPUTS */}
-              <div className="p-8 md:p-10 lg:w-3/5 space-y-9">
-                {/* User Type */}
+              <div className="p-8 lg:w-3/5 space-y-8">
+                {/* User Type - Lighter Tabs */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
-                    User Type
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                    I am a
                   </label>
-                  <div className="flex bg-gray-100 p-1.5 rounded-2xl">
+                  <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
                     {["Buyer", "Manufacturer", "Wholesaler"].map((type) => (
                       <button
                         key={type}
                         onClick={() => setUserType(type)}
-                        className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${
+                        className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
                           userType === type
-                            ? "bg-white text-slate-900 shadow-md transform scale-[1.02]"
-                            : "text-slate-500 hover:text-slate-700 hover:bg-gray-200/50"
+                            ? "bg-white text-slate-600 shadow-sm border border-slate-100"
+                            : "text-slate-400 hover:text-slate-600"
                         }`}
                       >
                         {type}
@@ -136,28 +134,28 @@ const GSTCalculator = () => {
                   </div>
                 </div>
 
-                {/* Tax Mode */}
+                {/* Tax Mode - Lighter Buttons */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
-                    Tax Mode
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                    Calculation Mode
                   </label>
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       onClick={() => setCalculationMode("exclusive")}
-                      className={`py-3.5 px-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 ${
+                      className={`py-3 px-4 rounded-xl text-sm font-medium transition-all duration-200 border ${
                         calculationMode === "exclusive"
-                          ? "border-slate-900 bg-slate-900 text-white shadow-lg"
-                          : "border-gray-200 text-slate-500 bg-transparent hover:border-slate-300"
+                          ? "border-slate-500 bg-slate-50 text-slate-600"
+                          : "border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
                       Excluding GST
                     </button>
                     <button
                       onClick={() => setCalculationMode("inclusive")}
-                      className={`py-3.5 px-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 ${
+                      className={`py-3 px-4 rounded-xl text-sm font-medium transition-all duration-200 border ${
                         calculationMode === "inclusive"
-                          ? "border-slate-900 bg-slate-900 text-white shadow-lg"
-                          : "border-gray-200 text-slate-500 bg-transparent hover:border-slate-300"
+                          ? "border-slate-500 bg-slate-50 text-slate-600"
+                          : "border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
                       Including GST
@@ -165,30 +163,30 @@ const GSTCalculator = () => {
                   </div>
                 </div>
 
-                {/* Amount */}
+                {/* Amount - Cleaner Input */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
                     {calculationMode === "exclusive"
-                      ? "Net Price (Pre-Tax)"
-                      : "Gross Price (Total)"}
+                      ? "Net Price"
+                      : "Gross Price"}
                   </label>
                   <div className="relative group">
-                    <span className="absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl font-bold group-focus-within:text-blue-600 transition-colors">
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg font-medium">
                       ₹
                     </span>
                     <input
                       type="number"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full pl-12 pr-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl font-bold text-2xl text-slate-800 focus:border-blue-600 focus:bg-white outline-none transition-all shadow-inner"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl font-semibold text-2xl text-slate-700 focus:border-slate-500 focus:ring-4 focus:ring-slate-500/10 outline-none transition-all"
                       placeholder="0.00"
                     />
                   </div>
                 </div>
 
-                {/* GST Rate */}
+                {/* GST Rate - Softer Buttons */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
                     GST Rate
                   </label>
                   <div className="flex flex-wrap gap-3">
@@ -199,16 +197,16 @@ const GSTCalculator = () => {
                           setTaxRate(rate);
                           setIsCustomRate(false);
                         }}
-                        className={`flex-1 py-3.5 rounded-xl font-bold text-lg border-2 transition-all duration-200 ${
+                        className={`flex-1 py-3 rounded-xl font-semibold text-sm border transition-all duration-200 ${
                           taxRate === rate && !isCustomRate
-                            ? "border-blue-600 bg-blue-50 text-blue-700 shadow-sm"
-                            : "border-gray-200 bg-white text-slate-600 hover:border-slate-300"
+                            ? "border-slate-500 bg-slate-500 text-white shadow-md shadow-slate-500/20"
+                            : "border-slate-200 bg-white text-slate-500 hover:border-slate-200 hover:text-slate-500"
                         }`}
                       >
                         {rate}%
                       </button>
                     ))}
-                    <div className="relative w-24">
+                    <div className="relative w-20">
                       <input
                         type="number"
                         placeholder="%"
@@ -218,10 +216,10 @@ const GSTCalculator = () => {
                           setTaxRate(e.target.value);
                           setIsCustomRate(true);
                         }}
-                        className={`w-full h-full px-2 rounded-xl border-2 text-center font-bold text-lg outline-none transition-all ${
+                        className={`w-full h-full px-2 rounded-xl border text-center font-bold text-sm outline-none transition-all ${
                           isCustomRate
-                            ? "border-blue-600 text-blue-700 bg-blue-50"
-                            : "border-gray-200 text-slate-500 bg-white focus:border-slate-400"
+                            ? "border-slate-500 text-slate-600 bg-slate-50"
+                            : "border-slate-200 text-slate-500 bg-white focus:border-slate-300"
                         }`}
                       />
                     </div>
@@ -229,274 +227,242 @@ const GSTCalculator = () => {
                 </div>
               </div>
 
-              {/* RIGHT SIDE: RESULTS (Dark Theme) */}
-              <div className="bg-[#0F172A] p-8 md:p-10 lg:w-2/5 text-white flex flex-col justify-between relative overflow-hidden">
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
-
-                <div className="relative z-10 space-y-6">
-                  <div>
-                    <p className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1">
-                      Net Amount
+              {/* RIGHT SIDE: RESULTS - LIGHT THEME */}
+              {/* Changed from dark slate/black to soft gray/slate gradient */}
+              <div className="bg-slate-50 border-l border-slate-100 p-8 lg:w-2/5 flex flex-col justify-center relative">
+                <div className="space-y-6">
+                  {/* Top Result */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-1">
+                      Total Tax Amount
                     </p>
-                    <p className="text-2xl font-bold font-heading">
-                      {formatCurrency(results.netPrice)}
-                    </p>
-                  </div>
-
-                  <div className="space-y-4 pt-6 border-t border-slate-700/50">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400 text-sm">
-                        CGST ({parseFloat(taxRate / 2).toFixed(1)}%)
-                      </span>
-                      <span className="font-semibold">
-                        {formatCurrency(results.cgst)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400 text-sm">
-                        SGST ({parseFloat(taxRate / 2).toFixed(1)}%)
-                      </span>
-                      <span className="font-semibold">
-                        {formatCurrency(results.sgst)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
-                    <span className="text-slate-300 font-bold text-sm">
-                      Total Tax
-                    </span>
-                    <span className="text-xl font-bold text-rose-400">
+                    <p className="text-2xl font-bold text-red-500 font-heading">
                       {formatCurrency(results.totalTax)}
-                    </span>
+                    </p>
+                    <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">
+                          CGST ({parseFloat(taxRate / 2)}%)
+                        </span>
+                        <span className="font-medium text-slate-700">
+                          {formatCurrency(results.cgst)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">
+                          SGST ({parseFloat(taxRate / 2)}%)
+                        </span>
+                        <span className="font-medium text-slate-700">
+                          {formatCurrency(results.sgst)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div className="relative z-10 mt-10 pt-8 border-t border-slate-700">
-                  <p className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-2">
-                    Total Payable
-                  </p>
-                  <p className="text-4xl md:text-5xl font-extrabold font-heading text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
-                    {formatCurrency(results.grossPrice)}
-                  </p>
-                  <div className="mt-4 inline-flex items-center gap-2 text-xs text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-full">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    Live Calculation
+                  {/* Final Result */}
+                  <div className="bg-slate-600 p-6 rounded-2xl shadow-lg shadow-slate-500/20 text-white relative overflow-hidden">
+                    {/* Soft glow effect */}
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+
+                    <p className="text-slate-100 text-xs uppercase tracking-wider font-semibold mb-2 relative z-10">
+                      Total Payable Amount
+                    </p>
+                    <p className="text-4xl font-bold font-heading relative z-10">
+                      {formatCurrency(results.grossPrice)}
+                    </p>
+                    <p className="text-slate-200 text-xs mt-2 relative z-10">
+                      {calculationMode === "exclusive"
+                        ? "Base Amount + Tax"
+                        : "Includes all taxes"}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* --- MAIN CONTENT SECTION --- */}
-          <div className="grid lg:grid-cols-12 gap-10">
+          {/* --- CONTENT SECTION (Light & Clean) --- */}
+          <div className="grid lg:grid-cols-12 gap-8">
             {/* Main Article */}
-            <div className="lg:col-span-8 bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
-              <section className="mb-14">
-                <h2 className="text-3xl font-bold text-slate-900 mb-6 font-heading">
+            <div className="lg:col-span-8 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
+              <section className="mb-10">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4 font-heading">
                   What is GST?
                 </h2>
-                <p className="text-slate-600 mb-6 leading-relaxed">
-                  GST has brought to simplifying taxation for service and
-                  commodity businesses. GST is an indirect tax applicable to the
-                  supply of goods and services in India.
+                <p className="text-slate-500 mb-6 leading-relaxed font-light">
+                  GST (Goods and Services Tax) is an indirect tax used in India
+                  on the supply of goods and services. It is a comprehensive,
+                  multistage, destination-based tax.
                 </p>
-                <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100">
-                  <ul className="space-y-4">
-                    <li className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          ></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <strong className="block text-slate-900 font-heading">
-                          Indirect Tax
-                        </strong>
-                        <span className="text-sm text-slate-500">
-                          Collected by intermediary (retail stores) from the
-                          consumer.
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          ></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <strong className="block text-slate-900 font-heading">
-                          Launch Date
-                        </strong>
-                        <span className="text-sm text-slate-500">
-                          Midnight on 1st July 2017 by the President of India.
-                        </span>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </section>
 
-              <section className="mb-14">
-                <h2 className="text-3xl font-bold text-slate-900 mb-6 font-heading">
-                  Benefits of GST
-                </h2>
+                {/* Lighter Info Cards */}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <ContentSection title="Transparency">
-                    GST provides transparency throughout the tax structure.
-                    Centralised registration allows small businesses to file
-                    returns easily.
-                  </ContentSection>
-                  <ContentSection title="Threshold Limits">
-                    Relaxation in threshold limits (exempt under ₹20 lakh) gives
-                    relief to small businesses from lengthy taxation processes.
-                  </ContentSection>
-                  <ContentSection title="Composition Schemes">
-                    Taxpayers under composition schemes benefit by paying only
-                    1% tax on turnover (for turnover up to ₹75 lakh).
-                  </ContentSection>
-                  <ContentSection title="GDP Impact">
-                    GST is expected to positively impact GDP by increasing
-                    competition, boosting exports, and generating employment.
-                  </ContentSection>
+                  <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 flex items-start gap-3">
+                    <div className="bg-white p-2 rounded-full shadow-sm text-slate-500">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-700 text-sm">
+                        One Nation, One Tax
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Replaced multiple indirect taxes like VAT, excise duty,
+                        etc.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 flex items-start gap-3">
+                    <div className="bg-white p-2 rounded-full shadow-sm text-emerald-500">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-700 text-sm">
+                        Easy Compliance
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Online registration and return filing has made it
+                        easier.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </section>
 
-              <section className="mb-14">
-                <h2 className="text-3xl font-bold text-slate-900 mb-6 font-heading">
+              <section className="mb-10">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4 font-heading">
                   GST Rate Slabs
                 </h2>
-                <div className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-3">
                   {[
                     {
                       rate: "5%",
-                      color: "border-l-4 border-emerald-500",
-                      desc: "Sugar, oil, spices, coffee, coal, medicines, railways.",
+                      desc: "Household necessities",
+                      color:
+                        "bg-emerald-50 text-emerald-700 border-emerald-100",
                     },
                     {
                       rate: "12%",
-                      color: "border-l-4 border-blue-500",
-                      desc: "Cell phones, sewing machines, processed foods, construction.",
+                      desc: "Computers, Processed food",
+                      color: "bg-slate-50 text-slate-700 border-slate-100",
                     },
                     {
                       rate: "18%",
-                      color: "border-l-4 border-indigo-500",
-                      desc: "Electronics, pastries, furniture, cameras, IT services.",
+                      desc: "Hair oil, soaps, toothpaste",
+                      color: "bg-indigo-50 text-indigo-700 border-indigo-100",
                     },
                     {
                       rate: "28%",
-                      color: "border-l-4 border-rose-500",
-                      desc: "Automobiles, cement, pan masala, 5-star hotels.",
+                      desc: "Luxury items, automobiles",
+                      color: "bg-rose-50 text-rose-700 border-rose-100",
                     },
                   ].map((slab, i) => (
                     <div
                       key={i}
-                      className={`p-4 bg-gray-50 rounded-r-xl ${slab.color}`}
+                      className={`p-4 rounded-xl border ${slab.color}`}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="font-bold font-heading text-slate-900">
-                          {slab.rate} Slab
-                        </span>
-                        <span className="text-sm text-slate-600">
-                          {slab.desc}
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold font-heading">
+                          {slab.rate}
                         </span>
                       </div>
+                      <p className="text-xs opacity-80 mt-1">{slab.desc}</p>
                     </div>
                   ))}
                 </div>
               </section>
 
               <section>
-                <h2 className="text-3xl font-bold text-slate-900 mb-6 font-heading">
-                  Formulas
+                <h2 className="text-2xl font-bold text-slate-800 mb-4 font-heading">
+                  Calculation Formulas
                 </h2>
-                <div className="bg-slate-900 text-white p-8 rounded-3xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-                  <div className="relative z-10 grid md:grid-cols-2 gap-8">
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                  <div className="grid md:grid-cols-2 gap-8">
                     <div>
-                      <h3 className="font-bold text-lg text-slate-300 mb-3">
-                        Adding GST
-                      </h3>
-                      <code className="block bg-black/30 p-3 rounded-lg text-green-400 font-mono text-sm">
-                        GST = (Cost * Rate) / 100
-                      </code>
+                      <h5 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        To Add GST
+                      </h5>
+                      <p className="font-mono text-sm text-slate-600 bg-white p-3 rounded border border-slate-200">
+                        GST Amount = (Original Cost * GST%) / 100
+                        <br />
+                        Net Price = Original Cost + GST Amount
+                      </p>
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg text-slate-300 mb-3">
-                        Removing GST
-                      </h3>
-                      <code className="block bg-black/30 p-3 rounded-lg text-blue-400 font-mono text-sm">
-                        GST = Cost - [Cost x {`{100/(100+Rate)}`}]
-                      </code>
+                      <h5 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        To Remove GST
+                      </h5>
+                      <p className="font-mono text-sm text-slate-600 bg-white p-3 rounded border border-slate-200">
+                        GST Amount = Original Cost - [Original Cost *{" "}
+                        {`{100 / (100 + GST%)}`}]
+                      </p>
                     </div>
                   </div>
                 </div>
               </section>
             </div>
 
-            {/* Sidebar / FAQ */}
-            <div className="lg:col-span-4 space-y-8">
-              <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 sticky top-8">
-                <h3 className="text-xl font-bold text-slate-900 mb-6 font-heading">
-                  FAQ
+            {/* Sidebar / FAQ - Minimalist */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm sticky top-8">
+                <h3 className="text-lg font-bold text-slate-800 mb-4 font-heading">
+                  Frequently Asked Questions
                 </h3>
-                <div className="space-y-4">
+                <div className="divide-y divide-slate-100">
                   {[
                     {
-                      q: "How is GST calculated?",
-                      a: "Multiply the GST rate with the taxable amount. GST = (Cost * Rate) / 100.",
+                      q: "Who needs to pay GST?",
+                      a: "Businesses with turnover exceeding Rs. 40 lakhs (Rs. 10 lakhs for NE states) must register.",
                     },
                     {
-                      q: "What are the 3 types of GST?",
-                      a: "CGST (Central), SGST (State), and IGST (Integrated).",
-                    },
-                    {
-                      q: "Who pays GST?",
-                      a: "The consumer bears the cost, but the supplier collects and pays it to the government.",
+                      q: "What is ITC?",
+                      a: "Input Tax Credit means claiming the credit of the GST paid on purchase of Goods and Services.",
                     },
                   ].map((faq, index) => (
-                    <details key={index} className="group">
-                      <summary className="flex justify-between items-center font-bold text-slate-700 cursor-pointer list-none py-3 hover:text-blue-600 transition-colors">
-                        <span className="text-sm">{faq.q}</span>
-                        <span className="transform transition-transform duration-200 group-open:rotate-180 text-slate-400">
+                    <details key={index} className="group py-4">
+                      <summary className="flex justify-between items-center font-medium text-slate-700 cursor-pointer list-none text-sm hover:text-slate-600">
+                        <span>{faq.q}</span>
+                        <span className="text-slate-400 transition-transform group-open:rotate-180">
                           <svg
                             fill="none"
-                            height="12"
-                            width="12"
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
+                            width="10"
+                            height="10"
                             viewBox="0 0 24 24"
+                            stroke="currentColor"
                           >
-                            <path d="M6 9l6 6 6-6"></path>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            ></path>
                           </svg>
                         </span>
                       </summary>
-                      <div className="text-slate-500 text-sm leading-relaxed pb-3">
+                      <div className="text-slate-500 text-xs leading-relaxed mt-2 pl-2 border-l-2 border-slate-100">
                         {faq.a}
                       </div>
                     </details>
@@ -506,9 +472,8 @@ const GSTCalculator = () => {
             </div>
           </div>
 
-          {/* --- FOOTER --- */}
           <footer className="mt-16 border-t border-slate-200 pt-8 pb-4 text-center">
-            <p className="text-slate-500 text-sm font-medium">
+            <p className="text-slate-400 text-xs font-medium">
               © {year} Inside Invoice by 2X+1. All rights reserved.
             </p>
           </footer>

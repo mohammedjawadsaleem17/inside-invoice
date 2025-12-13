@@ -103,6 +103,9 @@ export default function AuthPage() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

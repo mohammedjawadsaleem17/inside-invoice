@@ -531,7 +531,8 @@ const QRCodeGenerator = () => {
         {/* Footer / Contact Placeholder */}
         <div className="mt-16 border-t pt-8 text-center text-sm text-gray-500">
           <p>
-            Copyright © {new Date().getFullYear()} Inside Invoice Apps Pvt. Ltd.
+            Copyright © {new Date().getFullYear()} Inside Invoice by 2X+1. All
+            rights reserved.
           </p>
         </div>
       </div>
