@@ -8,6 +8,7 @@ import ContactNow from "./Landing/ContactNow";
 import Documentation from "./Landing/Documentation";
 import InsideInvoiceHelpCenter from "./Landing/InsideInvoiceHelpCenter";
 import InsideInvoiceVideoTutorials from "./Landing/InsideInvoiceVideoTutorials";
+import GSTCalculator from "./Landing/Services/GSTCalculator";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/documentation" element={<Documentation />} />
         <Route path="/help" element={<InsideInvoiceHelpCenter />} />
         <Route path="/video" element={<InsideInvoiceVideoTutorials />} />
+        <Route path="/gst-calculator" element={<GSTCalculator />} />
       </Routes>
     </>
   );

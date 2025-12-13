@@ -349,7 +349,7 @@ export default function GSTBillingLanding() {
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <button className="px-8 py-4 glass-effect text-slate-700 rounded-xl hover:shadow-xl transition-all duration-300 font-bold text-lg border border-slate-200">
-                  Watch Demo
+                  Start Acceleration
                 </button>
               </div>
 
@@ -979,12 +979,12 @@ export default function GSTBillingLanding() {
               <h4 className="text-white font-black mb-4">Product</h4>
               <ul className="space-y-2 text-sm font-medium">
                 <li>
-                  <a
-                    href="#features"
+                  <Link
+                    to="/gst-calculator"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    Features
-                  </a>
+                    GST Calculator
+                  </Link>
                 </li>
                 <li>
                   <a
