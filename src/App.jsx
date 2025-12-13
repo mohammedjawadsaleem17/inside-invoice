@@ -9,6 +9,7 @@ import Documentation from "./Landing/Documentation";
 import InsideInvoiceHelpCenter from "./Landing/InsideInvoiceHelpCenter";
 import InsideInvoiceVideoTutorials from "./Landing/InsideInvoiceVideoTutorials";
 import GSTCalculator from "./Landing/Services/GSTCalculator";
+import QRCodeGenerator from "./Landing/Services/QRCodeGenerator";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/help" element={<InsideInvoiceHelpCenter />} />
         <Route path="/video" element={<InsideInvoiceVideoTutorials />} />
         <Route path="/gst-calculator" element={<GSTCalculator />} />
+        <Route path="/qr-generator" element={<QRCodeGenerator />} />
       </Routes>
     </>
   );

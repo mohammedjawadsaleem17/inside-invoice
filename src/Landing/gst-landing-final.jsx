@@ -842,12 +842,12 @@ export default function GSTBillingLanding() {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#tracking"
+                  <Link
+                    to="/qr-generator"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    Invoice Tracking
-                  </a>
+                    QR Code Generator
+                  </Link>
                 </li>
                 <li>
                   <a

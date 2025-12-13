@@ -11,7 +11,7 @@ export default function Documentation() {
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
       />
-      <div className="fixed top-0 left-0 w-full h-20 bg-white/90 backdrop-blur-md z-40 border-b border-gray-100"></div>
+      <div className="fixed top-0 left-0 w-full h-20 bg-white/90 backdrop-blur-md z-40 border-b border-gray-100 "></div>
       <div className="max-w-5xl mx-auto px-6 pt-28 pb-10 text-slate-800 w-full">
         <h1 className="text-3xl font-bold mb-6">
           📘 Inside Invoice Documentation
