@@ -807,13 +807,13 @@ export default function GSTBillingLanding() {
                 </div>
               </div>
               <p className="text-gray-400 text-sm font-normal">
-                Built with ❤️ for Indian small businesses. Making GST billing
+                Built with 💜 for Indian small businesses. Making GST billing
                 simple and beautiful.
               </p>
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-3">Product</h4>
+              <h4 className="text-white font-bold mb-3">Products</h4>
               <ul className="space-y-2 text-sm font-normal">
                 <li>
                   <Link
@@ -841,10 +841,10 @@ export default function GSTBillingLanding() {
                 </li>
                 <li>
                   <Link
-                    to="/updates"
+                    to="/business-card"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    Updates
+                    Business Card
                   </Link>
                 </li>
               </ul>

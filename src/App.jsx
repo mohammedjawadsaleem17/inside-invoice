@@ -13,6 +13,7 @@ import QRCodeGenerator from "./Landing/Services/QRCodeGenerator";
 import Login from "./Authentication/Login";
 import AuthPage from "./Authentication/Login";
 import BarcodeGenerator from "./Landing/Services/BarcodeGenerator";
+import BusinessCardMaker from "./Landing/Services/BusinessCardMaker";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/gst-calculator" element={<GSTCalculator />} />
         <Route path="/qr-generator" element={<QRCodeGenerator />} />
         <Route path="/barcode-generator" element={<BarcodeGenerator />} />
+        <Route path="/business-card" element={<BusinessCardMaker />} />
       </Routes>
     </>
   );
