@@ -970,8 +970,9 @@ export default function GSTBillingLanding() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://github.com/insideinvoice"
                 className="text-gray-400 hover:text-slate-400 transition-colors"
+                target="_blank"
               >
                 <svg
                   className="w-5 h-5"

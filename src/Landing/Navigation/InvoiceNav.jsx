@@ -78,19 +78,6 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <a
-              href="#features"
-              className="text-slate-700 hover:text-slate-900 transition-colors font-semibold"
-            >
-              Features
-            </a>
-            <a
-              href="#tracking"
-              className="text-slate-700 hover:text-slate-900 transition-colors font-semibold"
-            >
-              Tracking
-            </a>
-
             <Link
               to="/contact"
               className="text-slate-700 hover:text-slate-900 transition-colors font-semibold"
@@ -124,24 +111,6 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 glass-effect rounded-b-2xl shadow-xl">
-            <a
-              href="#features"
-              className="block px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
-            >
-              Features
-            </a>
-            <a
-              href="#tracking"
-              className="block px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
-            >
-              Tracking
-            </a>
-            <a
-              href="#testimonials"
-              className="block px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
-            >
-              Reviews
-            </a>
             <Link
               to="/contact"
               className="block px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
