@@ -127,9 +127,11 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
               Login
             </Link>
             <div className="px-4 pt-3">
-              <button className="w-full px-6 py-2.5 bg-gradient-to-r from-slate-700 to-gray-800 text-white rounded-xl font-bold">
-                Try Now →
-              </button>
+              <Link to="/signup">
+                <button className="w-full px-6 py-2.5 bg-gradient-to-r from-slate-700 to-gray-800 text-white rounded-xl font-bold">
+                  Try Now →
+                </button>
+              </Link>
             </div>
           </div>
         )}
