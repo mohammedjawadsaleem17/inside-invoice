@@ -10,12 +10,18 @@ import InsideInvoiceHelpCenter from "./Landing/InsideInvoiceHelpCenter";
 import InsideInvoiceVideoTutorials from "./Landing/InsideInvoiceVideoTutorials";
 import GSTCalculator from "./Landing/Services/GSTCalculator";
 import QRCodeGenerator from "./Landing/Services/QRCodeGenerator";
+import Login from "./Authentication/Login";
+import AuthPage from "./Authentication/Login";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<GSTBillingLanding />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/signup" element={<AuthPage />} />
+        <Route path="/forgot-password" element={<AuthPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-condition" element={<TermsandConditions />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />

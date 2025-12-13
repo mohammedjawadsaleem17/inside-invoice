@@ -85,7 +85,6 @@ export default function GSTBillingLanding() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Auto-advance carousel
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
@@ -106,11 +105,10 @@ export default function GSTBillingLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-        import Navigation from './Navigation/Navigation';
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+        
         * {
-          font-family: 'Outfit', sans-serif;
+          font-family: 'Inter', sans-serif;
         }
         
         h1, h2, h3, .logo-text {
@@ -149,9 +147,9 @@ export default function GSTBillingLanding() {
         }
 
         .glass-effect {
-          background: rgba(255, 255, 255, 0.7);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .carousel-slide {
@@ -182,162 +180,160 @@ export default function GSTBillingLanding() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-bold text-slate-700 border border-slate-200">
+              <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 border border-slate-200">
                 <Sparkles className="w-4 h-4" />
                 Built for Indian Small Businesses
               </div>
 
-              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 leading-tight">
+              <h1 className="text-4xl lg:text-6xl font-bold text-slate-900 leading-tight">
                 GST Billing <span className="gradient-text">Made Simple</span>{" "}
                 for India
               </h1>
 
-              <p className="text-xl text-slate-600 leading-relaxed font-medium">
+              <p className="text-lg text-slate-600 leading-relaxed font-normal">
                 Your all-in-one web platform for GST-compliant invoicing,
                 inventory tracking, and business management. Built with love for
                 Indian entrepreneurs who want to focus on growth, not paperwork.
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <button className="px-8 py-4 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800 text-white rounded-xl hover:shadow-2xl hover:shadow-slate-500/50 hover:scale-105 transition-all duration-300 font-bold text-lg flex items-center gap-2">
-                  Try Now - It's FREE
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-                <button className="px-8 py-4 glass-effect text-slate-700 rounded-xl hover:shadow-xl transition-all duration-300 font-bold text-lg border border-slate-200">
+                <Link to="/signup">
+                  <button className="px-7 py-3 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800 text-white rounded-lg hover:shadow-lg hover:shadow-slate-500/30 hover:scale-[1.02] transition-all duration-200 font-medium text-base flex items-center gap-2">
+                    Try Now - It's FREE
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </Link>
+                <button className="px-7 py-3 glass-effect text-slate-700 rounded-lg hover:shadow-lg transition-all duration-200 font-medium text-base border border-slate-200">
                   Start Acceleration
                 </button>
               </div>
 
               <div className="grid grid-cols-3 gap-6 pt-6">
                 <div className="text-center">
-                  <div className="text-3xl font-black gradient-text">100%</div>
-                  <div className="text-sm text-slate-600 mt-1 font-semibold">
+                  <div className="text-2xl font-bold gradient-text">100%</div>
+                  <div className="text-xs text-slate-600 mt-1 font-medium">
                     Web-Based
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-black gradient-text">Free</div>
-                  <div className="text-sm text-slate-600 mt-1 font-semibold">
+                  <div className="text-2xl font-bold gradient-text">Free</div>
+                  <div className="text-xs text-slate-600 mt-1 font-medium">
                     Forever Plan
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-black gradient-text">24/7</div>
-                  <div className="text-sm text-slate-600 mt-1 font-semibold">
+                  <div className="text-2xl font-bold gradient-text">24/7</div>
+                  <div className="text-xs text-slate-600 mt-1 font-medium">
                     Access
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Invoice Preview - Keep original colors */}
+            {/* Invoice Preview */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-violet-600 rounded-3xl transform rotate-6 opacity-20 blur-xl"></div>
-              <div className="relative glass-effect rounded-3xl p-8 shadow-2xl border-2 border-white invoice-float">
-                {/* Invoice Header */}
-                <div className="flex justify-between items-start mb-6">
+              <div className="relative glass-effect rounded-2xl p-6 shadow-xl border border-white invoice-float">
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <div className="text-2xl font-black gradient-text mb-1">
+                    <div className="text-xl font-bold gradient-text mb-1">
                       TAX INVOICE
                     </div>
-                    <div className="text-sm text-gray-600 font-semibold">
+                    <div className="text-xs text-gray-600 font-medium">
                       Invoice #INV-2024-001
                     </div>
                   </div>
-                  <div className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-bold text-sm">
+                  <div className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium text-xs">
                     PAID
                   </div>
                 </div>
 
-                {/* Business Details */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 mb-4 border border-blue-200">
-                  <div className="font-bold text-gray-900 mb-2">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 mb-3 border border-blue-200">
+                  <div className="font-medium text-gray-900 mb-1.5 text-sm">
                     ABC Enterprises Pvt Ltd
                   </div>
-                  <div className="text-sm text-gray-600 space-y-1">
+                  <div className="text-xs text-gray-600 space-y-0.5">
                     <div>123 Business Street, Mumbai</div>
-                    <div className="font-semibold text-blue-700">
+                    <div className="font-medium text-blue-700">
                       GSTIN: 27AABCU9603R1ZX
                     </div>
                   </div>
                 </div>
 
-                {/* Invoice Items */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex justify-between items-center p-3 bg-white/50 rounded-lg border border-gray-200">
+                <div className="space-y-2 mb-3">
+                  <div className="flex justify-between items-center p-2.5 bg-white/50 rounded-lg border border-gray-200">
                     <div>
-                      <div className="font-bold text-gray-900">
+                      <div className="font-medium text-gray-900 text-sm">
                         Product Name
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-[10px] text-gray-600">
                         Qty: 2 × ₹1,000
                       </div>
                     </div>
-                    <div className="font-bold text-gray-900">₹2,000</div>
+                    <div className="font-medium text-gray-900 text-sm">
+                      ₹2,000
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-white/50 rounded-lg border border-gray-200">
+                  <div className="flex justify-between items-center p-2.5 bg-white/50 rounded-lg border border-gray-200">
                     <div>
-                      <div className="font-bold text-gray-900">
+                      <div className="font-medium text-gray-900 text-sm">
                         Service Charges
                       </div>
-                      <div className="text-xs text-gray-600">Qty: 1 × ₹500</div>
+                      <div className="text-[10px] text-gray-600">
+                        Qty: 1 × ₹500
+                      </div>
                     </div>
-                    <div className="font-bold text-gray-900">₹500</div>
+                    <div className="font-medium text-gray-900 text-sm">
+                      ₹500
+                    </div>
                   </div>
                 </div>
 
-                {/* Tax Calculation */}
-                <div className="border-t-2 border-dashed border-gray-300 pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 font-semibold">
-                      Subtotal
-                    </span>
-                    <span className="font-bold">₹2,500</span>
+                <div className="border-t border-dashed border-gray-300 pt-3 space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600 font-medium">Subtotal</span>
+                    <span className="font-medium">₹2,500</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 font-semibold">
-                      CGST (9%)
-                    </span>
-                    <span className="font-bold">₹225</span>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600 font-medium">CGST (9%)</span>
+                    <span className="font-medium">₹225</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 font-semibold">
-                      SGST (9%)
-                    </span>
-                    <span className="font-bold">₹225</span>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600 font-medium">SGST (9%)</span>
+                    <span className="font-medium">₹225</span>
                   </div>
-                  <div className="flex justify-between pt-3 border-t border-gray-300">
-                    <span className="font-black text-lg gradient-text">
+                  <div className="flex justify-between pt-2 border-t border-gray-300">
+                    <span className="font-bold text-sm gradient-text">
                       TOTAL
                     </span>
-                    <span className="font-black text-2xl gradient-text">
+                    <span className="font-bold text-lg gradient-text">
                       ₹2,950
                     </span>
                   </div>
                 </div>
 
-                {/* QR Code Placeholder */}
-                <div className="mt-6 flex items-center gap-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-200 to-violet-200 rounded-lg flex items-center justify-center">
-                    <div className="text-xs font-bold text-blue-700">
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-200 to-violet-200 rounded-lg flex items-center justify-center">
+                    <div className="text-[10px] font-medium text-blue-700">
                       QR Code
                     </div>
                   </div>
-                  <div className="text-xs text-gray-600 font-medium">
+                  <div className="text-[10px] text-gray-600 font-normal">
                     Scan to verify invoice authenticity
                   </div>
                 </div>
               </div>
 
-              {/* Floating Badge */}
-              <div className="absolute -bottom-6 -left-6 glass-effect rounded-2xl shadow-xl p-4 border-2 border-white">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                    <Check className="w-7 h-7 text-white" strokeWidth={3} />
+              <div className="absolute -bottom-4 -left-4 glass-effect rounded-xl shadow-lg p-3 border border-white">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                    <Check className="w-5 h-5 text-white" strokeWidth={2.5} />
                   </div>
                   <div>
-                    <div className="font-black text-gray-900">GST Ready</div>
-                    <div className="text-sm text-gray-600 font-semibold">
+                    <div className="font-bold text-gray-900 text-sm">
+                      GST Ready
+                    </div>
+                    <div className="text-xs text-gray-600 font-normal">
                       100% Compliant
                     </div>
                   </div>
@@ -352,58 +348,58 @@ export default function GSTBillingLanding() {
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-bold text-slate-700 mb-6 border border-slate-200">
+            <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
               <Zap className="w-4 h-4" />
               Powerful Features
             </div>
-            <h2 className="text-4xl lg:text-6xl font-black text-slate-900 mb-4">
+            <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-3">
               Everything You Need in{" "}
               <span className="gradient-text">One Place</span>
             </h2>
-            <p className="text-xl text-slate-600 font-medium">
+            <p className="text-lg text-slate-600 font-normal">
               Built for the modern Indian business owner
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: <Receipt className="w-8 h-8" />,
+                icon: <Receipt className="w-6 h-6" />,
                 color: "from-slate-500 to-gray-600",
                 title: "GST Invoice Generation",
                 description:
                   "Create professional GST-compliant invoices in seconds. Supports all invoice types and formats with automatic calculations.",
               },
               {
-                icon: <Package className="w-8 h-8" />,
+                icon: <Package className="w-6 h-6" />,
                 color: "from-gray-500 to-slate-600",
                 title: "Inventory Management",
                 description:
                   "Track stock levels in real-time. Get low stock alerts and manage your products effortlessly.",
               },
               {
-                icon: <BarChart3 className="w-8 h-8" />,
+                icon: <BarChart3 className="w-6 h-6" />,
                 color: "from-slate-600 to-gray-700",
                 title: "Smart GST Calculation",
                 description:
                   "Automatic GST calculation with real-time updates. Supports CGST, SGST, IGST, and all tax scenarios.",
               },
               {
-                icon: <Users className="w-8 h-8" />,
+                icon: <Users className="w-6 h-6" />,
                 color: "from-gray-600 to-slate-700",
                 title: "Customer Management",
                 description:
                   "Keep track of all your customers, their purchase history, and payment status in one dashboard.",
               },
               {
-                icon: <CreditCard className="w-8 h-8" />,
+                icon: <CreditCard className="w-6 h-6" />,
                 color: "from-slate-500 to-gray-600",
                 title: "Payment Tracking",
                 description:
                   "Track payments, send reminders, and reconcile accounts automatically. Never miss a payment.",
               },
               {
-                icon: <TrendingUp className="w-8 h-8" />,
+                icon: <TrendingUp className="w-6 h-6" />,
                 color: "from-gray-500 to-slate-600",
                 title: "Business Analytics",
                 description:
@@ -412,17 +408,17 @@ export default function GSTBillingLanding() {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="group glass-effect rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-white hover:scale-105 cursor-pointer"
+                className="group glass-effect rounded-xl p-6 hover:shadow-lg transition-all duration-200 border border-white hover:scale-[1.02] cursor-pointer"
               >
                 <div
-                  className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}
+                  className={`w-12 h-12 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-105 group-hover:rotate-3 transition-all duration-200 shadow-md`}
                 >
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mb-3">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-slate-600 leading-relaxed font-medium">
+                <p className="text-slate-600 leading-relaxed font-normal text-sm">
                   {feature.description}
                 </p>
               </div>
@@ -438,90 +434,85 @@ export default function GSTBillingLanding() {
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-bold text-slate-700 mb-6 border border-slate-200">
+            <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
               <BarChart3 className="w-4 h-4" />
               Invoice Analytics
             </div>
-            <h2 className="text-4xl lg:text-6xl font-black text-slate-900 mb-4">
+            <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-3">
               Track Every <span className="gradient-text">Invoice</span> in
               Real-Time
             </h2>
-            <p className="text-xl text-slate-600 font-medium">
+            <p className="text-lg text-slate-600 font-normal">
               Powerful insights to help you manage your business better
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Left side - Stats and Info */}
-            <div className="space-y-6">
-              <div className="glass-effect rounded-2xl p-8 border-2 border-white shadow-xl">
-                <h3 className="text-2xl font-black text-slate-900 mb-6">
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="space-y-5">
+              <div className="glass-effect rounded-xl p-6 border border-white shadow-lg">
+                <h3 className="text-xl font-bold text-slate-900 mb-5">
                   Invoice Dashboard
                 </h3>
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                        <Check className="w-6 h-6 text-white" />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                        <Check className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <div className="text-sm text-slate-600 font-semibold">
+                        <div className="text-xs text-slate-600 font-medium">
                           Paid Invoices
                         </div>
-                        <div className="text-2xl font-black text-slate-900">
+                        <div className="text-lg font-bold text-slate-900">
                           ₹2,45,000
                         </div>
                       </div>
                     </div>
-                    <div className="text-green-600 font-black text-3xl">
-                      156
-                    </div>
+                    <div className="text-green-600 font-bold text-2xl">156</div>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-yellow-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
-                        <Clock className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <div className="text-sm text-slate-600 font-semibold">
+                        <div className="text-xs text-slate-600 font-medium">
                           Pending Invoices
                         </div>
-                        <div className="text-2xl font-black text-slate-900">
+                        <div className="text-lg font-bold text-slate-900">
                           ₹45,000
                         </div>
                       </div>
                     </div>
-                    <div className="text-orange-600 font-black text-3xl">
-                      23
-                    </div>
+                    <div className="text-orange-600 font-bold text-2xl">23</div>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-rose-50 rounded-xl border-2 border-red-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-500 rounded-xl flex items-center justify-center">
-                        <X className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-rose-50 rounded-lg border border-red-200">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-500 rounded-lg flex items-center justify-center">
+                        <X className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <div className="text-sm text-slate-600 font-semibold">
+                        <div className="text-xs text-slate-600 font-medium">
                           Overdue Invoices
                         </div>
-                        <div className="text-2xl font-black text-slate-900">
+                        <div className="text-lg font-bold text-slate-900">
                           ₹12,000
                         </div>
                       </div>
                     </div>
-                    <div className="text-red-600 font-black text-3xl">8</div>
+                    <div className="text-red-600 font-bold text-2xl">8</div>
                   </div>
                 </div>
               </div>
 
-              <div className="glass-effect rounded-2xl p-8 border-2 border-white shadow-xl">
-                <h3 className="text-xl font-black text-slate-900 mb-4">
+              <div className="glass-effect rounded-xl p-6 border border-white shadow-lg">
+                <h3 className="text-lg font-bold text-slate-900 mb-3">
                   Key Benefits
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {[
                     "Real-time invoice status tracking",
                     "Automated payment reminders",
@@ -529,11 +520,14 @@ export default function GSTBillingLanding() {
                     "Export data to Excel/PDF",
                     "Filter by date, customer, status",
                   ].map((benefit, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="w-5 h-5 bg-gradient-to-br from-slate-500 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                    <div key={i} className="flex items-center gap-2.5">
+                      <div className="w-4 h-4 bg-gradient-to-br from-slate-500 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check
+                          className="w-2.5 h-2.5 text-white"
+                          strokeWidth={3}
+                        />
                       </div>
-                      <span className="text-slate-700 font-medium">
+                      <span className="text-slate-700 font-normal text-sm">
                         {benefit}
                       </span>
                     </div>
@@ -542,19 +536,17 @@ export default function GSTBillingLanding() {
               </div>
             </div>
 
-            {/* Right side - Graph */}
-            <div className="glass-effect rounded-2xl p-8 border-2 border-white shadow-xl">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-black text-slate-900">
+            <div className="glass-effect rounded-xl p-6 border border-white shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-slate-900">
                   Monthly Revenue
                 </h3>
-                <div className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-bold text-sm">
+                <div className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium text-xs">
                   ↑ 23% Growth
                 </div>
               </div>
 
-              {/* Bar Chart */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {[
                   { month: "Jan", amount: 45000, percentage: 60 },
                   { month: "Feb", amount: 52000, percentage: 70 },
@@ -563,21 +555,21 @@ export default function GSTBillingLanding() {
                   { month: "May", amount: 72000, percentage: 95 },
                   { month: "Jun", amount: 85000, percentage: 100 },
                 ].map((data, i) => (
-                  <div key={i} className="space-y-2">
+                  <div key={i} className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-slate-700">
+                      <span className="text-xs font-medium text-slate-700">
                         {data.month}
                       </span>
-                      <span className="text-sm font-black gradient-text">
+                      <span className="text-xs font-bold gradient-text">
                         ₹{data.amount.toLocaleString()}
                       </span>
                     </div>
-                    <div className="relative h-8 bg-gray-100 rounded-lg overflow-hidden">
+                    <div className="relative h-6 bg-gray-100 rounded-lg overflow-hidden">
                       <div
                         className="absolute inset-y-0 left-0 bg-gradient-to-r from-slate-600 via-gray-600 to-slate-700 rounded-lg transition-all duration-1000 flex items-center justify-end pr-2"
                         style={{ width: `${data.percentage}%` }}
                       >
-                        <span className="text-white text-xs font-bold">
+                        <span className="text-white text-[10px] font-medium">
                           {data.percentage}%
                         </span>
                       </div>
@@ -586,24 +578,19 @@ export default function GSTBillingLanding() {
                 ))}
               </div>
 
-              {/* Summary */}
-              <div className="mt-8 pt-8 border-t-2 border-gray-200">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl border-2 border-slate-200">
-                    <div className="text-sm text-slate-600 font-semibold">
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-gradient-to-br from-slate-50 to-gray-100 rounded-lg border border-slate-200">
+                    <div className="text-xs text-slate-600 font-medium">
                       Total Generated
                     </div>
-                    <div className="text-2xl font-black gradient-text">
-                      ₹3.6L
-                    </div>
+                    <div className="text-xl font-bold gradient-text">₹3.6L</div>
                   </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-gray-50 to-slate-100 rounded-xl border-2 border-gray-200">
-                    <div className="text-sm text-slate-600 font-semibold">
+                  <div className="text-center p-3 bg-gradient-to-br from-gray-50 to-slate-100 rounded-lg border border-gray-200">
+                    <div className="text-xs text-slate-600 font-medium">
                       Avg. Invoice
                     </div>
-                    <div className="text-2xl font-black gradient-text">
-                      ₹60K
-                    </div>
+                    <div className="text-xl font-bold gradient-text">₹60K</div>
                   </div>
                 </div>
               </div>
@@ -619,19 +606,18 @@ export default function GSTBillingLanding() {
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-bold text-slate-700 mb-6 border border-slate-200">
+            <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
               <Star className="w-4 h-4 fill-slate-600" />
               Customer Reviews
             </div>
-            <h2 className="text-4xl lg:text-6xl font-black text-slate-900 mb-4">
+            <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-3">
               Loved by <span className="gradient-text">Business Owners</span>
             </h2>
-            <p className="text-xl text-slate-600 font-medium">
+            <p className="text-lg text-slate-600 font-normal">
               See what our customers have to say
             </p>
           </div>
 
-          {/* Carousel */}
           <div className="relative max-w-4xl mx-auto">
             <div className="relative overflow-hidden">
               {testimonials.map((testimonial, index) => (
@@ -644,33 +630,33 @@ export default function GSTBillingLanding() {
                     display: index === currentTestimonial ? "block" : "none",
                   }}
                 >
-                  <div className="glass-effect rounded-3xl p-12 border-2 border-slate-200 shadow-2xl">
-                    <div className="flex items-center gap-2 mb-6 justify-center">
+                  <div className="glass-effect rounded-2xl p-10 border border-slate-200 shadow-xl">
+                    <div className="flex items-center gap-1.5 mb-5 justify-center">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <Star
                           key={i}
-                          className="w-8 h-8 fill-yellow-400 text-yellow-400"
+                          className="w-6 h-6 fill-yellow-400 text-yellow-400"
                         />
                       ))}
                     </div>
-                    <Quote className="w-16 h-16 text-slate-200 mb-6 mx-auto" />
-                    <p className="text-2xl text-slate-700 leading-relaxed mb-8 font-medium text-center">
+                    <Quote className="w-12 h-12 text-slate-200 mb-5 mx-auto" />
+                    <p className="text-xl text-slate-700 leading-relaxed mb-6 font-normal text-center">
                       "{testimonial.text}"
                     </p>
-                    <div className="flex items-center justify-center gap-4">
+                    <div className="flex items-center justify-center gap-3">
                       <div
-                        className={`w-20 h-20 bg-gradient-to-br ${testimonial.gradient} rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg`}
+                        className={`w-16 h-16 bg-gradient-to-br ${testimonial.gradient} rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md`}
                       >
                         {testimonial.initials}
                       </div>
                       <div className="text-left">
-                        <div className="font-black text-slate-900 text-xl">
+                        <div className="font-bold text-slate-900 text-lg">
                           {testimonial.name}
                         </div>
-                        <div className="text-slate-600 font-bold">
+                        <div className="text-slate-600 font-medium text-sm">
                           {testimonial.business}
                         </div>
-                        <div className="text-sm text-slate-500">
+                        <div className="text-xs text-slate-500">
                           {testimonial.location}
                         </div>
                       </div>
@@ -680,29 +666,27 @@ export default function GSTBillingLanding() {
               ))}
             </div>
 
-            {/* Navigation Arrows */}
             <button
               onClick={prevTestimonial}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-14 h-14 bg-white rounded-full shadow-xl flex items-center justify-center hover:bg-slate-50 transition-colors border-2 border-slate-200"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-slate-50 transition-colors border border-slate-200"
             >
-              <ChevronLeft className="w-8 h-8 text-slate-700" />
+              <ChevronLeft className="w-6 h-6 text-slate-700" />
             </button>
             <button
               onClick={nextTestimonial}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-14 h-14 bg-white rounded-full shadow-xl flex items-center justify-center hover:bg-slate-50 transition-colors border-2 border-slate-200"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-slate-50 transition-colors border border-slate-200"
             >
-              <ChevronRight className="w-8 h-8 text-slate-700" />
+              <ChevronRight className="w-6 h-6 text-slate-700" />
             </button>
 
-            {/* Dots Indicator */}
-            <div className="flex justify-center gap-2 mt-8">
+            <div className="flex justify-center gap-2 mt-6">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     index === currentTestimonial
-                      ? "bg-slate-700 w-8"
+                      ? "bg-slate-700 w-6"
                       : "bg-slate-300 hover:bg-slate-400"
                   }`}
                 />
@@ -721,47 +705,45 @@ export default function GSTBillingLanding() {
         </div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-bold text-white mb-6 border border-white/30">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium text-white mb-6 border border-white/30">
             <Sparkles className="w-4 h-4" />
             Start Your Journey
           </div>
 
-          <h2 className="text-4xl lg:text-6xl font-black text-white mb-6">
+          <h2 className="text-3xl lg:text-5xl font-bold text-white mb-5">
             Ready to Transform Your Business?
           </h2>
-          <p className="text-xl text-slate-200 mb-8 font-medium">
+          <p className="text-lg text-slate-200 mb-8 font-normal">
             Join hundreds of Indian businesses already using Inside Invoice to
             streamline their operations
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="px-10 py-4 bg-white text-slate-700 rounded-xl hover:bg-slate-50 transition-all duration-300 font-black text-lg shadow-2xl hover:scale-105 hover:shadow-white/50">
+            <button className="px-8 py-3 bg-white text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-medium text-base shadow-xl hover:scale-[1.02]">
               Try Now - Free Forever →
             </button>
-            <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl hover:bg-white hover:text-slate-700 transition-all duration-300 font-black text-lg hover:scale-105">
+            <button className="px-8 py-3 bg-transparent text-white border border-white rounded-lg hover:bg-white hover:text-slate-700 transition-all duration-200 font-medium text-base hover:scale-[1.02]">
               Watch Demo
             </button>
           </div>
 
           <div className="mt-12 flex items-center justify-center gap-8 text-white">
             <div className="text-center">
-              <div className="text-3xl font-black">100%</div>
-              <div className="text-sm text-slate-200 font-semibold">
+              <div className="text-2xl font-bold">100%</div>
+              <div className="text-xs text-slate-200 font-medium">
                 Web-Based
               </div>
             </div>
-            <div className="w-px h-12 bg-white/30"></div>
+            <div className="w-px h-10 bg-white/30"></div>
             <div className="text-center">
-              <div className="text-3xl font-black">Free</div>
-              <div className="text-sm text-slate-200 font-semibold">
+              <div className="text-2xl font-bold">Free</div>
+              <div className="text-xs text-slate-200 font-medium">
                 Forever Plan
               </div>
             </div>
-            <div className="w-px h-12 bg-white/30"></div>
+            <div className="w-px h-10 bg-white/30"></div>
             <div className="text-center">
-              <div className="text-3xl font-black">24/7</div>
-              <div className="text-sm text-slate-200 font-semibold">
-                Support
-              </div>
+              <div className="text-2xl font-bold">24/7</div>
+              <div className="text-xs text-slate-200 font-medium">Support</div>
             </div>
           </div>
         </div>
@@ -772,12 +754,8 @@ export default function GSTBillingLanding() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-slate-700 via-gray-700 to-slate-900 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-                  <div className="absolute inset-0">
-                    <div className="absolute top-0 right-0 w-4 h-4 bg-white opacity-5 rounded-bl-full"></div>
-                    <div className="absolute bottom-0 left-0 w-5 h-5 bg-white opacity-5 rounded-tr-full"></div>
-                  </div>
+              <div className="flex items-center space-x-2.5 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-slate-700 via-gray-700 to-slate-900 rounded-xl flex items-center justify-center shadow-md">
                   <svg
                     width="24"
                     height="24"
@@ -813,10 +791,10 @@ export default function GSTBillingLanding() {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-xl font-black text-white logo-text">
+                  <span className="text-lg font-bold text-white logo-text">
                     Inside Invoice
                   </span>
-                  <div className="text-[9px] text-slate-400 font-bold tracking-wider">
+                  <div className="text-[8px] text-slate-400 font-medium tracking-widest">
                     BY{" "}
                     <a href="https://twoxplusone.netlify.app/" target="_blank">
                       2X+1
@@ -824,15 +802,15 @@ export default function GSTBillingLanding() {
                   </div>
                 </div>
               </div>
-              <p className="text-gray-400 text-sm font-medium">
+              <p className="text-gray-400 text-sm font-normal">
                 Built with ❤️ for Indian small businesses. Making GST billing
                 simple and beautiful.
               </p>
             </div>
 
             <div>
-              <h4 className="text-white font-black mb-4">Product</h4>
-              <ul className="space-y-2 text-sm font-medium">
+              <h4 className="text-white font-bold mb-3">Product</h4>
+              <ul className="space-y-2 text-sm font-normal">
                 <li>
                   <Link
                     to="/gst-calculator"
@@ -869,8 +847,8 @@ export default function GSTBillingLanding() {
             </div>
 
             <div>
-              <h4 className="text-white font-black mb-4">Support</h4>
-              <ul className="space-y-2 text-sm font-medium">
+              <h4 className="text-white font-bold mb-3">Support</h4>
+              <ul className="space-y-2 text-sm font-normal">
                 <li>
                   <Link
                     to="/help"
@@ -907,17 +885,15 @@ export default function GSTBillingLanding() {
             </div>
 
             <div>
-              <h4 className="text-white font-black mb-4">Company</h4>
-              <ul className="space-y-2 text-sm font-medium">
+              <h4 className="text-white font-bold mb-3">Company</h4>
+              <ul className="space-y-2 text-sm font-normal">
                 <li>
                   <a
-                    href="#"
+                    href="https://twoxplusone.netlify.app/"
+                    target="_blank"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    About{" "}
-                    <a target="_blank" href="https://twoxplusone.netlify.app/">
-                      2X+1
-                    </a>
+                    About 2X+1
                   </a>
                 </li>
                 <li>
@@ -949,7 +925,7 @@ export default function GSTBillingLanding() {
           </div>
 
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-xs text-gray-400 font-normal">
               © {year} Inside Invoice by{" "}
               <a href="https://twoxplusone.netlify.app/" target="_blank">
                 2X+1
