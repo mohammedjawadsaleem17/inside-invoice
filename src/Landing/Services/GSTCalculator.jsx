@@ -1,78 +1,87 @@
 import React, { useState, useEffect } from "react";
+import InvoiceNav from "../Navigation/InvoiceNav";
 
 const GSTCalculator = () => {
   // Calculator State
   const [amount, setAmount] = useState(1000);
   const [taxRate, setTaxRate] = useState(18);
   const [isCustomRate, setIsCustomRate] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [calculationMode, setCalculationMode] = useState("exclusive"); // 'exclusive' or 'inclusive'
   const [userType, setUserType] = useState("Buyer");
   const year = new Date().getFullYear();
 
- // Results State
- const [results, setResults] = useState({
-   netPrice: 0,
-   grossPrice: 0,
-   totalTax: 0,
-   cgst: 0,
-   sgst: 0,
- });
+  // Results State
+  const [results, setResults] = useState({
+    netPrice: 0,
+    grossPrice: 0,
+    totalTax: 0,
+    cgst: 0,
+    sgst: 0,
+  });
 
- // Calculation Logic
- useEffect(() => {
-   const price = parseFloat(amount) || 0;
-   const rate = parseFloat(taxRate) || 0;
+  // Calculation Logic
+  useEffect(() => {
+    const price = parseFloat(amount) || 0;
+    const rate = parseFloat(taxRate) || 0;
 
-   let totalTax = 0;
-   let net = 0;
-   let gross = 0;
+    let totalTax = 0;
+    let net = 0;
+    let gross = 0;
 
-   if (calculationMode === "exclusive") {
-     // Add GST to Net Price
-     totalTax = (price * rate) / 100;
-     net = price;
-     gross = price + totalTax;
-   } else {
-     // Remove GST from Gross Price
-     totalTax = price - price * (100 / (100 + rate));
-     gross = price;
-     net = price - totalTax;
-   }
+    if (calculationMode === "exclusive") {
+      // Add GST to Net Price
+      totalTax = (price * rate) / 100;
+      net = price;
+      gross = price + totalTax;
+    } else {
+      // Remove GST from Gross Price
+      totalTax = price - price * (100 / (100 + rate));
+      gross = price;
+      net = price - totalTax;
+    }
 
-   setResults({
-     netPrice: net,
-     grossPrice: gross,
-     totalTax: totalTax,
-     cgst: totalTax / 2,
-     sgst: totalTax / 2,
-   });
- }, [amount, taxRate, calculationMode]);
+    setResults({
+      netPrice: net,
+      grossPrice: gross,
+      totalTax: totalTax,
+      cgst: totalTax / 2,
+      sgst: totalTax / 2,
+    });
+  }, [amount, taxRate, calculationMode]);
 
- // Helper for currency formatting
- const formatCurrency = (val) => {
-   return new Intl.NumberFormat("en-IN", {
-     style: "currency",
-     currency: "INR",
-   }).format(val);
- };
+  // Helper for currency formatting
+  const formatCurrency = (val) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(val);
+  };
 
- // Simple Section Component
- const ContentSection = ({ title, children }) => {
-   return (
-     <div className="mb-8 border-b border-gray-100 pb-6 last:border-0 hover:bg-white p-6 rounded-2xl transition-all duration-300 hover:shadow-sm">
-       <h3 className="text-xl font-bold text-slate-800 mb-3 font-heading">
-         {title}
-       </h3>
-       <div className="text-slate-600 leading-relaxed text-sm md:text-base">
-         {children}
-       </div>
-     </div>
-   );
- };
+  // Simple Section Component
+  const ContentSection = ({ title, children }) => {
+    return (
+      <div className="mb-8 border-b border-gray-100 pb-6 last:border-0 hover:bg-white p-6 rounded-2xl transition-all duration-300 hover:shadow-sm">
+        <h3 className="text-xl font-bold text-slate-800 mb-3 font-heading">
+          {title}
+        </h3>
+        <div className="text-slate-600 leading-relaxed text-sm md:text-base">
+          {children}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
+      <InvoiceNav
+        scrolled={true}
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+      />
+      <div className="fixed top-0 left-0 w-full h-20 bg-white/90 backdrop-blur-md z-40 border-b border-gray-100"></div>
       {/* Injecting Trendy Fonts */}
+
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -82,7 +91,7 @@ const GSTCalculator = () => {
         `}
       </style>
 
-      <div className="min-h-screen bg-[#F3F6F8] font-body text-slate-800 py-12 px-4">
+      <div className="min-h-screen bg-[#F3F6F8] font-body text-slate-800 py-12 px-4 mt-10">
         <div className="max-w-6xl mx-auto">
           {/* --- CALCULATOR CARD --- */}
           <div className="bg-white rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] overflow-hidden mb-16 border border-white/50">
