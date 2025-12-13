@@ -1,14 +1,30 @@
+import { Route, Routes } from "react-router-dom";
 import GSTBillingLanding from "./Landing/gst-landing-final";
-
+import PrivacyPolicy from "./Landing/PrivacyPolicy";
+import TermsandConditions from "./Landing/TermsandConditions";
+import RefundPolicy from "./Landing/RefundPolicy";
+import Updates from "./Landing/Updates";
+import ContactNow from "./Landing/ContactNow";
+import Documentation from "./Landing/Documentation";
+import InsideInvoiceHelpCenter from "./Landing/InsideInvoiceHelpCenter";
+import InsideInvoiceVideoTutorials from "./Landing/InsideInvoiceVideoTutorials";
 
 function App() {
   return (
     <>
-      <div className="">
-        <GSTBillingLanding/>
-      </div>
+      <Routes>
+        <Route path="/" element={<GSTBillingLanding />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-and-condition" element={<TermsandConditions />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/updates" element={<Updates />} />
+        <Route path="/contact" element={<ContactNow />} />
+        <Route path="/documentation" element={<Documentation />} />
+        <Route path="/help" element={<InsideInvoiceHelpCenter />} />
+        <Route path="/video" element={<InsideInvoiceVideoTutorials />} />
+      </Routes>
     </>
   );
 }
 
-export default App
+export default App;

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard
+Disallow: /invoice
+Disallow: /settings
+
+Sitemap: https://insideinvoice.com/sitemap.xml

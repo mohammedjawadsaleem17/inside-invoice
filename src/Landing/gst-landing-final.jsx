@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function GSTBillingLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -259,12 +260,13 @@ export default function GSTBillingLanding() {
               >
                 Reviews
               </a>
-              <a
-                href="#contact"
+
+              <Link
+                to="/contact"
                 className="text-slate-700 hover:text-slate-900 transition-colors font-semibold"
               >
                 Contact
-              </a>
+              </Link>
               <button className="px-6 py-2.5 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800 text-white rounded-xl hover:shadow-2xl hover:shadow-slate-500/50 hover:scale-105 transition-all duration-300 font-bold">
                 Try Now →
               </button>
@@ -304,12 +306,12 @@ export default function GSTBillingLanding() {
               >
                 Reviews
               </a>
-              <a
-                href="#contact"
-                className="block px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
+              <Link
+                to="/contact"
+                className="text-slate-700 hover:text-slate-900"
               >
                 Contact
-              </a>
+              </Link>
               <div className="px-4 pt-3">
                 <button className="w-full px-6 py-2.5 bg-gradient-to-r from-slate-700 to-gray-800 text-white rounded-xl font-bold">
                   Try Now →
@@ -1001,12 +1003,12 @@ export default function GSTBillingLanding() {
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/updates"
                     className="hover:text-slate-400 transition-colors"
                   >
                     Updates
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -1015,36 +1017,36 @@ export default function GSTBillingLanding() {
               <h4 className="text-white font-black mb-4">Support</h4>
               <ul className="space-y-2 text-sm font-medium">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/help"
                     className="hover:text-slate-400 transition-colors"
                   >
                     Help Center
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/video"
                     className="hover:text-slate-400 transition-colors"
                   >
                     Video Tutorials
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/documentation"
                     className="hover:text-slate-400 transition-colors"
                   >
                     Documentation
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#contact"
+                  <Link
+                    to="/contact"
                     className="hover:text-slate-400 transition-colors"
                   >
                     Contact Us
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -1057,32 +1059,35 @@ export default function GSTBillingLanding() {
                     href="#"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    About <a href="https://twoxplusone.netlify.app/">2X+1</a>
+                    About{" "}
+                    <a target="_blank" href="https://twoxplusone.netlify.app/">
+                      2X+1
+                    </a>
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/terms-and-condition"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    Blog
-                  </a>
+                    Terms & Conditions
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/refund-policy"
                     className="hover:text-slate-400 transition-colors"
                   >
-                    Careers
-                  </a>
+                    Refund Policy
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/privacy-policy"
                     className="hover:text-slate-400 transition-colors"
                   >
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -1091,8 +1096,10 @@ export default function GSTBillingLanding() {
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-400 font-medium">
               © {year} Inside Invoice by{" "}
-              <a href="https://twoxplusone.netlify.app/">2X+1</a>. All rights
-              reserved.
+              <a href="https://twoxplusone.netlify.app/" target="_blank">
+                2X+1
+              </a>
+              . All rights reserved.
             </p>
             <div className="flex gap-6">
               <a
