@@ -1,9 +1,8 @@
-import { Menu, X } from 'lucide-react';
-import React from 'react'
-import { Link } from 'react-router-dom';
+import { Menu, X } from "lucide-react";
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
-  
   return (
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -112,7 +111,9 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 glass-effect rounded-b-2xl shadow-xl">
+          // FIX: Added 'bg-white' here.
+          // If you still want a slight glass look but no text showing through, use 'bg-white/95 backdrop-blur-md'
+          <div className="md:hidden py-4 bg-white rounded-b-2xl shadow-xl border-t border-slate-100">
             <Link
               to="/contact"
               className="block px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
