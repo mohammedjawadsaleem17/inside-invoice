@@ -33,6 +33,11 @@ const BusinessCardMaker = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const year = new Date().getFullYear();
 
+  // Handle broken images
+  const handleImageError = (e) => {
+    e.target.style.display = "none";
+  };
+
   // Template configurations
   const templates = [
     {
@@ -46,6 +51,7 @@ const BusinessCardMaker = () => {
                 src={data.logo}
                 alt="Logo"
                 className="h-8 mb-2 object-contain brightness-0 invert"
+                onError={(e) => (e.target.style.display = "none")}
               />
             )}
             <h2 className="text-xl font-bold leading-tight break-words line-clamp-2">
@@ -96,6 +102,7 @@ const BusinessCardMaker = () => {
                 src={data.logo}
                 alt="Logo"
                 className="h-10 object-contain shrink-0"
+                onError={(e) => (e.target.style.display = "none")}
               />
             )}
           </div>
@@ -1250,21 +1257,21 @@ const BusinessCardMaker = () => {
         setIsMenuOpen={setIsMenuOpen}
       />
       <div className="fixed top-0 left-0 w-full h-20 bg-white/90 backdrop-blur-md z-40 border-b border-gray-100 "></div>
-      <div className="min-h-screen bg-gray-100 p-6 mt-20">
+      <div className="min-h-screen bg-gray-100 p-3 sm:p-6 mt-20">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Business Card Maker
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Create professional business cards in seconds
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Form Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
                 Business Details
               </h2>
 
@@ -1278,12 +1285,12 @@ const BusinessCardMaker = () => {
                     name="businessName"
                     value={formData.businessName}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
                     placeholder="Enter business name"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Phone 1 <span className="text-red-500">*</span>
@@ -1293,7 +1300,7 @@ const BusinessCardMaker = () => {
                       name="phone1"
                       value={formData.phone1}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
                       placeholder="+91 98765 43210"
                     />
                   </div>
@@ -1306,7 +1313,7 @@ const BusinessCardMaker = () => {
                       name="phone2"
                       value={formData.phone2}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
                       placeholder="Optional"
                     />
                   </div>
@@ -1321,7 +1328,7 @@ const BusinessCardMaker = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
                     placeholder="contact@business.com"
                   />
                 </div>
@@ -1335,7 +1342,7 @@ const BusinessCardMaker = () => {
                     name="website"
                     value={formData.website}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
                     placeholder="www.business.com"
                   />
                 </div>
@@ -1349,7 +1356,7 @@ const BusinessCardMaker = () => {
                     value={formData.address}
                     onChange={handleInputChange}
                     rows="2"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
                     placeholder="123 Business St, City, State 12345"
                   />
                 </div>
@@ -1359,7 +1366,7 @@ const BusinessCardMaker = () => {
                     Business Logo
                   </label>
                   <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-100">
+                    <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-100 text-sm sm:text-base">
                       <Upload size={18} />
                       <span className="text-sm">Upload Logo</span>
                       <input
@@ -1381,7 +1388,7 @@ const BusinessCardMaker = () => {
 
                 <button
                   onClick={handleGenerate}
-                  className="w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-800 transition font-medium"
+                  className="w-full bg-gray-900 text-white py-3 rounded-md hover:bg-gray-800 transition font-medium text-sm sm:text-base"
                 >
                   Generate Business Card
                 </button>
@@ -1389,8 +1396,8 @@ const BusinessCardMaker = () => {
             </div>
 
             {/* Preview Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
                 Preview
               </h2>
 
@@ -1399,29 +1406,33 @@ const BusinessCardMaker = () => {
                   <div
                     ref={cardRef}
                     className="mx-auto border-2 border-gray-200 rounded-lg overflow-hidden shadow-md relative"
-                    style={{ width: "350px", height: "200px" }}
+                    style={{
+                      width: "min(350px, 100%)",
+                      height: "200px",
+                      maxWidth: "100%",
+                    }}
                   >
                     {selectedTemplate.component(formData)}
                   </div>
 
-                  <div className="flex gap-2 justify-center">
+                  <div className="flex gap-2 justify-center flex-wrap">
                     <button
                       onClick={downloadPNG}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition text-sm"
+                      className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition text-xs sm:text-sm"
                     >
                       <Download size={16} />
                       PNG
                     </button>
                     <button
                       onClick={downloadJPG}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition text-sm"
+                      className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition text-xs sm:text-sm"
                     >
                       <Download size={16} />
                       JPG
                     </button>
                     <button
                       onClick={downloadPDF}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition text-sm"
+                      className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition text-xs sm:text-sm"
                     >
                       <Download size={16} />
                       PDF
@@ -1430,7 +1441,7 @@ const BusinessCardMaker = () => {
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 text-sm sm:text-base text-center px-4">
                     Fill the form and click Generate to see preview
                   </p>
                 </div>
@@ -1440,11 +1451,11 @@ const BusinessCardMaker = () => {
 
           {/* Template Selection */}
           {showTemplates && (
-            <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <div className="mt-6 sm:mt-8 bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
                 Choose Template ({templates.length} designs)
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                 {templates.map((template) => (
                   <div
                     key={template.id}
@@ -1454,21 +1465,31 @@ const BusinessCardMaker = () => {
                         ? "border-gray-900 ring-2 ring-gray-900"
                         : "border-gray-200"
                     }`}
-                    style={{ width: "175px", height: "100px" }}
+                    style={{
+                      paddingBottom: "57.14%", // 100/175 aspect ratio
+                      position: "relative",
+                    }}
                   >
                     <div
-                      className="w-full h-full scale-50 origin-top-left"
-                      style={{ width: "350px", height: "200px" }}
+                      className="absolute top-0 left-0 w-full h-full"
+                      style={{
+                        transform: "scale(0.5)",
+                        transformOrigin: "top left",
+                        width: "200%",
+                        height: "200%",
+                      }}
                     >
-                      {template.component(formData)}
+                      <div style={{ width: "350px", height: "200px" }}>
+                        {template.component(formData)}
+                      </div>
                     </div>
                     {selectedTemplate?.id === template.id && (
-                      <div className="absolute top-1 right-1 bg-gray-900 text-white rounded-full p-1">
-                        <Check size={14} />
+                      <div className="absolute top-1 right-1 bg-gray-900 text-white rounded-full p-1 z-10">
+                        <Check size={12} />
                       </div>
                     )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-2">
-                      <p className="text-white text-xs font-medium">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-1.5 sm:p-2 z-10">
+                      <p className="text-white text-[10px] sm:text-xs font-medium truncate">
                         {template.name}
                       </p>
                     </div>
