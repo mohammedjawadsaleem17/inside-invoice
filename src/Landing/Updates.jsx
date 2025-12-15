@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const updates = [
   {
@@ -49,6 +49,9 @@ const updates = [
 ];
 
 export default function Updates() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">Product Updates</h1>

@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InvoiceNav from "./Navigation/InvoiceNav";
 
 export default function Documentation() {
   const year = new Date().getFullYear();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <>
       <InvoiceNav

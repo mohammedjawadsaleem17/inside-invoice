@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function InsideInvoiceHelpCenter() {
-       const year = new Date().getFullYear();
+  const year = new Date().getFullYear();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 text-slate-800">
       <h1 className="text-3xl font-bold mb-4"> Inside Invoice Help Center</h1>
@@ -9,7 +12,6 @@ export default function InsideInvoiceHelpCenter() {
         Find quick answers, step-by-step guides, and support resources to get
         the most out of Inside Invoice.
       </p>
-
 
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4">⚡ Quick Help</h2>
@@ -33,7 +35,6 @@ export default function InsideInvoiceHelpCenter() {
         </div>
       </section>
 
-
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4">🔥 Popular Topics</h2>
         <ul className="list-disc pl-6 space-y-2">
@@ -44,7 +45,6 @@ export default function InsideInvoiceHelpCenter() {
           <li>Data backup and security</li>
         </ul>
       </section>
-
 
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4">🛠 Troubleshooting</h2>
@@ -63,7 +63,6 @@ export default function InsideInvoiceHelpCenter() {
           />
         </div>
       </section>
-
 
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4">💳 Account & Billing</h2>
@@ -99,7 +98,7 @@ export default function InsideInvoiceHelpCenter() {
       </section>
 
       <footer className="border-t pt-6 text-sm text-slate-500">
-              © {year}Inside Invoice by 2X+1. All rights reserved.
+        © {year}Inside Invoice by 2X+1. All rights reserved.
       </footer>
     </div>
   );

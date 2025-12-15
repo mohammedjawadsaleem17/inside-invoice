@@ -21,6 +21,8 @@ import {
   Quote,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  HelpCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import InvoiceNav from "./Navigation/InvoiceNav";
@@ -29,6 +31,7 @@ export default function GSTBillingLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [openFaq, setOpenFaq] = useState(null);
   const year = new Date().getFullYear();
 
   const testimonials = [
@@ -78,6 +81,48 @@ export default function GSTBillingLanding() {
       gradient: "from-gray-600 to-slate-700",
     },
   ];
+
+  const faqs = [
+    {
+      question: "Is Inside Invoice really free?",
+      answer:
+        "Yes! Inside Invoice offers a free forever plan with all essential features including GST invoice generation, inventory management, and customer tracking. We also offer premium plans with advanced features for growing businesses.",
+    },
+    {
+      question: "Is my business data secure?",
+      answer:
+        "Absolutely! We use bank-level encryption and secure cloud storage to protect your data. Your information is backed up regularly and only you have access to your business data. We are fully compliant with data protection regulations.",
+    },
+    {
+      question: "Do I need to download any software?",
+      answer:
+        "No downloads needed! Inside Invoice is 100% web-based. Simply sign up and access it from any device with an internet connection - whether it's your computer, tablet, or smartphone.",
+    },
+    {
+      question: "Does it support all GST types?",
+      answer:
+        "Yes! Inside Invoice supports CGST, SGST, IGST, and all GST scenarios. It automatically calculates the correct tax based on your customer's location and handles interstate and intrastate transactions.",
+    },
+    {
+      question: "Can I track inventory with this tool?",
+      answer:
+        "Absolutely! Inside Invoice includes comprehensive inventory management. Track stock levels in real-time, get low stock alerts, manage multiple product categories, and generate inventory reports.",
+    },
+    {
+      question: "How do I get support if I need help?",
+      answer:
+        "We offer multiple support channels including email support, live chat, video tutorials, and comprehensive documentation. Our support team typically responds within 24 hours on business days.",
+    },
+    {
+      question: "Can I export my invoices and reports?",
+      answer:
+        "Yes! You can export invoices as PDF for printing or sharing with customers. You can also export reports and data in Excel format for accounting purposes or GST filing.",
+    },
+  ];
+
+  const toggleFaq = (index) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -176,10 +221,10 @@ export default function GSTBillingLanding() {
       />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
+      <section className="pt-32 pb-20 px-1 overflow-hidden">
+        <div className="max-w-full mx-auto px-2">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 fade-in">
+            <div className="space-y-8 fade-in px-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 border border-slate-200">
                 <Sparkles className="w-4 h-4" />
                 Built for Indian Small Businesses
@@ -231,7 +276,7 @@ export default function GSTBillingLanding() {
             </div>
 
             {/* Invoice Preview */}
-            <div className="relative">
+            <div className="relative px-4">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-violet-600 rounded-3xl transform rotate-6 opacity-20 blur-xl"></div>
               <div className="relative glass-effect rounded-2xl p-6 shadow-xl border border-white invoice-float">
                 <div className="flex justify-between items-start mb-4">
@@ -345,9 +390,9 @@ export default function GSTBillingLanding() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+      <section id="features" className="py-20 px-1 bg-white">
+        <div className="max-w-full mx-auto px-2">
+          <div className="text-center mb-16 px-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
               <Zap className="w-4 h-4" />
               Powerful Features
@@ -361,7 +406,7 @@ export default function GSTBillingLanding() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
             {[
               {
                 icon: <Receipt className="w-6 h-6" />,
@@ -430,10 +475,10 @@ export default function GSTBillingLanding() {
       {/* Invoice Tracking Section */}
       <section
         id="tracking"
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 to-gray-100"
+        className="py-20 px-1 bg-gradient-to-br from-slate-50 to-gray-100"
       >
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+        <div className="max-w-full mx-auto px-2">
+          <div className="text-center mb-16 px-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
               <BarChart3 className="w-4 h-4" />
               Invoice Analytics
@@ -447,7 +492,7 @@ export default function GSTBillingLanding() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-8 px-4">
             <div className="space-y-5">
               <div className="glass-effect rounded-xl p-6 border border-white shadow-lg">
                 <h3 className="text-xl font-bold text-slate-900 mb-5">
@@ -600,12 +645,9 @@ export default function GSTBillingLanding() {
       </section>
 
       {/* Testimonials Carousel Section */}
-      <section
-        id="testimonials"
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-white"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+      <section id="testimonials" className="py-20 px-1 bg-white">
+        <div className="max-w-full mx-auto px-2">
+          <div className="text-center mb-16 px-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
               <Star className="w-4 h-4 fill-slate-600" />
               Customer Reviews
@@ -618,7 +660,7 @@ export default function GSTBillingLanding() {
             </p>
           </div>
 
-          <div className="relative max-w-4xl mx-auto">
+          <div className="relative max-w-4xl mx-auto px-4">
             <div className="relative overflow-hidden">
               {testimonials.map((testimonial, index) => (
                 <div
@@ -696,15 +738,90 @@ export default function GSTBillingLanding() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section
+        id="faq"
+        className="py-20 px-1 bg-gradient-to-br from-slate-50 to-gray-100"
+      >
+        <div className="max-w-full mx-auto px-2">
+          <div className="text-center mb-16 px-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
+              <HelpCircle className="w-4 h-4" />
+              FAQ
+            </div>
+            <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-3">
+              Frequently Asked <span className="gradient-text">Questions</span>
+            </h2>
+            <p className="text-lg text-slate-600 font-normal">
+              Everything you need to know about Inside Invoice
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div
+                  key={index}
+                  className="glass-effect rounded-xl border border-slate-200 overflow-hidden transition-all duration-200 hover:shadow-lg"
+                >
+                  <button
+                    onClick={() => toggleFaq(index)}
+                    className="w-full flex items-center justify-between p-6 text-left transition-colors hover:bg-slate-50/50"
+                  >
+                    <span className="text-lg font-bold text-slate-900 pr-8">
+                      {faq.question}
+                    </span>
+                    <ChevronDown
+                      className={`w-5 h-5 text-slate-600 flex-shrink-0 transition-transform duration-300 ${
+                        openFaq === index ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  <div
+                    className={`transition-all duration-300 ease-in-out ${
+                      openFaq === index
+                        ? "max-h-96 opacity-100"
+                        : "max-h-0 opacity-0"
+                    } overflow-hidden`}
+                  >
+                    <div className="px-6 pb-6 pt-0">
+                      <p className="text-slate-600 leading-relaxed font-normal">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center glass-effect rounded-xl p-8 border border-slate-200">
+              <h3 className="text-xl font-bold text-slate-900 mb-3">
+                Still have questions?
+              </h3>
+              <p className="text-slate-600 mb-6 font-normal">
+                Can't find the answer you're looking for? Please reach out to
+                our friendly team.
+              </p>
+              <Link to="/contact">
+                <button className="px-7 py-3 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800 text-white rounded-lg hover:shadow-lg hover:shadow-slate-500/30 hover:scale-[1.02] transition-all duration-200 font-medium text-base flex items-center gap-2 mx-auto">
+                  Contact Support
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="py-20 px-1 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800"></div>
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-slate-300 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-4xl mx-auto text-center relative z-10 px-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium text-white mb-6 border border-white/30">
             <Sparkles className="w-4 h-4" />
             Start Your Journey
@@ -754,8 +871,8 @@ export default function GSTBillingLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <footer className="bg-gray-900 text-gray-300 py-12 px-1">
+        <div className="max-w-full mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center space-x-2.5 mb-4">

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function TermsandConditions() {
-    const year = new Date().getFullYear();
+  const year = new Date().getFullYear();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 text-slate-700 leading-relaxed">
       <h1 className="text-3xl font-bold mb-2">Terms and Conditions</h1>

@@ -9,7 +9,7 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
         scrolled ? "glass-effect shadow-xl" : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full mx-auto px-7">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-3">
             {/* Super Trendy Modern Logo */}
@@ -111,8 +111,6 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          // FIX: Added 'bg-white' here.
-          // If you still want a slight glass look but no text showing through, use 'bg-white/95 backdrop-blur-md'
           <div className="md:hidden py-4 bg-white rounded-b-2xl shadow-xl border-t border-slate-100">
             <Link
               to="/contact"

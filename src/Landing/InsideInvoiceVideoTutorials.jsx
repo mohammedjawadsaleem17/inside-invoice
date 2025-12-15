@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function InsideInvoiceVideoTutorials() {
-   const year = new Date().getFullYear();
+  const year = new Date().getFullYear();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="max-w-5xl mx-auto px-6 py-12 text-slate-800 text-center">
       <h1 className="text-3xl font-bold mb-4">🎥 Video Tutorials</h1>
