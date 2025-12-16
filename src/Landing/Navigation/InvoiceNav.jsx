@@ -9,7 +9,7 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
         scrolled ? "glass-effect shadow-xl" : "bg-transparent"
       }`}
     >
-      <div className="max-w-full mx-auto px-7">
+      <div className="max-w-full mx-auto px-12">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-3">
             {/* Super Trendy Modern Logo */}

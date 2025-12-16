@@ -221,7 +221,7 @@ export default function GSTBillingLanding() {
       />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-1 overflow-hidden">
+      <section className="pt-32 pb-20 px-6 overflow-hidden">
         <div className="max-w-full mx-auto px-2">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 fade-in px-4">
@@ -390,7 +390,7 @@ export default function GSTBillingLanding() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-1 bg-white">
+      <section id="features" className="py-20 px-6 bg-white">
         <div className="max-w-full mx-auto px-2">
           <div className="text-center mb-16 px-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
@@ -475,7 +475,7 @@ export default function GSTBillingLanding() {
       {/* Invoice Tracking Section */}
       <section
         id="tracking"
-        className="py-20 px-1 bg-gradient-to-br from-slate-50 to-gray-100"
+        className="py-20 px-6 bg-gradient-to-br from-slate-50 to-gray-100"
       >
         <div className="max-w-full mx-auto px-2">
           <div className="text-center mb-16 px-4">
@@ -645,7 +645,7 @@ export default function GSTBillingLanding() {
       </section>
 
       {/* Testimonials Carousel Section */}
-      <section id="testimonials" className="py-20 px-1 bg-white">
+      <section id="testimonials" className="py-20 px-6 bg-white">
         <div className="max-w-full mx-auto px-2">
           <div className="text-center mb-16 px-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full text-sm font-medium text-slate-700 mb-6 border border-slate-200">
@@ -741,7 +741,7 @@ export default function GSTBillingLanding() {
       {/* FAQ Section */}
       <section
         id="faq"
-        className="py-20 px-1 bg-gradient-to-br from-slate-50 to-gray-100"
+        className="py-20 px-6 bg-gradient-to-br from-slate-50 to-gray-100"
       >
         <div className="max-w-full mx-auto px-2">
           <div className="text-center mb-16 px-4">
@@ -814,7 +814,7 @@ export default function GSTBillingLanding() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-1 relative overflow-hidden">
+      <section className="py-20 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800"></div>
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
@@ -836,12 +836,12 @@ export default function GSTBillingLanding() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/signup">
-              <button className="px-8 py-3 bg-white text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-medium text-base shadow-xl hover:scale-[1.02]">
+              <button className="px-6 py-3 bg-white text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-medium text-base shadow-xl hover:scale-[1.02]">
                 Try Now - Free Forever →
               </button>
             </Link>
             <Link to="/contact">
-              <button className="px-8 py-3 bg-transparent text-white border border-white rounded-lg hover:bg-white hover:text-slate-700 transition-all duration-200 font-medium text-base hover:scale-[1.02]">
+              <button className="px-6 py-3 bg-transparent text-white border border-white rounded-lg hover:bg-white hover:text-slate-700 transition-all duration-200 font-medium text-base hover:scale-[1.02]">
                 Contact US
               </button>
             </Link>
@@ -871,7 +871,7 @@ export default function GSTBillingLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12 px-1">
+      <footer className="bg-gray-900 text-gray-300 py-12 px-6">
         <div className="max-w-full mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
