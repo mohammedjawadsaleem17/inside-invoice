@@ -12,6 +12,7 @@ export default function AdminAddUsers() {
   const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     businessName: "",
@@ -47,13 +48,14 @@ export default function AdminAddUsers() {
     try {
       const res = await authAPI.signup({
         name: formData.name,
+        username: formData.username || undefined,
         email: formData.email,
         password: formData.password,
         businessName: formData.businessName || undefined,
         role: formData.role,
       });
       setSuccess(`User created successfully: ${formData.email}`);
-      setFormData({ name: "", email: "", password: "", businessName: "", role: "USER" });
+      setFormData({ name: "", username: "", email: "", password: "", businessName: "", role: "USER" });
     } catch (err) {
       const msg = err.response?.data?.message
         || (err.response?.data?.fieldErrors ? Object.values(err.response.data.fieldErrors).join(", ") : null)
@@ -107,6 +109,14 @@ export default function AdminAddUsers() {
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <input type="text" name="name" value={formData.name} onChange={handleChange}
                     className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Username</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <input type="text" name="username" value={formData.username} onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="Defaults to email if empty" />
                 </div>
               </div>
               <div>

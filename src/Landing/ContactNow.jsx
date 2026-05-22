@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import InvoiceNav from "./Navigation/InvoiceNav";
- import emailjs from "@emailjs/browser";
+import axios from "axios";
 
  export default function ContactNow() {
    const [form, setForm] = useState({
@@ -12,40 +12,32 @@ import InvoiceNav from "./Navigation/InvoiceNav";
    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
    const [submitted, setSubmitted] = useState(false);
+   const [submitting, setSubmitting] = useState(false);
+   const [error, setError] = useState("");
 
    const handleChange = (e) => {
      setForm({ ...form, [e.target.name]: e.target.value });
    };
 
-   const handleSubmit = (e) => {
+   const handleSubmit = async (e) => {
      e.preventDefault();
+     setSubmitting(true);
+     setError("");
 
-     emailjs
-       .send(
-         "service_ljoj3fr",
-         "template_tojzn8y",
-         {
-           name: form.name,
-           email: form.email,
-           phone: form.phone,
-           message: form.message,
-         },
-         "8Jb1jvcqq_kdLlfEi"
-       )
-       .then(() => {
-         console.log("Email sent successfully");
-         setSubmitted(true);
-
-         setForm({
-           name: "",
-           email: "",
-           phone: "",
-           message: "",
-         });
-       })
-       .catch((error) => {
-         console.error("EmailJS Error:", error);
+     try {
+       await axios.post("/contact", {
+         name: form.name,
+         email: form.email,
+         phone: form.phone,
+         message: form.message,
        });
+       setSubmitted(true);
+       setForm({ name: "", email: "", phone: "", message: "" });
+     } catch (err) {
+       setError(err.response?.data?.message || "Something went wrong. Please try again.");
+     } finally {
+       setSubmitting(false);
+     }
    };
 
    useEffect(() => {
@@ -66,20 +58,23 @@ import InvoiceNav from "./Navigation/InvoiceNav";
            Have a question or need help? Our team is always happy to assist you.
          </p>
 
-         {submitted && (
-           <div className="mb-6 p-6 bg-slate-100 border border-slate-200 rounded-lg">
-             <h3 className="font-semibold text-slate-800 mb-1">
-               Thank you for contacting Inside Invoice 🤝
-             </h3>
-             <p className="text-sm text-slate-600">
-               We’ve received your message and one of our team members will
-               surely get back to you shortly.
-               <br />
-               Thank you for choosing <strong>Inside Invoice</strong> — we truly
-               appreciate your trust.
-             </p>
-           </div>
-         )}
+          {submitted && (
+            <div className="mb-6 p-6 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="font-semibold text-green-800 mb-1">
+                Thank you for contacting Inside Invoice
+              </h3>
+              <p className="text-sm text-green-700">
+                We've received your message and one of our team members will
+                surely get back to you shortly.
+              </p>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
          <form
            onSubmit={handleSubmit}
@@ -117,20 +112,21 @@ import InvoiceNav from "./Navigation/InvoiceNav";
              />
            </div>
 
-           {/* Phone */}
-           <div>
-             <label className="block text-sm font-medium mb-1 text-slate-700">
-               Phone Number
-             </label>
-             <input
-               type="tel"
-               name="phone"
-               value={form.phone}
-               onChange={handleChange}
-               placeholder="Optional"
-               className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800"
-             />
-           </div>
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium mb-1 text-slate-700">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                required
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="Enter your phone number"
+                className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800"
+              />
+            </div>
 
            {/* Message */}
            <div>
@@ -148,17 +144,18 @@ import InvoiceNav from "./Navigation/InvoiceNav";
              />
            </div>
 
-           {/* Submit */}
-           <button
-             type="submit"
-             className="w-full bg-slate-900 text-white py-2 rounded-lg hover:bg-slate-800 transition"
-           >
-             Contact Now
-           </button>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-slate-900 text-white py-2 rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
+            >
+              {submitting ? "Sending..." : "Contact Now"}
+            </button>
 
-           <p className="text-xs text-center text-slate-400 pt-2">
-             Thank you for choosing Inside Invoice ❤️
-           </p>
+            <p className="text-xs text-center text-slate-400 pt-2">
+              Thank you for choosing Inside Invoice
+            </p>
          </form>
        </div>
      </>

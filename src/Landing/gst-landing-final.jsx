@@ -248,9 +248,11 @@ export default function GSTBillingLanding() {
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </Link>
-                <button className="px-7 py-3 glass-effect text-slate-700 rounded-lg hover:shadow-lg transition-all duration-200 font-medium text-base border border-slate-200">
-                  Start Acceleration
-                </button>
+                <Link to="/contact">
+                  <button className="px-7 py-3 glass-effect text-slate-700 rounded-lg hover:shadow-lg transition-all duration-200 font-medium text-base border border-slate-200">
+                    Contact Sales
+                  </button>
+                </Link>
               </div>
 
               <div className="grid grid-cols-3 gap-6 pt-6">

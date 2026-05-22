@@ -5,6 +5,8 @@ export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   forgotPassword: (data) => api.post("/auth/forgot-password", data),
   resetPassword: (data) => api.post("/auth/reset-password", data),
+  updateProfile: (data) => api.put("/auth/profile", data),
+  changePassword: (data) => api.put("/auth/change-password", data),
 };
 
 export const businessAPI = {

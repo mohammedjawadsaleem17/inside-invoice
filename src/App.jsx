@@ -16,6 +16,7 @@ import BarcodeGenerator from "./Landing/Services/BarcodeGenerator";
 import BusinessCardMaker from "./Landing/Services/BusinessCardMaker";
 import BusinessSetup from "./pages/BusinessSetup";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import AdminAddUsers from "./pages/AdminAddUsers";
 import AdminUsersList from "./pages/AdminUsersList";
 
@@ -45,6 +46,7 @@ function AppRoutes() {
       <Route path="/business-card" element={<BusinessCardMaker />} />
       <Route path="/business-setup" element={<PrivateRoute><BusinessSetup /></PrivateRoute>} />
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/admin/users" element={<PrivateRoute><AdminAddUsers /></PrivateRoute>} />
       <Route path="/admin/users-list" element={<PrivateRoute><AdminUsersList /></PrivateRoute>} />
     </Routes>

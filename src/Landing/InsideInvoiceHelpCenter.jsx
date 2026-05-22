@@ -98,7 +98,7 @@ export default function InsideInvoiceHelpCenter() {
       </section>
 
       <footer className="border-t pt-6 text-sm text-slate-500">
-        © {year}Inside Invoice by 2X+1. All rights reserved.
+        © {year} Inside Invoice by 2X+1. All rights reserved.
       </footer>
     </div>
   );

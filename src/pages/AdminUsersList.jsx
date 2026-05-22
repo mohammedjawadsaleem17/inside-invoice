@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { adminAPI } from "../api/auth";
-import { ArrowLeft, Users, Eye, EyeOff, Shield, AlertCircle, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { ArrowLeft, Users, Eye, EyeOff, Shield, AlertCircle, Trash2, ToggleLeft, ToggleRight, KeyRound } from "lucide-react";
+import ConfirmModal from "../components/ConfirmModal";
 
 export default function AdminUsersList() {
   const { user: currentUser, isAdmin, logout } = useAuth();
@@ -11,6 +12,8 @@ export default function AdminUsersList() {
   const [loading, setLoading] = useState(true);
   const [visiblePasswords, setVisiblePasswords] = useState({});
   const [actionMsg, setActionMsg] = useState({ type: "", text: "" });
+  const [modal, setModal] = useState({ open: false, type: "", user: null });
+  const [passwordModal, setPasswordModal] = useState({ open: false, user: null, password: "" });
 
   const fetchUsers = () => {
     adminAPI.getAllUsers()
@@ -22,25 +25,50 @@ export default function AdminUsersList() {
   useEffect(() => { fetchUsers(); }, []);
 
   const handleToggleRole = async (u) => {
-    const newRole = u.role === "ADMIN" ? "USER" : "ADMIN";
-    if (!window.confirm(`Change ${u.name}'s role from ${u.role} to ${newRole}?`)) return;
-    try {
-      await adminAPI.updateRole(u.id, newRole);
-      setActionMsg({ type: "success", text: `${u.name} is now ${newRole}` });
-      fetchUsers();
-    } catch (err) {
-      setActionMsg({ type: "error", text: err.response?.data?.message || "Failed to update role" });
-    }
+    setModal({ open: true, type: "role", user: u });
   };
 
   const handleDelete = async (u) => {
-    if (!window.confirm(`Delete user "${u.name}" (${u.email})? This will also delete all their invoices, customers, and products.`)) return;
+    setModal({ open: true, type: "delete", user: u });
+  };
+
+  const confirmAction = async () => {
+    const u = modal.user;
+    if (modal.type === "role") {
+      const newRole = u.role === "ADMIN" ? "USER" : "ADMIN";
+      try {
+        await adminAPI.updateRole(u.id, newRole);
+        setActionMsg({ type: "success", text: `${u.name} is now ${newRole}` });
+        fetchUsers();
+      } catch (err) {
+        setActionMsg({ type: "error", text: err.response?.data?.message || "Failed to update role" });
+      }
+    } else if (modal.type === "delete") {
+      try {
+        await adminAPI.deleteUser(u.id);
+        setActionMsg({ type: "success", text: `User "${u.name}" deleted` });
+        fetchUsers();
+      } catch (err) {
+        setActionMsg({ type: "error", text: err.response?.data?.message || "Failed to delete user" });
+      }
+    }
+    setModal({ open: false, type: "", user: null });
+  };
+
+  const handlePasswordChange = async () => {
+    const u = passwordModal.user;
+    const pw = passwordModal.password;
+    if (!pw || pw.length < 4) {
+      setActionMsg({ type: "error", text: "Password must be at least 4 characters" });
+      return;
+    }
     try {
-      await adminAPI.deleteUser(u.id);
-      setActionMsg({ type: "success", text: `User "${u.name}" deleted` });
+      await adminAPI.updatePassword(u.id, { password: pw });
+      setActionMsg({ type: "success", text: `Password updated for ${u.name}` });
+      setPasswordModal({ open: false, user: null, password: "" });
       fetchUsers();
     } catch (err) {
-      setActionMsg({ type: "error", text: err.response?.data?.message || "Failed to delete user" });
+      setActionMsg({ type: "error", text: err.response?.data?.message || "Failed to update password" });
     }
   };
 
@@ -109,6 +137,7 @@ export default function AdminUsersList() {
                   <tr className="border-b border-slate-200 bg-slate-50">
                     <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 uppercase">#</th>
                     <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 uppercase">Name</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 uppercase">Username</th>
                     <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 uppercase">Email</th>
                     <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 uppercase">Role</th>
                     <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 uppercase">Password</th>
@@ -120,6 +149,7 @@ export default function AdminUsersList() {
                     <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                       <td className="py-3 px-4 text-xs text-slate-400">{idx + 1}</td>
                       <td className="py-3 px-4 text-sm text-slate-800 font-medium">{u.name}</td>
+                      <td className="py-3 px-4 text-sm text-slate-500 font-mono">{u.username || '-'}</td>
                       <td className="py-3 px-4 text-sm text-slate-600">{u.email}</td>
                       <td className="py-3 px-4">
                         <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${u.role === "ADMIN" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
@@ -147,6 +177,11 @@ export default function AdminUsersList() {
                                 {u.role === "ADMIN" ? <ToggleRight className="w-3.5 h-3.5 text-amber-500" /> : <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />}
                                 {u.role === "ADMIN" ? "Revoke" : "Promote"}
                               </button>
+                              <button onClick={() => setPasswordModal({ open: true, user: u, password: "" })}
+                                className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
+                                title="Change password">
+                                <KeyRound className="w-3.5 h-3.5" /> Password
+                              </button>
                               <button onClick={() => handleDelete(u)}
                                 className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-red-50 transition-colors text-red-500"
                                 title="Delete user">
@@ -167,6 +202,48 @@ export default function AdminUsersList() {
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        open={modal.open}
+        title={modal.type === "delete" ? "Delete User" : "Change Role"}
+        message={
+          modal.type === "delete"
+            ? `Delete "${modal.user?.name}" (${modal.user?.email})? This will also delete all their invoices, customers, and products.`
+            : `Change ${modal.user?.name}'s role from ${modal.user?.role} to ${modal.user?.role === "ADMIN" ? "USER" : "ADMIN"}?`
+        }
+        confirmLabel={modal.type === "delete" ? "Delete" : "Confirm"}
+        confirmVariant={modal.type === "delete" ? "danger" : "primary"}
+        onConfirm={confirmAction}
+        onCancel={() => setModal({ open: false, type: "", user: null })}
+      />
+
+      {passwordModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setPasswordModal({ open: false, user: null, password: "" })}></div>
+          <div className="relative bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-sm p-6">
+            <h3 className="text-sm font-semibold text-slate-900 mb-1">Change Password</h3>
+            <p className="text-sm text-slate-500 mb-4">Set a new password for <strong>{passwordModal.user?.name}</strong></p>
+            <input
+              type="text"
+              value={passwordModal.password}
+              onChange={(e) => setPasswordModal({ ...passwordModal, password: e.target.value })}
+              placeholder="Enter new password"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 mb-4"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setPasswordModal({ open: false, user: null, password: "" })}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                Cancel
+              </button>
+              <button onClick={handlePasswordChange}
+                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">
+                Save Password
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600&display=swap');

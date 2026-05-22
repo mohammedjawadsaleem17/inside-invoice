@@ -70,7 +70,9 @@ export default function Dashboard() {
                 <Shield className="w-3 h-3" /> Admin
               </span>
             )}
-            <span className="text-sm text-slate-600">{user?.name}</span>
+            <button onClick={() => navigate("/profile")} className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800 transition-colors">
+              @{user?.username || user?.name}
+            </button>
             <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
               <LogOut className="w-4 h-4" /> Logout
             </button>

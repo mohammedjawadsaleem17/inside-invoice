@@ -73,6 +73,8 @@ export function AuthProvider({ children }) {
         login,
         setupBusiness,
         logout,
+        setUser,
+        setToken,
         isAuthenticated,
         isBusinessSetupComplete,
         isAdmin,
