@@ -17,6 +17,7 @@ import BusinessCardMaker from "./Landing/Services/BusinessCardMaker";
 import BusinessSetup from "./pages/BusinessSetup";
 import Dashboard from "./pages/Dashboard";
 import AdminAddUsers from "./pages/AdminAddUsers";
+import AdminUsersList from "./pages/AdminUsersList";
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -45,6 +46,7 @@ function AppRoutes() {
       <Route path="/business-setup" element={<PrivateRoute><BusinessSetup /></PrivateRoute>} />
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/admin/users" element={<PrivateRoute><AdminAddUsers /></PrivateRoute>} />
+      <Route path="/admin/users-list" element={<PrivateRoute><AdminUsersList /></PrivateRoute>} />
     </Routes>
   );
 }

@@ -41,7 +41,9 @@ export default function BusinessSetup() {
       await setupBusiness(formData);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Setup failed. Please try again.");
+      const fieldErrors = err.response?.data?.fieldErrors;
+      const msg = fieldErrors ? Object.values(fieldErrors).join(". ") : (err.response?.data?.message || "Setup failed. Please try again.");
+      setError(msg);
     } finally {
       setIsLoading(false);
     }

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { adminAPI } from "../api/auth";
-import { UserPlus, ArrowLeft, AlertCircle, Check, Mail, Lock, User, Building2 } from "lucide-react";
+import { authAPI } from "../api/auth";
+import { UserPlus, ArrowLeft, AlertCircle, Check, Mail, Lock, User, Building2, Shield } from "lucide-react";
 
 export default function AdminAddUsers() {
   const { isAdmin, logout } = useAuth();
@@ -15,6 +15,7 @@ export default function AdminAddUsers() {
     email: "",
     password: "",
     businessName: "",
+    role: "USER",
   });
 
   if (!isAdmin) {
@@ -38,17 +39,26 @@ export default function AdminAddUsers() {
     e.preventDefault();
     setApiError("");
     setSuccess("");
-    if (!formData.name || !formData.email || !formData.password || !formData.businessName) {
-      setApiError("All fields are required");
+    if (!formData.name || !formData.email || !formData.password) {
+      setApiError("Name, email, and password are required");
       return;
     }
     setIsLoading(true);
     try {
-      const res = await adminAPI.createUser(formData);
-      setSuccess(res.data.message);
-      setFormData({ name: "", email: "", password: "", businessName: "" });
+      const res = await authAPI.signup({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        businessName: formData.businessName || undefined,
+        role: formData.role,
+      });
+      setSuccess(`User created successfully: ${formData.email}`);
+      setFormData({ name: "", email: "", password: "", businessName: "", role: "USER" });
     } catch (err) {
-      setApiError(err.response?.data?.message || "Failed to create user");
+      const msg = err.response?.data?.message
+        || (err.response?.data?.fieldErrors ? Object.values(err.response.data.fieldErrors).join(", ") : null)
+        || "Failed to create user";
+      setApiError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -74,8 +84,8 @@ export default function AdminAddUsers() {
       <div className="max-w-3xl mx-auto px-6 py-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="mb-6">
-            <h1 className="text-lg font-semibold text-slate-900">Create Client Account</h1>
-            <p className="text-sm text-slate-500 mt-1">The client will be able to login with these credentials and set up their business.</p>
+            <h1 className="text-lg font-semibold text-slate-900">Create User Account</h1>
+            <p className="text-sm text-slate-500 mt-1">The user will be able to login with these credentials and set up their business.</p>
           </div>
 
           {apiError && (
@@ -90,38 +100,53 @@ export default function AdminAddUsers() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Full Name</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type="text" name="name" value={formData.name} onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="John Doe" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <input type="text" name="name" value={formData.name} onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <input type="password" name="password" value={formData.password} onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Role</label>
+                <div className="relative">
+                  <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 z-10" />
+                  <select name="role" value={formData.role} onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 bg-white appearance-none">
+                    <option value="USER">Client</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type="email" name="email" value={formData.email} onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="client@example.com" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type="password" name="password" value={formData.password} onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="Min 6 characters" />
-              </div>
-            </div>
+
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Business Name</label>
               <div className="relative">
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input type="text" name="businessName" value={formData.businessName} onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="Client's Business Name" />
+                  className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
               </div>
             </div>
+
             <button type="submit" disabled={isLoading}
               className="w-full bg-gradient-to-r from-slate-700 to-slate-800 text-white font-medium py-2.5 rounded-lg hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50">
               {isLoading ? (

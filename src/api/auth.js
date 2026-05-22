@@ -38,5 +38,10 @@ export const invoiceAPI = {
 };
 
 export const adminAPI = {
-  createUser: (data) => api.post("/admin/users", data),
+  createUser: (data) => api.post("/auth/signup", { ...data, businessName: data.businessName || undefined }),
+  getStats: () => api.get("/admin/stats"),
+  getAllUsers: () => api.get("/admin/users"),
+  updatePassword: (id, data) => api.put(`/admin/users/${id}/password`, data),
+  updateRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
 };

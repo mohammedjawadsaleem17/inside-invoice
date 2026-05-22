@@ -172,8 +172,8 @@ export default function AuthPage() {
                 <label className="block text-[11px] font-medium text-slate-600 mb-1">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange}
-                    className={`w-full pl-9 pr-2.5 py-2 bg-white border rounded-lg focus:outline-none input-focus transition-all text-sm ${errors.email ? "border-red-400" : "border-slate-200"}`} placeholder="you@example.com" />
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange}
+                    className={`w-full pl-9 pr-2.5 py-2 bg-white border rounded-lg focus:outline-none input-focus transition-all text-sm ${errors.email ? "border-red-400" : "border-slate-200"}`} placeholder="Enter your email" />
                 </div>
                 {errors.email && <p className="text-red-500 text-[10px] mt-0.5 flex items-center gap-1"><AlertCircle className="w-2.5 h-2.5" />{errors.email}</p>}
               </div>
@@ -184,7 +184,7 @@ export default function AuthPage() {
                   <div className="relative">
                     <Lock className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
                     <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleInputChange}
-                      className={`w-full pl-9 pr-9 py-2 bg-white border rounded-lg focus:outline-none input-focus transition-all text-sm ${errors.password ? "border-red-400" : "border-slate-200"}`} placeholder="••••••••" />
+                      className={`w-full pl-9 pr-9 py-2 bg-white border rounded-lg focus:outline-none input-focus transition-all text-sm ${errors.password ? "border-red-400" : "border-slate-200"}`} placeholder="Enter your password" />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
                       {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>

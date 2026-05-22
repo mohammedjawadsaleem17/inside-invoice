@@ -1,9 +1,8 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8080";
+const TOKEN_KEY = "ii_token";
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,7 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,15 +22,19 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const isLoginRequest = error.config?.url === "/auth/login";
-    if (error.response?.status === 401 && !isLoginRequest) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
+
+export function setAuthToken(token) {
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.removeItem("token");
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("token");
+    delete api.defaults.headers.common["Authorization"];
+  }
+}
 
 export default api;
