@@ -84,9 +84,9 @@ export default function GSTBillingLanding() {
 
   const faqs = [
     {
-      question: "Is Inside Invoice really free?",
+      question: "Is Inside Invoice ready for my business?",
       answer:
-        "Yes! Inside Invoice offers a free forever plan with all essential features including GST invoice generation, inventory management, and customer tracking. We also offer premium plans with advanced features for growing businesses.",
+        "Absolutely! Inside Invoice is a professional-grade invoicing platform built for Indian small businesses. It supports GST-compliant invoicing, inventory management, customer tracking, and business analytics — all in one secure platform.",
     },
     {
       question: "Is my business data secure?",
@@ -96,7 +96,7 @@ export default function GSTBillingLanding() {
     {
       question: "Do I need to download any software?",
       answer:
-        "No downloads needed! Inside Invoice is 100% web-based. Simply sign up and access it from any device with an internet connection - whether it's your computer, tablet, or smartphone.",
+        "No downloads needed! Inside Invoice is 100% web-based. Simply log in and access it from any device with an internet connection - whether it's your computer, tablet, or smartphone.",
     },
     {
       question: "Does it support all GST types?",
@@ -242,9 +242,9 @@ export default function GSTBillingLanding() {
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <Link to="/signup">
+                <Link to="/login">
                   <button className="px-7 py-3 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800 text-white rounded-lg hover:shadow-lg hover:shadow-slate-500/30 hover:scale-[1.02] transition-all duration-200 font-medium text-base flex items-center gap-2">
-                    Try Now - It's FREE
+                    Start Billing
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </Link>
@@ -261,15 +261,15 @@ export default function GSTBillingLanding() {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold gradient-text">Free</div>
-                  <div className="text-xs text-slate-600 mt-1 font-medium">
-                    Forever Plan
-                  </div>
-                </div>
-                <div className="text-center">
                   <div className="text-2xl font-bold gradient-text">24/7</div>
                   <div className="text-xs text-slate-600 mt-1 font-medium">
                     Access
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold gradient-text">Secure</div>
+                  <div className="text-xs text-slate-600 mt-1 font-medium">
+                    Cloud
                   </div>
                 </div>
               </div>
@@ -835,9 +835,9 @@ export default function GSTBillingLanding() {
             streamline their operations
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/signup">
+            <Link to="/login">
               <button className="px-6 py-3 bg-white text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-medium text-base shadow-xl hover:scale-[1.02]">
-                Try Now - Free Forever →
+                Start Billing →
               </button>
             </Link>
             <Link to="/contact">
@@ -856,9 +856,9 @@ export default function GSTBillingLanding() {
             </div>
             <div className="w-px h-10 bg-white/30"></div>
             <div className="text-center">
-              <div className="text-2xl font-bold">Free</div>
+              <div className="text-2xl font-bold">Secure</div>
               <div className="text-xs text-slate-200 font-medium">
-                Forever Plan
+                Cloud
               </div>
             </div>
             <div className="w-px h-10 bg-white/30"></div>

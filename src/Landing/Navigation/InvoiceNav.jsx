@@ -89,9 +89,9 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
             >
               Login
             </Link>
-            <Link to="/signup">
+            <Link to="/login">
               <button className="px-6 py-2.5 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800 text-white rounded-xl hover:shadow-2xl hover:shadow-slate-500/50 hover:scale-105 transition-all duration-300 font-bold">
-                Try Now →
+                Start Billing →
               </button>
             </Link>
           </div>
@@ -125,9 +125,9 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
               Login
             </Link>
             <div className="px-4 pt-3">
-              <Link to="/signup">
+              <Link to="/login">
                 <button className="w-full px-12 py-2.5 bg-gradient-to-r from-slate-700 to-gray-800 text-white rounded-xl font-bold">
-                  Try Now →
+                  Start Billing →
                 </button>
               </Link>
             </div>
