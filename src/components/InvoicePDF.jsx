@@ -427,7 +427,6 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                         <div style={{ display: "inline-block" }}>
                           <CompanySeal
                             companyName={business?.businessName || "COMPANY NAME"}
-                            stateName={business?.state || "STATE"}
                             year={new Date().getFullYear()}
                             size={80}
                             color="#0A4BFF"
