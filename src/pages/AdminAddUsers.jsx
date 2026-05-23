@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AppNavbar from "../components/AppNavbar";
 import { authAPI } from "../api/auth";
-import { UserPlus, ArrowLeft, AlertCircle, Check, Mail, Lock, User, Building2, Shield } from "lucide-react";
+import toast from "react-hot-toast";
+import { ArrowLeft, UserPlus, AlertCircle, Mail, Lock, User, Building2, Shield } from "lucide-react";
 
 export default function AdminAddUsers() {
   const { isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState("");
-  const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -38,10 +38,8 @@ export default function AdminAddUsers() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setApiError("");
-    setSuccess("");
     if (!formData.name || !formData.email || !formData.password) {
-      setApiError("Name, email, and password are required");
+      toast.error("Name, email, and password are required");
       return;
     }
     setIsLoading(true);
@@ -54,13 +52,13 @@ export default function AdminAddUsers() {
         businessName: formData.businessName || undefined,
         role: formData.role,
       });
-      setSuccess(`User created successfully: ${formData.email}`);
+      toast.success(`User created successfully: ${formData.email}`);
       setFormData({ name: "", username: "", email: "", password: "", businessName: "", role: "USER" });
     } catch (err) {
       const msg = err.response?.data?.message
         || (err.response?.data?.fieldErrors ? Object.values(err.response.data.fieldErrors).join(", ") : null)
         || "Failed to create user";
-      setApiError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -68,38 +66,17 @@ export default function AdminAddUsers() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
-      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/dashboard")} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
-            </button>
-            <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex items-center justify-center">
-              <UserPlus className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-semibold text-slate-800">Add New User</span>
-          </div>
-          <button onClick={logout} className="text-sm text-slate-500 hover:text-slate-700">Logout</button>
-        </div>
-      </nav>
-
-      <div className="max-w-3xl mx-auto px-6 py-8">
+      <AppNavbar />
+      <div className="px-6 py-6">
+        <button onClick={() => navigate("/admin/users-list")}
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all mb-4">
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="mb-6">
             <h1 className="text-lg font-semibold text-slate-900">Create User Account</h1>
             <p className="text-sm text-slate-500 mt-1">The user will be able to login with these credentials and set up their business.</p>
           </div>
-
-          {apiError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />{apiError}
-            </div>
-          )}
-          {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700 text-sm">
-              <Check className="w-4 h-4 flex-shrink-0" />{success}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

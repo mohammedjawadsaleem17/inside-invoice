@@ -13,6 +13,14 @@ export const businessAPI = {
   setup: (data) => api.post("/business/setup", data),
   getProfile: () => api.get("/business/me"),
   update: (data) => api.put("/business/update", data),
+  uploadSignature: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post("/business/signature", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  removeSignature: () => api.delete("/business/signature"),
 };
 
 export const customerAPI = {
@@ -43,7 +51,14 @@ export const adminAPI = {
   createUser: (data) => api.post("/auth/signup", { ...data, businessName: data.businessName || undefined }),
   getStats: () => api.get("/admin/stats"),
   getAllUsers: () => api.get("/admin/users"),
+  getAllBusinesses: () => api.get("/admin/businesses"),
+  getBusinessInvoices: (businessId) => api.get(`/admin/businesses/${businessId}/invoices`),
+  getInvoice: (id) => api.get(`/admin/invoices/${id}`),
+  updateInvoice: (id, data) => api.put(`/admin/invoices/${id}`, data),
   updatePassword: (id, data) => api.put(`/admin/users/${id}/password`, data),
   updateRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }),
   deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  getAllCustomers: () => api.get("/admin/customers"),
+  getAllInvoices: () => api.get("/admin/invoices"),
+  getAnalytics: () => api.get("/admin/analytics"),
 };

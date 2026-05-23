@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import GSTBillingLanding from "./Landing/gst-landing-final";
@@ -16,9 +17,19 @@ import BarcodeGenerator from "./Landing/Services/BarcodeGenerator";
 import BusinessCardMaker from "./Landing/Services/BusinessCardMaker";
 import BusinessSetup from "./pages/BusinessSetup";
 import Dashboard from "./pages/Dashboard";
+import InvoiceForm from "./pages/InvoiceForm";
+import InvoiceView from "./pages/InvoiceView";
+import InvoicesList from "./pages/InvoicesList";
+import AddCustomer from "./pages/AddCustomer";
+import AddProduct from "./pages/AddProduct";
 import Profile from "./pages/Profile";
 import AdminAddUsers from "./pages/AdminAddUsers";
 import AdminUsersList from "./pages/AdminUsersList";
+import BusinessInvoices from "./pages/BusinessInvoices";
+import AdminInvoiceView from "./pages/AdminInvoiceView";
+import AdminBusinessesList from "./pages/AdminBusinessesList";
+import AdminCustomersList from "./pages/AdminCustomersList";
+import AdminInvoicesList from "./pages/AdminInvoicesList";
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -46,9 +57,19 @@ function AppRoutes() {
       <Route path="/business-card" element={<BusinessCardMaker />} />
       <Route path="/business-setup" element={<PrivateRoute><BusinessSetup /></PrivateRoute>} />
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Route path="/invoice" element={<PrivateRoute><InvoiceForm /></PrivateRoute>} />
+      <Route path="/invoice/:id" element={<PrivateRoute><InvoiceView /></PrivateRoute>} />
+      <Route path="/invoices" element={<PrivateRoute><InvoicesList /></PrivateRoute>} />
+      <Route path="/customers/new" element={<PrivateRoute><AddCustomer /></PrivateRoute>} />
+      <Route path="/products/new" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/admin/users" element={<PrivateRoute><AdminAddUsers /></PrivateRoute>} />
       <Route path="/admin/users-list" element={<PrivateRoute><AdminUsersList /></PrivateRoute>} />
+      <Route path="/admin/businesses" element={<PrivateRoute><AdminBusinessesList /></PrivateRoute>} />
+      <Route path="/admin/customers" element={<PrivateRoute><AdminCustomersList /></PrivateRoute>} />
+      <Route path="/admin/invoices" element={<PrivateRoute><AdminInvoicesList /></PrivateRoute>} />
+      <Route path="/admin/businesses/:businessId/invoices" element={<PrivateRoute><BusinessInvoices /></PrivateRoute>} />
+      <Route path="/admin/invoices/:id" element={<PrivateRoute><AdminInvoiceView /></PrivateRoute>} />
     </Routes>
   );
 }
@@ -57,6 +78,7 @@ function App() {
   return (
     <AuthProvider>
       <AppRoutes />
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { fontSize: '14px' } }} />
     </AuthProvider>
   );
 }

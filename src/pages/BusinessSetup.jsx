@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Check, ArrowRight, AlertCircle, Building2, MapPin, Phone, Mail, Globe, FileText } from "lucide-react";
+import AppNavbar from "../components/AppNavbar";
+import toast from "react-hot-toast";
+import { ArrowLeft, Check, ArrowRight, Building2, MapPin, Phone, Mail, Globe, FileText } from "lucide-react";
 
 export default function BusinessSetup() {
   const { setupBusiness, logout } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     businessName: "",
     gstIn: "",
@@ -29,10 +30,9 @@ export default function BusinessSetup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!formData.businessName || !formData.invoicePrefix) {
-      setError("Business name and invoice prefix are required");
+      toast.error("Business name and invoice prefix are required");
       return;
     }
 
@@ -43,16 +43,21 @@ export default function BusinessSetup() {
     } catch (err) {
       const fieldErrors = err.response?.data?.fieldErrors;
       const msg = fieldErrors ? Object.values(fieldErrors).join(". ") : (err.response?.data?.message || "Setup failed. Please try again.");
-      setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="glass-effect rounded-xl shadow-lg p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
+      <AppNavbar />
+      <div className="px-6 py-6">
+        <button onClick={() => navigate("/dashboard")}
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all mb-4">
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <div className="max-w-2xl mx-auto glass-effect rounded-xl shadow-lg p-6 lg:p-8">
           <div className="text-center mb-6">
             <div className="w-14 h-14 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center mx-auto mb-3">
               <Building2 className="w-7 h-7 text-white" />
@@ -60,13 +65,6 @@ export default function BusinessSetup() {
             <h1 className="text-xl font-semibold text-slate-900">Set Up Your Business</h1>
             <p className="text-slate-500 text-sm mt-1">Complete your business profile to start invoicing</p>
           </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

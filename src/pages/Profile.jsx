@@ -1,35 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { authAPI } from "../api/auth";
-import { ArrowLeft, User, AtSign, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
+import AppNavbar from "../components/AppNavbar";
+import { authAPI, businessAPI } from "../api/auth";
+import toast from "react-hot-toast";
+import { ArrowLeft, User, Lock, Upload, Trash2, Pen, Eye, EyeOff } from "lucide-react";
 
 export default function Profile() {
   const { user, token, setUser, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState(user?.name || "");
-  const [username, setUsername] = useState(user?.username || "");
+  const [displayName, setDisplayName] = useState(user?.username || user?.name || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [nameMsg, setNameMsg] = useState({ type: "", text: "" });
-  const [pwMsg, setPwMsg] = useState({ type: "", text: "" });
   const [savingName, setSavingName] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
+  const [signature, setSignature] = useState(null);
+  const [uploadingSig, setUploadingSig] = useState(false);
+  const [ghostMode, setGhostMode] = useState(localStorage.getItem("ghost_mode") === "true");
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    businessAPI.getProfile()
+      .then((res) => setSignature(res.data.data?.signature || null))
+      .catch(() => {});
+  }, []);
 
   const handleUpdateName = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !username.trim()) return;
+    if (!displayName.trim()) return;
     setSavingName(true);
-    setNameMsg({ type: "", text: "" });
     try {
-      const res = await authAPI.updateProfile({ name: name.trim(), username: username.trim() });
-      const updated = { ...user, name: name.trim(), username: username.trim() };
+      const val = displayName.trim();
+      const res = await authAPI.updateProfile({ name: val, username: val });
+      const updated = { ...user, name: val, username: val };
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
-      setNameMsg({ type: "success", text: res.data.message || "Profile updated" });
+      toast.success(res.data.message || "Profile updated");
     } catch (err) {
-      setNameMsg({ type: "error", text: err.response?.data?.message || "Failed to update profile" });
+      toast.error(err.response?.data?.message || "Failed to update profile");
     } finally {
       setSavingName(false);
     }
@@ -39,76 +48,85 @@ export default function Profile() {
     e.preventDefault();
     if (!currentPassword || !newPassword) return;
     if (newPassword.length < 4) {
-      setPwMsg({ type: "error", text: "Password must be at least 4 characters" });
+      toast.error("Password must be at least 4 characters");
       return;
     }
     setSavingPw(true);
-    setPwMsg({ type: "", text: "" });
     try {
       const res = await authAPI.changePassword({ currentPassword, newPassword });
-      setPwMsg({ type: "success", text: res.data.message || "Password changed" });
+      toast.success(res.data.message || "Password changed");
       setCurrentPassword("");
       setNewPassword("");
     } catch (err) {
-      setPwMsg({ type: "error", text: err.response?.data?.message || "Failed to change password" });
+      toast.error(err.response?.data?.message || "Failed to change password");
     } finally {
       setSavingPw(false);
     }
   };
 
+  const handleSignatureUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 1_048_576) {
+      toast.error("File size must not exceed 1MB");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed");
+      return;
+    }
+    setUploadingSig(true);
+    try {
+      const res = await businessAPI.uploadSignature(file);
+      setSignature(res.data.data);
+      toast.success("Signature uploaded successfully");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to upload signature");
+    } finally {
+      setUploadingSig(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveSignature = async () => {
+    setUploadingSig(true);
+    try {
+      await businessAPI.removeSignature();
+      setSignature(null);
+      toast.success("Signature removed");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to remove signature");
+    } finally {
+      setUploadingSig(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
-      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/dashboard")} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
-            </button>
-            <span className="font-semibold text-slate-800">My Profile</span>
-          </div>
-          <button onClick={logout} className="text-sm text-slate-500 hover:text-slate-700">Logout</button>
-        </div>
-      </nav>
-
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+      <AppNavbar />
+      <div className="px-6 py-6">
+        <button onClick={() => navigate(-1)}
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all mb-6">
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="flex items-center gap-2 mb-5">
             <User className="w-5 h-5 text-slate-600" />
             <h2 className="text-base font-semibold text-slate-900">Profile</h2>
           </div>
 
-          {nameMsg.text && (
-            <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${
-              nameMsg.type === "success" ? "bg-green-50 border border-green-200 text-green-700" : "bg-red-50 border border-red-200 text-red-700"
-            }`}>
-              {nameMsg.type === "success" ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-              {nameMsg.text}
-            </div>
-          )}
-
           <form onSubmit={handleUpdateName} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Display Name</label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Username</label>
-              <div className="relative">
-                <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400"
-                />
-              </div>
-            </div>
-            <button type="submit" disabled={savingName || !name.trim() || !username.trim()}
+            <button type="submit" disabled={savingName || !displayName.trim()}
               className="px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 transition-colors">
               {savingName ? "Saving..." : "Save"}
             </button>
@@ -116,19 +134,32 @@ export default function Profile() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <Eye className="w-5 h-5 text-slate-600" />
+              <h2 className="text-base font-semibold text-slate-900">Ghost Mode</h2>
+            </div>
+            <button onClick={() => {
+              const next = !ghostMode;
+              setGhostMode(next);
+              localStorage.setItem("ghost_mode", String(next));
+            }}
+              className={`relative w-11 h-6 rounded-full transition-colors ${ghostMode ? "bg-amber-500" : "bg-slate-300"}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${ghostMode ? "translate-x-5" : ""}`} />
+            </button>
+          </div>
+          <p className="text-xs text-slate-500">
+            When enabled, you can manually set the invoice number when creating invoices.
+            Use this only for corrections (e.g., fixing a mistakenly generated invoice).
+            Auto-increment resumes when Ghost Mode is off.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="flex items-center gap-2 mb-5">
             <Lock className="w-5 h-5 text-slate-600" />
             <h2 className="text-base font-semibold text-slate-900">Password</h2>
           </div>
-
-          {pwMsg.text && (
-            <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${
-              pwMsg.type === "success" ? "bg-green-50 border border-green-200 text-green-700" : "bg-red-50 border border-red-200 text-red-700"
-            }`}>
-              {pwMsg.type === "success" ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-              {pwMsg.text}
-            </div>
-          )}
 
           <form onSubmit={handleChangePassword} className="space-y-3">
             <div>
@@ -155,6 +186,44 @@ export default function Profile() {
             </button>
           </form>
         </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Pen className="w-5 h-5 text-slate-600" />
+            <h2 className="text-base font-semibold text-slate-900">Signature</h2>
+          </div>
+          <p className="text-xs text-slate-500 mb-4">Upload your signature image to appear on invoices. Max 1MB.</p>
+
+          {signature && (
+            <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200 inline-block">
+              <img src={`data:image/png;base64,${signature}`} alt="Signature"
+                className="h-12 object-contain" />
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleSignatureUpload}
+              className="hidden"
+              id="signature-upload"
+            />
+            <label htmlFor="signature-upload"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 cursor-pointer transition-colors">
+              <Upload className="w-4 h-4" />
+              {uploadingSig ? "Uploading..." : signature ? "Change" : "Upload Signature"}
+            </label>
+            {signature && (
+              <button onClick={handleRemoveSignature} disabled={uploadingSig}
+                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors">
+                <Trash2 className="w-4 h-4" /> Remove
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
       </div>
 
       <style>{`
