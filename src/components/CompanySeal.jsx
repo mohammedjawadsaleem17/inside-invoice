@@ -58,21 +58,21 @@ export default function CompanySeal({
         textAnchor="middle"
         dominantBaseline="middle"
         fontFamily={font}
-        fontSize={34}
+        fontSize={42}
         fontWeight={700}
         fill={color}
-        letterSpacing={9}
+        letterSpacing={11}
       >
         SEAL
       </text>
 
       <text
         x={cx}
-        y={cy + 27}
+        y={cy + 31}
         textAnchor="middle"
         dominantBaseline="middle"
         fontFamily={font}
-        fontSize={30}
+        fontSize={38}
         fontWeight={700}
         fill={color}
       >
