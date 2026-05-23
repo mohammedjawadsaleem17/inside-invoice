@@ -98,19 +98,13 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
         <tbody>
           {/* TITLE ROW */}
           <tr>
-            <td colSpan={2} style={{ border: S.border, padding: "6px 10px" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <tbody>
-                  <tr>
-                    <td style={{ border: 0, padding: 0, fontSize: "16px", fontWeight: "bold", textTransform: "uppercase" }}>
-                      {type === "PROFORMA_INVOICE" ? "PROFORMA INVOICE" : "TAX INVOICE"}
-                    </td>
-                    <td style={{ border: 0, padding: 0, textAlign: "right", fontSize: "11px", fontStyle: "italic" }}>
-                      (ORIGINAL FOR RECIPIENT)
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <td colSpan={2} style={{ borderBottom: S.border, padding: 0 }}>
+              <div style={{ position: "relative", textAlign: "center", fontSize: "14px", fontWeight: "bold", padding: "6px 10px" }}>
+                {type === "PROFORMA_INVOICE" ? "Proforma Invoice" : "Tax Invoice"}
+                <span style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "11px", fontStyle: "italic", fontWeight: "normal" }}>
+                  (ORIGINAL FOR RECIPIENT)
+                </span>
+              </div>
             </td>
           </tr>
 
@@ -138,7 +132,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                   </tr>
                   <tr>
                     <td style={{ borderTop: S.border, padding: "8px 12px", verticalAlign: "top" }}>
-                      <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "3px", marginBottom: "4px" }}>
+                      <div style={{ fontSize: "11px", fontWeight: "bold", marginBottom: "4px" }}>
                         Buyer (Bill to)
                       </div>
                       <div style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "3px" }}>
@@ -186,9 +180,15 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
             </td>
           </tr>
 
+          {/* SEPARATOR LINE before item table */}
+          <tr>
+            <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderTop: S.border, padding: 0, height: "6px" }}>
+            </td>
+          </tr>
+
           {/* ITEM TABLE */}
           <tr>
-            <td colSpan={2} style={{ padding: 0, borderLeft: S.border, borderRight: S.border }}>
+            <td colSpan={2} style={{ padding: "4px 0 0", borderLeft: S.border, borderRight: S.border, borderBottom: S.border }}>
               <table style={tStyle}>
                 <thead>
                   <tr style={{ height: "32px" }}>
@@ -217,7 +217,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                         { a: "center", v: (parseFloat(item.gstPercentage) || 0).toFixed(1) + "%", w: 62 },
                         { a: "center", v: parseFloat(item.qty).toFixed(2), w: 72 },
                         { a: "right", v: formatINR(item.rate), w: 76 },
-                        { a: "center", v: "Nos", w: 42 },
+                        { a: "center", v: "Piece", w: 42 },
                         { a: "right", v: formatINR(item.total), w: 90 },
                       ].map((c, ci) => (
                         <td key={ci} style={{
@@ -284,15 +284,14 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                         {totals.grandTotal > 0 ? numberToWords(totals.grandTotal) : "Zero Rupees Only"}
                       </div>
                     </td>
-                    <td style={{ width: "28%", padding: "6px 10px", textAlign: "right", verticalAlign: "top" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", marginBottom: "2px" }}>
-                        <span style={{ fontWeight: "bold" }}>Total</span>
-                        <span>{totalQty.toFixed(2)}</span>
+                    <td style={{ width: "28%", padding: "6px 10px", verticalAlign: "top" }}>
+                      <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "2px", textAlign: "left" }}>
+                        Total
                       </div>
-                      <div style={{ fontSize: "18px", fontWeight: "bold", margin: "2px 0" }}>
+                      <div style={{ fontSize: "18px", fontWeight: "bold", margin: "2px 0", textAlign: "left" }}>
                         Rs: {formatINR(totals.grandTotal)}
                       </div>
-                      <div style={{ fontSize: "10px", fontStyle: "italic" }}>
+                      <div style={{ fontSize: "10px", fontStyle: "italic", textAlign: "right" }}>
                         E. & O.E
                       </div>
                     </td>
@@ -358,7 +357,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: "5px 10px" }}>
               <span style={{ fontSize: "10px", fontWeight: "bold" }}>Tax Amount (in words): </span>
               <span style={{ fontSize: "10px", fontWeight: "bold" }}>
-                {totals.taxAmount > 0 ? numberToWords(totals.taxAmount) + " (as per GST breakup above)" : "Nil"}
+                {totals.taxAmount > 0 ? numberToWords(totals.taxAmount) : "Nil"}
               </span>
             </td>
           </tr>
@@ -386,15 +385,14 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                       <div style={{ fontSize: "10px", lineHeight: "1.4" }}>
                         We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
                       </div>
-                      {form?.notes ? <div style={{ fontSize: "10px", lineHeight: "1.4", marginTop: "4px" }}>{form.notes}</div> : null}
                     </td>
                     <td style={{ width: "30%", padding: "5px", verticalAlign: "top" }}>
                       <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "2px", marginBottom: "4px" }}>
                         {business?.businessName || "Company Name"}
                       </div>
-                      <div style={{ marginTop: "40px", textAlign: "right" }}>
-                        {sigSrc ? <img src={sigSrc} alt="signature" style={{ height: "30px", objectFit: "contain", display: "block", marginLeft: "auto" }} /> : null}
-                        <div style={{ fontSize: "10px", marginTop: "4px" }}>Authorised Signatory</div>
+                      <div style={{ marginTop: "30px", textAlign: "center" }}>
+                        <div style={{ fontSize: "10px", marginBottom: "4px" }}>Authorised Signatory</div>
+                        {sigSrc ? <img src={sigSrc} alt="signature" style={{ height: "60px", objectFit: "contain", display: "block", margin: "0 auto" }} /> : null}
                       </div>
                     </td>
                   </tr>
@@ -405,7 +403,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
 
           {/* FOOTER */}
           <tr>
-            <td colSpan={2} style={{ border: S.border, borderTop: 0, padding: "4px", textAlign: "center" }}>
+            <td colSpan={2} style={{ padding: "4px", textAlign: "center" }}>
               <div style={{ fontSize: "10px", fontWeight: "bold" }}>SUBJECT TO BENGALURU JURISDICTION</div>
               <div style={{ fontSize: "10px", marginTop: "1px" }}>This is a Computer Generated Invoice</div>
             </td>

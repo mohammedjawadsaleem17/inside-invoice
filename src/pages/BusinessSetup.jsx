@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
 import toast from "react-hot-toast";
-import { ArrowLeft, Check, ArrowRight, Building2, MapPin, Phone, Mail, Globe, FileText } from "lucide-react";
+import { ArrowLeft, Check, ArrowRight, Building2, MapPin, Phone, Mail, Globe, FileText, Landmark } from "lucide-react";
 
 export default function BusinessSetup() {
   const { setupBusiness, logout } = useAuth();
@@ -22,6 +22,11 @@ export default function BusinessSetup() {
     country: "India",
     pincode: "",
     invoicePrefix: "",
+    bankName: "",
+    accountNo: "",
+    branch: "",
+    ifsc: "",
+    bankAddress: "",
   });
 
   const handleChange = (e) => {
@@ -127,6 +132,40 @@ export default function BusinessSetup() {
                 <label className="block text-xs font-medium text-slate-600 mb-1">Pincode</label>
                 <input type="text" name="pincode" value={formData.pincode} onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="560034" />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center gap-2 mb-4">
+                <Landmark className="w-5 h-5 text-slate-600" />
+                <h2 className="text-sm font-semibold text-slate-800">Company Bank Details</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Bank Name</label>
+                  <input type="text" name="bankName" value={formData.bankName} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="State Bank of India" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Account No.</label>
+                  <input type="text" name="accountNo" value={formData.accountNo} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="123456789012" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Branch</label>
+                  <input type="text" name="branch" value={formData.branch} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="MG Road" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">IFSC Code</label>
+                  <input type="text" name="ifsc" value={formData.ifsc} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 uppercase" placeholder="SBIN0001234" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Bank Address</label>
+                  <input type="text" name="bankAddress" value={formData.bankAddress} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="MG Road, Bangalore" />
+                </div>
               </div>
             </div>
 

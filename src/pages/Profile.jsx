@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
 import { authAPI, businessAPI } from "../api/auth";
 import toast from "react-hot-toast";
-import { ArrowLeft, User, Lock, Upload, Trash2, Pen, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, User, Lock, Upload, Trash2, Pen, Eye, EyeOff, Landmark, Building, MapPin, Globe, Phone, Mail, Hash, FileText } from "lucide-react";
 
 export default function Profile() {
   const { user, token, setUser, logout, isAdmin } = useAuth();
@@ -18,11 +18,41 @@ export default function Profile() {
   const [signature, setSignature] = useState(null);
   const [uploadingSig, setUploadingSig] = useState(false);
   const [ghostMode, setGhostMode] = useState(localStorage.getItem("ghost_mode") === "true");
+  const [businessData, setBusinessData] = useState(null);
+  const [bankForm, setBankForm] = useState({ bankName: "", accountNo: "", branch: "", ifsc: "", bankAddress: "" });
+  const [savingBank, setSavingBank] = useState(false);
+  const [bizForm, setBizForm] = useState({ businessName: "", gstIn: "", phone: "", email: "", website: "", addressLine1: "", addressLine2: "", city: "", state: "", country: "", pincode: "", invoicePrefix: "" });
+  const [savingBiz, setSavingBiz] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     businessAPI.getProfile()
-      .then((res) => setSignature(res.data.data?.signature || null))
+      .then((res) => {
+        const b = res.data.data;
+        setSignature(b?.signature || null);
+        setBusinessData(b);
+        setBankForm({
+          bankName: b?.bankName || "",
+          accountNo: b?.accountNo || "",
+          branch: b?.branch || "",
+          ifsc: b?.ifsc || "",
+          bankAddress: b?.bankAddress || "",
+        });
+        setBizForm({
+          businessName: b?.businessName || "",
+          gstIn: b?.gstIn || "",
+          phone: b?.phone || "",
+          email: b?.email || "",
+          website: b?.website || "",
+          addressLine1: b?.addressLine1 || "",
+          addressLine2: b?.addressLine2 || "",
+          city: b?.city || "",
+          state: b?.state || "",
+          country: b?.country || "",
+          pincode: b?.pincode || "",
+          invoicePrefix: b?.invoicePrefix || "",
+        });
+      })
       .catch(() => {});
   }, []);
 
@@ -99,6 +129,40 @@ export default function Profile() {
     } finally {
       setUploadingSig(false);
     }
+  };
+
+  const handleBankSave = async (e) => {
+    e.preventDefault();
+    setSavingBank(true);
+    try {
+      await businessAPI.update(bankForm);
+      toast.success("Bank details updated");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update bank details");
+    } finally {
+      setSavingBank(false);
+    }
+  };
+
+  const handleBizChange = (e) => {
+    setBizForm({ ...bizForm, [e.target.name]: e.target.value });
+  };
+
+  const handleBizSave = async (e) => {
+    e.preventDefault();
+    setSavingBiz(true);
+    try {
+      await businessAPI.update(bizForm);
+      toast.success("Business information updated");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update business information");
+    } finally {
+      setSavingBiz(false);
+    }
+  };
+
+  const handleBankChange = (e) => {
+    setBankForm({ ...bankForm, [e.target.name]: e.target.value });
   };
 
   return (
@@ -197,7 +261,7 @@ export default function Profile() {
           {signature && (
             <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200 inline-block">
               <img src={`data:image/png;base64,${signature}`} alt="Signature"
-                className="h-12 object-contain" />
+                className="h-24 object-contain" />
             </div>
           )}
 
@@ -223,7 +287,120 @@ export default function Profile() {
             )}
           </div>
         </div>
-      </div>
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Building className="w-5 h-5 text-slate-600" />
+            <h2 className="text-base font-semibold text-slate-900">Business Information</h2>
+          </div>
+          <form onSubmit={handleBizSave} className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Business Name</label>
+                <input type="text" name="businessName" value={bizForm.businessName} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">GSTIN</label>
+                <input type="text" name="gstIn" value={bizForm.gstIn} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Phone</label>
+                <input type="text" name="phone" value={bizForm.phone} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Email</label>
+                <input type="email" name="email" value={bizForm.email} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Website</label>
+                <input type="text" name="website" value={bizForm.website} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Invoice Prefix</label>
+                <input type="text" name="invoicePrefix" value={bizForm.invoicePrefix} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Address Line 1</label>
+                <input type="text" name="addressLine1" value={bizForm.addressLine1} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Address Line 2</label>
+                <input type="text" name="addressLine2" value={bizForm.addressLine2} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">City</label>
+                <input type="text" name="city" value={bizForm.city} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">State</label>
+                <input type="text" name="state" value={bizForm.state} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Country</label>
+                <input type="text" name="country" value={bizForm.country} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Pincode</label>
+                <input type="text" name="pincode" value={bizForm.pincode} onChange={handleBizChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+            </div>
+            <button type="submit" disabled={savingBiz}
+              className="px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 transition-colors">
+              {savingBiz ? "Saving..." : "Save Business Info"}
+            </button>
+          </form>
+        </div>
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Landmark className="w-5 h-5 text-slate-600" />
+            <h2 className="text-base font-semibold text-slate-900">Company Bank Details</h2>
+          </div>
+          <form onSubmit={handleBankSave} className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Bank Name</label>
+                <input type="text" name="bankName" value={bankForm.bankName} onChange={handleBankChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Account No.</label>
+                <input type="text" name="accountNo" value={bankForm.accountNo} onChange={handleBankChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Branch</label>
+                <input type="text" name="branch" value={bankForm.branch} onChange={handleBankChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">IFSC Code</label>
+                <input type="text" name="ifsc" value={bankForm.ifsc} onChange={handleBankChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 uppercase" />
+              </div>
+              <div className="md:col-span-2 lg:col-span-2">
+                <label className="block text-xs font-medium text-slate-500 mb-1">Bank Address</label>
+                <input type="text" name="bankAddress" value={bankForm.bankAddress} onChange={handleBankChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" />
+              </div>
+            </div>
+            <button type="submit" disabled={savingBank}
+              className="px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 transition-colors">
+              {savingBank ? "Saving..." : "Save Bank Details"}
+            </button>
+          </form>
+        </div>
+        </div>
       </div>
 
       <style>{`

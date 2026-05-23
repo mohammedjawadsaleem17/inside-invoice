@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
-import { invoiceAPI } from "../api/auth";
+import { invoiceAPI, businessAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import { ArrowLeft, FileText, Download, Eye } from "lucide-react";
 import InvoicePDF, { downloadInvoicePDF } from "../components/InvoicePDF";
@@ -28,6 +28,11 @@ export default function InvoicesList() {
   useEffect(() => { fetchInvoices(); }, []);
 
   const downloadPDF = async (invoice) => {
+    let business = null;
+    try {
+      const bRes = await businessAPI.getProfile();
+      business = bRes.data.data;
+    } catch (_) {}
     const items = (invoice.items || []).map((i) => ({
       itemName: i.itemName, hsn: i.hsn || "", qty: String(i.qty), rate: String(i.rate),
       gstPercentage: String(i.gstPercentage), taxableValue: i.taxableValue, taxAmount: i.taxAmount, total: i.total,
@@ -57,7 +62,7 @@ export default function InvoicesList() {
                 }, 150);
               }
             }}
-            business={null}
+            business={business}
             customer={{
               name: invoice.customerName || "",
               billingAddress: invoice.billingAddress || "",

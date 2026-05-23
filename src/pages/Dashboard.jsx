@@ -317,8 +317,6 @@ export default function Dashboard() {
                 {[
                   { label: "Invoices", icon: FileText, count: "0", color: "from-blue-500 to-blue-600" },
                   { label: "Customers", icon: Users, count: "0", color: "from-emerald-500 to-emerald-600" },
-                  { label: "Products", icon: Package, count: "0", color: "from-purple-500 to-purple-600" },
-                  { label: "Business", icon: Building2, count: "", color: "from-amber-500 to-amber-600" },
                   { label: "Settings", icon: Settings, count: user?.role === "ADMIN" ? "Admin" : "Client", color: "from-purple-500 to-purple-600", path: "/profile" },
                 ].map((card) => (
                   <div key={card.label}
