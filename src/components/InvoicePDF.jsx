@@ -1,6 +1,7 @@
 import React from "react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
+import CompanySeal from "./CompanySeal";
 
 const S = {
   border: "1px solid #000",
@@ -394,15 +395,15 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                         We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
                       </div>
                     </td>
-                     <td style={{ width: "30%", padding: "5px", verticalAlign: "top" }}>
-                       <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "2px", marginBottom: "4px" }}>
-                         {business?.businessName || "Company Name"}
-                       </div>
-                       <div style={{ marginTop: "10px", textAlign: "center" }}>
-                         {sigSrc ? <img src={sigSrc} alt="signature" style={{ height: "60px", objectFit: "contain", display: "block", margin: "0 auto" }} /> : null}
-                         <div style={{ fontSize: "10px", marginTop: "4px" }}>Authorised Signatory</div>
-                       </div>
-                     </td>
+                      <td style={{ width: "30%", padding: "5px", verticalAlign: "top" }}>
+                        <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "2px", marginBottom: "4px" }}>
+                          {business?.businessName || "Company Name"}
+                        </div>
+                        <div style={{ marginTop: "10px", textAlign: "center" }}>
+                          {sigSrc ? <img src={sigSrc} alt="signature" style={{ height: "50px", objectFit: "contain", display: "block", margin: "0 auto" }} /> : null}
+                          <div style={{ fontSize: "10px", marginTop: "4px" }}>Authorised Signatory</div>
+                        </div>
+                      </td>
                   </tr>
                 </tbody>
               </table>
@@ -411,9 +412,32 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
 
           {/* FOOTER */}
           <tr>
-            <td colSpan={2} style={{ padding: "4px", textAlign: "center" }}>
-              <div style={{ fontSize: "10px", fontWeight: "bold" }}>SUBJECT TO BENGALURU JURISDICTION</div>
-              <div style={{ fontSize: "10px", marginTop: "1px" }}>This is a Computer Generated Invoice</div>
+            <td colSpan={2} style={{ padding: "6px 10px" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <tbody>
+                  <tr>
+                    <td style={{ textAlign: "center", padding: 0 }}>
+                      <div style={{ fontSize: "10px", fontWeight: "bold" }}>SUBJECT TO BENGALURU JURISDICTION</div>
+                      <div style={{ fontSize: "10px", marginTop: "1px" }}>This is a Computer Generated Invoice</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ textAlign: "right", padding: 0, paddingTop: "10px" }}>
+                      {typeof window !== "undefined" && localStorage.getItem("show_seal") === "true" && (
+                        <div style={{ display: "inline-block" }}>
+                          <CompanySeal
+                            companyName={business?.businessName || "COMPANY NAME"}
+                            stateName={business?.state || "STATE"}
+                            year={new Date().getFullYear()}
+                            size={80}
+                            color="#0A4BFF"
+                          />
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
           </tr>
         </tbody>

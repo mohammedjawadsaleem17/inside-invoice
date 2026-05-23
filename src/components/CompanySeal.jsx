@@ -1,0 +1,83 @@
+import { useMemo, useId } from "react";
+
+export default function CompanySeal({
+  companyName = "BUSINESS NAME PRIVATE LIMITED",
+  stateName = "MUMBAI",
+  year = new Date().getFullYear(),
+  size = 120,
+  color = "#0A4BFF",
+}) {
+  const uid = useId();
+  const vw = 300;
+  const cx = vw / 2;
+  const cy = vw / 2;
+  const outerR = 148;
+  const innerR = 112;
+  const textR = 121;
+
+  const font = "'IBM Plex Mono','JetBrains Mono','Space Mono',monospace";
+
+  const wrapped = useMemo(() => {
+    const name = companyName.toUpperCase().trim();
+    return `\u2736 ${name} \u2736`;
+  }, [companyName]);
+
+  const circleId = `seal-path-${uid}`;
+  const circlePath = `M ${cx},${cy - textR} A ${textR},${textR} 0 1,1 ${cx - 0.01},${cy - textR}`;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${vw} ${vw}`}
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ display: "block" }}
+    >
+      <defs>
+        <path id={circleId} d={circlePath} />
+      </defs>
+
+      <circle cx={cx} cy={cy} r={outerR} fill="none" stroke={color} strokeWidth={3.5} />
+      <circle cx={cx} cy={cy} r={innerR} fill="none" stroke={color} strokeWidth={2} />
+
+      <text
+        fontFamily={font}
+        fontSize={25}
+        fontWeight={700}
+        fill={color}
+        letterSpacing={6}
+      >
+        <textPath href={`#${circleId}`} startOffset="0%" textAnchor="start">
+          {wrapped}
+        </textPath>
+      </text>
+
+      <text
+        x={cx}
+        y={cy - 8}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontFamily={font}
+        fontSize={34}
+        fontWeight={700}
+        fill={color}
+        letterSpacing={9}
+      >
+        SEAL
+      </text>
+
+      <text
+        x={cx}
+        y={cy + 27}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontFamily={font}
+        fontSize={30}
+        fontWeight={700}
+        fill={color}
+      >
+        {String(year)}
+      </text>
+    </svg>
+  );
+}

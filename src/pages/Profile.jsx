@@ -18,6 +18,7 @@ export default function Profile() {
   const [signature, setSignature] = useState(null);
   const [uploadingSig, setUploadingSig] = useState(false);
   const [ghostMode, setGhostMode] = useState(localStorage.getItem("ghost_mode") === "true");
+  const [sealEnabled, setSealEnabled] = useState(localStorage.getItem("show_seal") === "true");
   const [businessData, setBusinessData] = useState(null);
   const [bankForm, setBankForm] = useState({ bankName: "", accountNo: "", branch: "", ifsc: "", bankAddress: "" });
   const [savingBank, setSavingBank] = useState(false);
@@ -216,6 +217,26 @@ export default function Profile() {
             When enabled, you can manually set the invoice number when creating invoices.
             Use this only for corrections (e.g., fixing a mistakenly generated invoice).
             Auto-increment resumes when Ghost Mode is off.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-slate-600" />
+              <h2 className="text-base font-semibold text-slate-900">Company Seal</h2>
+            </div>
+            <button onClick={() => {
+              const next = !sealEnabled;
+              setSealEnabled(next);
+              localStorage.setItem("show_seal", String(next));
+            }}
+              className={`relative w-11 h-6 rounded-full transition-colors ${sealEnabled ? "bg-blue-500" : "bg-slate-300"}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${sealEnabled ? "translate-x-5" : ""}`} />
+            </button>
+          </div>
+          <p className="text-xs text-slate-500">
+            When enabled, the company seal will appear on downloaded invoices.
           </p>
         </div>
 
