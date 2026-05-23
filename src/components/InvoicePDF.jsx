@@ -148,7 +148,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                 </tbody>
               </table>
             </td>
-            <td style={{ width: "43%", border: S.border, borderLeft: 0, padding: 0, verticalAlign: "top" }}>
+            <td style={{ width: "43%", borderRight: S.border, padding: 0, verticalAlign: "top" }}>
               <table style={tStyle}>
                 <tbody>
                   {rightLabels.map((label, idx) => (
@@ -188,55 +188,63 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
 
           {/* ITEM TABLE */}
           <tr>
-            <td colSpan={2} style={{ padding: "4px 0 0", borderLeft: S.border, borderRight: S.border, borderBottom: S.border }}>
+            <td colSpan={2} style={{ padding: "4px 0 0", borderLeft: S.border, borderRight: S.border }}>
               <table style={tStyle}>
                 <thead>
-                  <tr style={{ height: "32px" }}>
-                    {ITEM_COLS.map((col, idx) => (
-                      <th key={idx} style={{
-                        ...cell(col.w),
-                        border: S.border,
-                        textAlign: "center",
-                        fontSize: "10px",
-                        padding: "3px 2px",
-                        verticalAlign: "middle",
-                        background: "#f0f0f0",
-                      }}>
-                        {idx === 5 ? "Rate (Incl. of Tax)" : col.key === "sl" ? "Sl No" : col.key === "desc" ? "Description of Goods" : col.key === "hsn" ? "HSN/SAC" : col.key === "gst" ? "GST Rate" : col.key === "qty" ? "Quantity" : col.key === "per" ? "per" : "Amount"}
-                      </th>
-                    ))}
-                  </tr>
+                   <tr style={{ height: "32px" }}>
+                     {ITEM_COLS.map((col, idx) => (
+                       <th key={idx} style={{
+                         ...cell(col.w),
+                         borderTop: S.border,
+                         borderRight: S.border,
+                         borderBottom: S.border,
+                         borderLeft: idx === 0 ? 0 : S.border,
+                         textAlign: "center",
+                         fontSize: "10px",
+                         padding: "3px 2px",
+                         verticalAlign: "middle",
+                         background: "#f0f0f0",
+                         lineHeight: "1.2",
+                         whiteSpace: "normal",
+                       }}>
+                         {idx === 5 ? "Rate (Incl. of Tax)" : col.key === "sl" ? "Sl No" : col.key === "desc" ? "Description of Goods" : col.key === "hsn" ? "HSN/SAC" : col.key === "gst" ? "GST Rate" : col.key === "qty" ? "Quantity" : col.key === "per" ? "per" : "Amount"}
+                       </th>
+                     ))}
+                   </tr>
                 </thead>
                 <tbody>
                   {validItems.length > 0 ? validItems.map((item, idx) => (
                     <tr key={idx} style={{ height: "28px" }}>
-                      {[
-                        { a: "center", v: idx + 1, w: 52 },
-                        { a: "left", v: item.itemName, w: 262 },
-                        { a: "center", v: item.hsn || "-", w: 76 },
-                        { a: "center", v: (parseFloat(item.gstPercentage) || 0).toFixed(1) + "%", w: 62 },
-                        { a: "center", v: parseFloat(item.qty).toFixed(2), w: 72 },
-                        { a: "right", v: formatINR(item.rate), w: 76 },
-                        { a: "center", v: "Piece", w: 42 },
-                        { a: "right", v: formatINR(item.total), w: 90 },
-                      ].map((c, ci) => (
-                        <td key={ci} style={{
-                          ...cell(c.w),
-                          border: S.border,
-                          textAlign: c.a,
-                          fontSize: "10px",
-                          padding: "3px 4px",
-                          verticalAlign: "middle",
-                        }}>
-                          {c.v}
-                        </td>
-                      ))}
+                       {[
+                         { a: "center", v: idx + 1, w: 52 },
+                         { a: "left", v: item.itemName, w: 262 },
+                         { a: "center", v: item.hsn || "-", w: 76 },
+                         { a: "center", v: (parseFloat(item.gstPercentage) || 0).toFixed(1) + "%", w: 62 },
+                         { a: "center", v: parseFloat(item.qty).toFixed(2), w: 72 },
+                         { a: "center", v: formatINR(item.rate), w: 76 },
+                         { a: "center", v: "Piece", w: 42 },
+                         { a: "right", v: formatINR(item.total), w: 90 },
+                       ].map((c, ci) => (
+                         <td key={ci} style={{
+                           ...cell(c.w),
+                           borderTop: S.border,
+                           borderRight: S.border,
+                           borderBottom: S.border,
+                           borderLeft: ci === 0 ? 0 : S.border,
+                           textAlign: c.a,
+                           fontSize: "10px",
+                           padding: "3px 4px",
+                           verticalAlign: "middle",
+                         }}>
+                           {c.v}
+                         </td>
+                       ))}
                     </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={8} style={{ border: S.border, textAlign: "center", padding: "8px", fontSize: "10px" }}>No items</td>
-                    </tr>
-                  )}
+                   )) : (
+                     <tr>
+                       <td colSpan={8} style={{ borderTop: S.border, borderRight: S.border, borderBottom: S.border, textAlign: "center", padding: "8px", fontSize: "10px" }}>No items</td>
+                     </tr>
+                   )}
                 </tbody>
               </table>
             </td>
@@ -310,49 +318,49 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                     <th rowSpan={2} style={{ width: "16%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", verticalAlign: "middle" }}>HSN/SAC</th>
                     <th rowSpan={2} style={{ width: "18%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", verticalAlign: "middle" }}>Taxable Value</th>
                     <th colSpan={2} style={{ width: "24%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", verticalAlign: "middle" }}>CGST</th>
-                    <th colSpan={2} style={{ width: "28%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", verticalAlign: "middle" }}>SGST/UTGST</th>
-                    <th rowSpan={2} style={{ width: "14%", border: S.border, borderRight: 0, textAlign: "center", fontSize: "10px", padding: "2px", verticalAlign: "middle" }}>Total Tax Amount</th>
-                  </tr>
-                  <tr style={{ height: "28px" }}>
-                    <td style={{ width: "12%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Rate</td>
-                    <td style={{ width: "12%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Amount</td>
-                    <td style={{ width: "14%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Rate</td>
-                    <td style={{ width: "14%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Amount</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  {validItems.map((item, idx) => {
-                    const gst = parseFloat(item.gstPercentage) || 0;
-                    const halfGst = gst / 2;
-                    const taxable = parseFloat(item.taxableValue) || 0;
-                    const taxAmt = parseFloat(item.taxAmount) || 0;
-                    return (
-                      <tr key={idx} style={{ height: "26px" }}>
-                        <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>{item.hsn || "-"}</td>
-                        <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px" }}>{formatINR(taxable)}</td>
-                        <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>{halfGst.toFixed(1)}%</td>
-                        <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px" }}>{formatINR(taxAmt / 2)}</td>
-                        <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>{halfGst.toFixed(1)}%</td>
-                        <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px" }}>{formatINR(taxAmt / 2)}</td>
-                        <td style={{ border: S.border, borderRight: 0, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(taxAmt)}</td>
-                      </tr>
-                    );
-                  })}
-                  <tr style={{ height: "26px", background: "#f0f0f0" }}>
-                    <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", fontWeight: "bold" }}>Total</td>
-                    <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.subtotal)}</td>
-                    <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}></td>
-                    <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.taxAmount / 2)}</td>
-                    <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}></td>
-                    <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.taxAmount / 2)}</td>
-                    <td style={{ border: S.border, borderRight: 0, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.taxAmount)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
+                     <th colSpan={2} style={{ width: "28%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", verticalAlign: "middle" }}>SGST/UTGST</th>
+                     <th rowSpan={2} style={{ width: "14%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", verticalAlign: "middle" }}>Total Tax Amount</th>
+                   </tr>
+                   <tr style={{ height: "28px" }}>
+                     <td style={{ width: "12%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Rate</td>
+                     <td style={{ width: "12%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Amount</td>
+                     <td style={{ width: "14%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Rate</td>
+                     <td style={{ width: "14%", border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>Amount</td>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {validItems.map((item, idx) => {
+                     const gst = parseFloat(item.gstPercentage) || 0;
+                     const halfGst = gst / 2;
+                     const taxable = parseFloat(item.taxableValue) || 0;
+                     const taxAmt = parseFloat(item.taxAmount) || 0;
+                     return (
+                       <tr key={idx} style={{ height: "26px" }}>
+                         <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>{item.hsn || "-"}</td>
+                         <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px" }}>{formatINR(taxable)}</td>
+                         <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>{halfGst.toFixed(1)}%</td>
+                         <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px" }}>{formatINR(taxAmt / 2)}</td>
+                         <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}>{halfGst.toFixed(1)}%</td>
+                         <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px" }}>{formatINR(taxAmt / 2)}</td>
+                         <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(taxAmt)}</td>
+                       </tr>
+                     );
+                   })}
+                   <tr style={{ height: "26px", background: "#f0f0f0" }}>
+                     <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px", fontWeight: "bold" }}>Total</td>
+                     <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.subtotal)}</td>
+                     <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}></td>
+                     <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.taxAmount / 2)}</td>
+                     <td style={{ border: S.border, textAlign: "center", fontSize: "10px", padding: "2px" }}></td>
+                     <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.taxAmount / 2)}</td>
+                     <td style={{ border: S.border, textAlign: "right", fontSize: "10px", padding: "2px 4px", fontWeight: "bold" }}>{formatINR(totals.taxAmount)}</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </td>
+           </tr>
 
-          {/* TAX AMOUNT WORDS */}
+           {/* TAX AMOUNT WORDS */}
           <tr>
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: "5px 10px" }}>
               <span style={{ fontSize: "10px", fontWeight: "bold" }}>Tax Amount (in words): </span>
@@ -386,15 +394,15 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                         We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
                       </div>
                     </td>
-                    <td style={{ width: "30%", padding: "5px", verticalAlign: "top" }}>
-                      <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "2px", marginBottom: "4px" }}>
-                        {business?.businessName || "Company Name"}
-                      </div>
-                      <div style={{ marginTop: "30px", textAlign: "center" }}>
-                        <div style={{ fontSize: "10px", marginBottom: "4px" }}>Authorised Signatory</div>
-                        {sigSrc ? <img src={sigSrc} alt="signature" style={{ height: "60px", objectFit: "contain", display: "block", margin: "0 auto" }} /> : null}
-                      </div>
-                    </td>
+                     <td style={{ width: "30%", padding: "5px", verticalAlign: "top" }}>
+                       <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "2px", marginBottom: "4px" }}>
+                         {business?.businessName || "Company Name"}
+                       </div>
+                       <div style={{ marginTop: "10px", textAlign: "center" }}>
+                         {sigSrc ? <img src={sigSrc} alt="signature" style={{ height: "60px", objectFit: "contain", display: "block", margin: "0 auto" }} /> : null}
+                         <div style={{ fontSize: "10px", marginTop: "4px" }}>Authorised Signatory</div>
+                       </div>
+                     </td>
                   </tr>
                 </tbody>
               </table>
