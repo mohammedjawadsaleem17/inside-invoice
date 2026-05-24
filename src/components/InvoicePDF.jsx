@@ -252,7 +252,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                        ))}
                     </tr>
                    )) : (
-                     <tr>
+          <tr>
                        <td colSpan={8} style={{ borderTop: S.border, borderRight: S.border, borderBottom: S.border, textAlign: "center", padding: "8px", fontSize: "10px" }}>No items</td>
                      </tr>
                    )}
