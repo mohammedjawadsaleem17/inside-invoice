@@ -23,6 +23,9 @@ export default function InvoiceView() {
   const [isEditing, setIsEditing] = useState(false);
   const [invoiceType, setInvoiceType] = useState("TAX_INVOICE");
   const invoiceRef = useRef(null);
+  const [sealType, setSealType] = useState(localStorage.getItem("seal_type") || "");
+  const sealEnabled = localStorage.getItem("show_seal") === "true";
+  const sealRequired = sealEnabled && !sealType;
   const [business, setBusiness] = useState(null);
   const [form, setForm] = useState({
     customerName: "", customerEmail: "", customerPhone: "", billingAddress: "", customerGstIn: "",
@@ -503,6 +506,41 @@ export default function InvoiceView() {
 
           {/* Right Sidebar */}
           <div className="xl:col-span-1 space-y-4">
+            {sealEnabled && (
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Company Stamp</h3>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="sealType"
+                      value="round"
+                      checked={sealType === "round"}
+                      onChange={() => {
+                        setSealType("round");
+                        localStorage.setItem("seal_type", "round");
+                      }}
+                      className="accent-blue-500"
+                    />
+                    <span className="text-sm text-slate-700">Round Seal</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="sealType"
+                      value="stamp"
+                      checked={sealType === "stamp"}
+                      onChange={() => {
+                        setSealType("stamp");
+                        localStorage.setItem("seal_type", "stamp");
+                      }}
+                      className="accent-blue-500"
+                    />
+                    <span className="text-sm text-slate-700">Rubber Stamp</span>
+                  </label>
+                </div>
+              </div>
+            )}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sticky top-6">
               <h2 className="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">Actions</h2>
               <div className="space-y-3">
@@ -524,16 +562,16 @@ export default function InvoiceView() {
                     <Edit3 className="w-4 h-4" /> Update Invoice
                   </button>
                 )}
-                <button onClick={() => viewPDF(invoiceType)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
+                <button onClick={() => viewPDF(invoiceType)} disabled={sealRequired}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm">
                   <FileText className="w-4 h-4" /> View PDF
                 </button>
-                <button onClick={() => downloadPDF(invoiceType)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-indigo-300 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-all">
+                <button onClick={() => downloadPDF(invoiceType)} disabled={sealRequired}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-indigo-300 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-50 disabled:opacity-50 transition-all">
                   <Download className="w-4 h-4" /> Download PDF
                 </button>
-                <button onClick={() => downloadPDF("PROFORMA_INVOICE")}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-emerald-300 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50 transition-all">
+                <button onClick={() => downloadPDF("PROFORMA_INVOICE")} disabled={sealRequired}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-emerald-300 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50 disabled:opacity-50 transition-all">
                   <Download className="w-4 h-4" /> Proforma PDF
                 </button>
               </div>

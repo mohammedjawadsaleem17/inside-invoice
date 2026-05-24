@@ -2,7 +2,6 @@ import { useMemo, useId } from "react";
 
 export default function CompanySeal({
   companyName = "BUSINESS NAME PRIVATE LIMITED",
-  stateName = "MUMBAI",
   year = new Date().getFullYear(),
   size = 120,
   color = "#0A4BFF",
@@ -14,8 +13,7 @@ export default function CompanySeal({
   const outerR = 148;
   const innerR = 112;
   const textR = 121;
-
-  const font = "'IBM Plex Mono','JetBrains Mono','Space Mono',monospace";
+  const font = "Arial, sans-serif";
 
   const wrapped = useMemo(() => {
     const name = companyName.toUpperCase().trim();
@@ -42,10 +40,9 @@ export default function CompanySeal({
 
       <text
         fontFamily={font}
-        fontSize={25}
-        fontWeight={700}
+        fontSize={26}
+        fontWeight="bold"
         fill={color}
-        letterSpacing={6}
       >
         <textPath href={`#${circleId}`} startOffset="0%" textAnchor="start">
           {wrapped}
@@ -59,7 +56,7 @@ export default function CompanySeal({
         dominantBaseline="middle"
         fontFamily={font}
         fontSize={34}
-        fontWeight={700}
+        fontWeight="bold"
         fill={color}
         letterSpacing={9}
       >
@@ -73,7 +70,7 @@ export default function CompanySeal({
         dominantBaseline="middle"
         fontFamily={font}
         fontSize={30}
-        fontWeight={700}
+        fontWeight="bold"
         fill={color}
       >
         {String(year)}

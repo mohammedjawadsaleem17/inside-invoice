@@ -236,7 +236,7 @@ export default function Profile() {
             </button>
           </div>
           <p className="text-xs text-slate-500">
-            When enabled, the company seal will appear on downloaded invoices.
+            When enabled, select the seal type on the invoice page before downloading.
           </p>
         </div>
 

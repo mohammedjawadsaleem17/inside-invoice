@@ -24,6 +24,9 @@ export default function InvoiceForm() {
   const [savedInvoiceId, setSavedInvoiceId] = useState(null);
   const [customInvoiceNumber, setCustomInvoiceNumber] = useState("");
   const ghostMode = localStorage.getItem("ghost_mode") === "true";
+  const [sealType, setSealType] = useState(localStorage.getItem("seal_type") || "");
+  const sealEnabled = localStorage.getItem("show_seal") === "true";
+  const sealRequired = sealEnabled && !sealType;
   const invoiceRef = useRef(null);
 
   const today = new Date().toISOString().split("T")[0];
@@ -559,6 +562,41 @@ export default function InvoiceForm() {
 
           {/* Right Sidebar */}
           <div className="xl:col-span-1 space-y-4">
+            {sealEnabled && (
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Company Stamp</h3>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="sealType"
+                      value="round"
+                      checked={sealType === "round"}
+                      onChange={() => {
+                        setSealType("round");
+                        localStorage.setItem("seal_type", "round");
+                      }}
+                      className="accent-blue-500"
+                    />
+                    <span className="text-sm text-slate-700">Round Seal</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="sealType"
+                      value="stamp"
+                      checked={sealType === "stamp"}
+                      onChange={() => {
+                        setSealType("stamp");
+                        localStorage.setItem("seal_type", "stamp");
+                      }}
+                      className="accent-blue-500"
+                    />
+                    <span className="text-sm text-slate-700">Rubber Stamp</span>
+                  </label>
+                </div>
+              </div>
+            )}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sticky top-6">
               <h2 className="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">Actions</h2>
               <div className="space-y-3">
@@ -567,12 +605,12 @@ export default function InvoiceForm() {
                   {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="w-4 h-4" />}
                   {saving ? "Saving..." : "Save Invoice"}
                 </button>
-                <button onClick={() => generatePDF("TAX_INVOICE")}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
+                <button onClick={() => generatePDF("TAX_INVOICE")} disabled={sealRequired}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm">
                   <Download className="w-4 h-4" /> Tax Invoice PDF
                 </button>
-                <button onClick={() => generatePDF("PROFORMA_INVOICE")}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-all shadow-sm">
+                <button onClick={() => generatePDF("PROFORMA_INVOICE")} disabled={sealRequired}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm">
                   <Download className="w-4 h-4" /> Proforma PDF
                 </button>
               </div>

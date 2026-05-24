@@ -2,6 +2,7 @@ import React from "react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import CompanySeal from "./CompanySeal";
+import CompanyStamp from "./CompanyStamp";
 
 const S = {
   border: "1px solid #000",
@@ -83,6 +84,13 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
     form?.invoiceDate, form?.deliveryNoteDate, form?.destination,
   ];
   const totalQty = validItems.reduce((s, i) => s + (parseFloat(i.qty) || 0), 0);
+
+  const sealVisible = typeof window !== "undefined" && localStorage.getItem("show_seal") === "true";
+  const sealType = typeof window !== "undefined" ? localStorage.getItem("seal_type") || "round" : "round";
+  const stampAddress1 = business?.addressLine1 || "";
+  const stampAddress2 = [business?.addressLine2, business?.city, business?.state, business?.pincode ? "-" + business.pincode : ""].filter(Boolean).join(", ");
+  const stampPhone = business?.phone ? `Ph: ${business.phone}` : "";
+  const stampEmail = business?.email ? `E-Mail: ${business.email}` : "";
 
   return (
     <div ref={ref} style={{
@@ -423,13 +431,26 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                   </tr>
                   <tr>
                     <td style={{ textAlign: "right", padding: 0, paddingTop: "10px" }}>
-                      {typeof window !== "undefined" && localStorage.getItem("show_seal") === "true" && (
+                      {sealVisible && sealType === "round" && (
                         <div style={{ display: "inline-block" }}>
                           <CompanySeal
                             companyName={business?.businessName || "COMPANY NAME"}
                             year={new Date().getFullYear()}
                             size={80}
                             color="#0A4BFF"
+                          />
+                        </div>
+                      )}
+                      {sealVisible && sealType === "stamp" && (
+                        <div style={{ display: "inline-block" }}>
+                          <CompanyStamp
+                            companyName={business?.businessName || "COMPANY NAME"}
+                            addressLine1={stampAddress1}
+                            addressLine2={stampAddress2}
+                            phone={stampPhone}
+                            email={stampEmail}
+                            width={240}
+                            color="#0000cc"
                           />
                         </div>
                       )}
