@@ -27,6 +27,9 @@ export default function InvoiceForm() {
   const [sealType, setSealType] = useState(localStorage.getItem("seal_type") || "");
   const sealEnabled = localStorage.getItem("show_seal") === "true";
   const sealRequired = sealEnabled && !sealType;
+  const [discountPercent, setDiscountPercent] = useState("");
+  const [discountEnabled, setDiscountEnabled] = useState(false);
+  const discountVal = parseFloat(discountPercent) || 0;
   const invoiceRef = useRef(null);
 
   const today = new Date().toISOString().split("T")[0];
@@ -281,6 +284,7 @@ export default function InvoiceForm() {
           form={form}
           items={items}
           totals={totals}
+          discountPercent={discountEnabled ? discountPercent : "0"}
           type={form.invoiceType}
           invoiceNumber={savedInvoiceNumber || customInvoiceNumber || nextInvoiceNumber || ""}
         />
@@ -562,6 +566,38 @@ export default function InvoiceForm() {
 
           {/* Right Sidebar */}
           <div className="xl:col-span-1 space-y-4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Discount</h3>
+                <button onClick={() => {
+                  const next = !discountEnabled;
+                  setDiscountEnabled(next);
+                  if (!next) setDiscountPercent("");
+                }}
+                  className={`relative w-9 h-5 rounded-full transition-colors ${discountEnabled ? "bg-blue-500" : "bg-slate-300"}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${discountEnabled ? "translate-x-4" : ""}`} />
+                </button>
+              </div>
+              {discountEnabled && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={discountPercent}
+                    onChange={(e) => setDiscountPercent(e.target.value)}
+                    placeholder="0"
+                    className="w-20 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400"
+                  />
+                  <span className="text-sm text-slate-600">%</span>
+                  {discountVal > 0 && (
+                    <span className="text-xs text-emerald-600 font-medium ml-auto">
+                      -Rs. {(totals.grandTotal * Math.min(discountVal, 100) / 100).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
             {sealEnabled && (
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Company Stamp</h3>
@@ -628,11 +664,17 @@ export default function InvoiceForm() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Tax:</span>
-                    <span className="font-mono text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                    <span className="font-mono text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                   </div>
+                  {discountEnabled && discountVal > 0 && (
+                    <div className="flex justify-between text-emerald-600">
+                      <span>Discount ({discountVal}%):</span>
+                      <span className="font-mono">-Rs. {(totals.grandTotal * Math.min(discountVal, 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-slate-800 pt-2 border-t border-slate-200">
                     <span>Total:</span>
-                    <span className="font-mono">Rs. {totals.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                    <span className="font-mono">Rs. {(totals.grandTotal - totals.grandTotal * Math.min(discountVal, 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>

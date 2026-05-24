@@ -57,10 +57,12 @@ const tStyle = {
   boxSizing: "border-box",
 };
 
-const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, type, invoiceNumber }, ref) => {
+const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, discountPercent, type, invoiceNumber }, ref) => {
   const displayInvNo = invoiceNumber || "DRAFT";
   const validItems = (items || []).filter((i) => i.itemName?.trim() && parseFloat(i.qty) > 0);
   const sigSrc = business?.signature ? `data:image/png;base64,${business.signature}` : null;
+  const discPct = parseFloat(discountPercent) || 0;
+  const discAmt = totals.grandTotal * Math.min(discPct, 100) / 100;
 
   let cgstTotal = 0, sgstTotal = 0;
   validItems.forEach((item) => {
@@ -298,15 +300,20 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                     <td style={{ width: "72%", borderRight: S.border, padding: "6px 10px", verticalAlign: "top" }}>
                       <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "3px" }}>Amount Chargeable (in words)</div>
                       <div style={{ fontSize: "11px", fontWeight: "bold" }}>
-                        {totals.grandTotal > 0 ? numberToWords(totals.grandTotal) : "Zero Rupees Only"}
+                        {(totals.grandTotal - discAmt) > 0 ? numberToWords(totals.grandTotal - discAmt) : "Zero Rupees Only"}
                       </div>
                     </td>
                     <td style={{ width: "28%", padding: "6px 10px", verticalAlign: "top" }}>
+                      {discAmt > 0 && (
+                        <div style={{ fontSize: "9px", fontWeight: "bold", textAlign: "left", color: "#16a34a", marginBottom: "2px" }}>
+                          Discount ({discPct}%): -Rs. {formatINR(discAmt)}
+                        </div>
+                      )}
                       <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "2px", textAlign: "left" }}>
                         Total
                       </div>
                       <div style={{ fontSize: "18px", fontWeight: "bold", margin: "2px 0", textAlign: "left" }}>
-                        Rs: {formatINR(totals.grandTotal)}
+                        Rs: {formatINR(totals.grandTotal - discAmt)}
                       </div>
                       <div style={{ fontSize: "10px", fontStyle: "italic", textAlign: "right" }}>
                         E. & O.E
@@ -482,7 +489,12 @@ export async function downloadInvoicePDF(element, filename) {
     img.src = dataUrl;
     await new Promise((resolve) => { img.onload = resolve; });
     const pdfHeight = (img.height / img.width) * pdfWidth;
-    pdf.addImage(dataUrl, "PNG", 10, 10, pdfWidth, pdfHeight);
+    const pageH = 277;
+    const pages = Math.ceil(pdfHeight / pageH);
+    for (let i = 0; i < pages; i++) {
+      if (i > 0) pdf.addPage();
+      pdf.addImage(dataUrl, "PNG", 10, 10 - i * pageH, pdfWidth, pdfHeight);
+    }
     pdf.save(filename);
   } catch (err) {
     console.error("PDF generation error:", err);
