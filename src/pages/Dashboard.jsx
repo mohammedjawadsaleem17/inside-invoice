@@ -79,6 +79,26 @@ export default function Dashboard() {
             </p>
           </div>
 
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            {[
+              { label: "New Invoice", icon: PlusCircle, path: "/invoice", color: "from-blue-500 to-blue-600", desc: "Create invoice" },
+              { label: "View Invoices", icon: List, path: "/invoices", color: "from-indigo-500 to-indigo-600", desc: "Browse all" },
+              { label: "Add Customer", icon: Users, path: "/customers/new", color: "from-emerald-500 to-emerald-600", desc: "New customer" },
+              { label: "Add Product", icon: Package, path: "/products/new", color: "from-purple-500 to-purple-600", desc: "New product" },
+              { label: "Invoice Templates", icon: FileText, path: "/invoice-templates", color: "from-cyan-500 to-cyan-600", desc: "Choose layout" },
+              { label: "Profile", icon: UserCircle, path: "/profile", color: "from-amber-500 to-amber-600", desc: "Manage account" },
+            ].map((card) => (
+              <div key={card.label} onClick={() => navigate(card.path)}
+                className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 transition-all cursor-pointer hover:shadow-md hover:-translate-y-0.5">
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center mb-3 shadow-sm`}>
+                  <card.icon className="w-5 h-5 text-white" />
+                </div>
+                <div className="text-sm font-semibold text-slate-800">{card.label}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">{card.desc}</div>
+              </div>
+            ))}
+          </div>
+
           {isAdmin && (
             <>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -331,28 +351,7 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                <h2 className="text-lg font-semibold text-slate-900 mb-5">Quick Actions</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { label: "New Invoice", icon: PlusCircle, path: "/invoice", color: "from-blue-500 to-blue-600", desc: "Create a new invoice" },
-                    { label: "View Invoices", icon: List, path: "/invoices", color: "from-indigo-500 to-indigo-600", desc: "Browse all invoices" },
-                    { label: "Add Customer", icon: Users, path: "/customers/new", color: "from-emerald-500 to-emerald-600", desc: "Add a new customer" },
-                    { label: "Add Product", icon: Package, path: "/products/new", color: "from-purple-500 to-purple-600", desc: "Add a new product" },
-                  ].map((action) => (
-                    <button key={action.label} onClick={() => navigate(action.path)}
-                      className="flex items-center gap-4 p-5 border border-slate-200 rounded-xl hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all text-left bg-white group">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow shrink-0`}>
-                        <action.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-800">{action.label}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{action.desc}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+
             </>
           )}
         </main>

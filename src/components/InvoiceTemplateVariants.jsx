@@ -40,7 +40,7 @@ const ITEM_COLS = [
   { w: 72, key: "qty" },
   { w: 76, key: "rate" },
   { w: 42, key: "per" },
-  { w: 90, key: "amt" },
+  { w: 72, key: "amt" },
 ];
 const TABLE_W = ITEM_COLS.reduce((s, c) => s + c.w, 0);
 
@@ -326,7 +326,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
 
   const titleRow = (
     <tr>
-      <td colSpan={2} style={{ borderBottom: S.border, padding: 0, background: t.primary !== "#ffffff" ? t.primary : "transparent" }}>
+      <td colSpan={2} style={{ borderBottom: S.border, padding: 0, background: t.primary !== "#ffffff" ? t.primary : "transparent", borderLeft: `${t.borderWidth} ${t.borderStyle} ${t.primary !== "#ffffff" ? t.primary : "transparent"}`, borderRight: `${t.borderWidth} ${t.borderStyle} ${t.primary !== "#ffffff" ? t.primary : "transparent"}` }}>
         <div style={{
           position: "relative", textAlign: "center", fontSize: titleFS, fontWeight: "bold",
           padding: t.compact ? "4px 8px" : "6px 10px",
@@ -1177,7 +1177,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                         { a: "center", v: parseFloat(item.qty).toFixed(2), w: 72 },
                         { a: "center", v: formatINR(item.rate), w: 76 },
                         { a: "center", v: "Piece", w: 42 },
-                        { a: "right", v: formatINR(item.total), w: 90 },
+                        { a: "right", v: formatINR(item.total), w: 72 },
                       ].map((c, ci) => (
                         <td key={ci} style={{
                           ...cell(c.w),
