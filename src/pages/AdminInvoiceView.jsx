@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { adminAPI } from "../api/auth";
 import toast from "react-hot-toast";
-import { ArrowLeft, FileText, Save, Edit2 } from "lucide-react";
+import { ArrowLeft, FileText, Save, Edit2, Download } from "lucide-react";
 import AppNavbar from "../components/AppNavbar";
+import InvoicePDF, { downloadInvoicePDF } from "../components/InvoicePDF";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
 
@@ -17,6 +18,8 @@ export default function AdminInvoiceView() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({});
   const [items, setItems] = useState([]);
+  const [business, setBusiness] = useState(null);
+  const invoiceRef = useRef(null);
 
   useEffect(() => {
     adminAPI.getInvoice(id)
@@ -24,6 +27,7 @@ export default function AdminInvoiceView() {
         const inv = res.data.data;
         setInvoice(inv);
         setForm({
+          invoiceNumber: inv.invoiceNumber || "",
           invoiceType: inv.invoiceType,
           invoiceDate: inv.invoiceDate,
           dueDate: inv.dueDate,
@@ -51,6 +55,11 @@ export default function AdminInvoiceView() {
           taxAmount: item.taxAmount,
           total: item.total,
         })) || []);
+        if (inv.businessId) {
+          return adminAPI.getBusiness(inv.businessId).then((bRes) => {
+            setBusiness(bRes.data.data);
+          });
+        }
       })
       .catch((err) => setError(err.response?.data?.message || "Failed to load invoice"))
       .finally(() => setLoading(false));
@@ -89,6 +98,16 @@ export default function AdminInvoiceView() {
     },
     { subtotal: 0, taxAmount: 0, grandTotal: 0 }
   );
+
+  const downloadPDF = async () => {
+    try {
+      const filename = `Invoice_${form.invoiceNumber || invoice?.invoiceNumber || "DRAFT"}.pdf`;
+      await new Promise((r) => setTimeout(r, 100));
+      await downloadInvoicePDF(invoiceRef.current, filename);
+    } catch (err) {
+      toast.error("Failed to generate PDF");
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -141,9 +160,9 @@ export default function AdminInvoiceView() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
         <AppNavbar />
         <div className="max-w-3xl mx-auto px-6 py-8">
-          <button onClick={() => navigate("/admin/businesses")}
+          <button onClick={() => navigate("/admin/invoices")}
             className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Businesses
+            <ArrowLeft className="w-4 h-4" /> Back to Invoices
           </button>
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 text-center">
             <FileText className="w-12 h-12 text-red-300 mx-auto mb-3" />
@@ -166,6 +185,21 @@ export default function AdminInvoiceView() {
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
 
+        {/* Hidden Invoice PDF for capture */}
+        <div style={{ position: "absolute", left: "-9999px", top: 0, pointerEvents: "none" }}>
+          <InvoicePDF
+            ref={invoiceRef}
+            business={business}
+            customer={{ name: invoice.customerName, billingAddress: undefined, gstIn: undefined, phone: undefined, email: undefined, state: form.placeOfSupply }}
+            form={form}
+            items={items}
+            totals={totals}
+            discountPercent="0"
+            type={form.invoiceType}
+            invoiceNumber={form.invoiceNumber}
+          />
+        </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -178,10 +212,16 @@ export default function AdminInvoiceView() {
               </p>
             </div>
             {!editing ? (
-              <button onClick={() => setEditing(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition-colors">
-                <Edit2 className="w-3.5 h-3.5" /> Edit
-              </button>
+              <div className="flex gap-2">
+                <button onClick={downloadPDF}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                  <Download className="w-3.5 h-3.5" /> PDF
+                </button>
+                <button onClick={() => setEditing(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition-colors">
+                  <Edit2 className="w-3.5 h-3.5" /> Edit
+                </button>
+              </div>
             ) : (
               <div className="flex gap-2">
                 <button onClick={() => { setEditing(false); }}

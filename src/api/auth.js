@@ -60,5 +60,6 @@ export const adminAPI = {
   deleteUser: (id) => api.delete(`/admin/users/${id}`),
   getAllCustomers: () => api.get("/admin/customers"),
   getAllInvoices: () => api.get("/admin/invoices"),
+  getBusiness: (id) => api.get(`/admin/businesses/${id}`),
   getAnalytics: () => api.get("/admin/analytics"),
 };

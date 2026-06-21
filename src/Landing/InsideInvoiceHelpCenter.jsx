@@ -90,8 +90,7 @@ export default function InsideInvoiceHelpCenter() {
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4">🙋 Self-Service Options</h2>
         <ul className="list-disc pl-6 space-y-2">
-          <li>Reset your password</li>
-          <li>Update business & GST details</li>
+          ============================== <li>Update business & GST details</li>
           <li>Export or delete your data</li>
           <li>Deactivate account</li>
         </ul>
