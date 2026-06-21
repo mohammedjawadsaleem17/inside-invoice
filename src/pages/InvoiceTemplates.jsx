@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
 import InvoicePDF from "../components/InvoicePDF";
 import InvoiceTemplateVariants, { TEMPLATE_THEMES } from "../components/InvoiceTemplateVariants";
@@ -95,8 +96,6 @@ function TemplateCard({ template, isSelected, onSelect, onPreview }) {
     }
   }, []);
 
-  const tColor = template.color || "#000";
-
   return (
     <div
       className={`relative bg-white rounded-xl shadow-sm border-2 transition-all cursor-pointer overflow-hidden flex flex-col ${
@@ -104,11 +103,8 @@ function TemplateCard({ template, isSelected, onSelect, onPreview }) {
       }`}
     >
       <div className="px-4 pt-4 pb-0 flex-1 flex flex-col min-h-0">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded" style={{ backgroundColor: tColor }} />
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-slate-800">{template.label}</h3>
-          </div>
           {isSelected && (
             <span className="flex items-center gap-1 text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
               <Check className="w-3 h-3" /> Active
@@ -158,13 +154,19 @@ function TemplateCard({ template, isSelected, onSelect, onPreview }) {
 
 export default function InvoiceTemplates() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState(() => localStorage.getItem("invoice_template") || "template-1");
+  const { selectedTemplate, updateTemplate } = useAuth();
+  const [selected, setSelected] = useState(selectedTemplate);
   const [previewId, setPreviewId] = useState(null);
 
-  const handleSelect = (id) => {
+  const handleSelect = async (id) => {
     setSelected(id);
-    localStorage.setItem("invoice_template", id);
-    toast.success(`"${ALL_TEMPLATES.find((t) => t.id === id)?.label}" template selected`);
+    try {
+      await updateTemplate(id);
+      toast.success(`"${ALL_TEMPLATES.find((t) => t.id === id)?.label}" template selected`);
+    } catch {
+      toast.error("Failed to save template preference");
+      setSelected(selectedTemplate);
+    }
   };
 
   const previewTemplate = ALL_TEMPLATES.find((t) => t.id === previewId);

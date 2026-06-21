@@ -79,14 +79,6 @@ const L = {
 };
 
 const TEMPLATE_THEMES = {
-  "template-2": {
-    id: "template-2", label: "Modern Minimal", desc: "Clean layout with thin muted borders",
-    layout: L.classic, font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
-    borderColor: "#e2e8f0", borderWidth: "1px", borderStyle: "solid", primary: "#1a56db",
-    headerBg: "#f8fafc", headerText: "#1e293b", accentBg: "#1a56db", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#f8fafc", tableHeaderText: "#1e293b",
-    tableRowHeight: 28, compact: false, labelStyle: "normal",
-  },
   "template-3": {
     id: "template-3", label: "Corporate Blue", desc: "Professional navy blue accents",
     layout: L.classic, font: "'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
@@ -94,14 +86,6 @@ const TEMPLATE_THEMES = {
     headerBg: "#1e3a5f", headerText: "#ffffff", accentBg: "#1e3a5f", accentText: "#ffffff",
     sectionTitleBorder: false, tableHeaderBg: "#1e3a5f", tableHeaderText: "#ffffff",
     tableRowHeight: 28, compact: false, labelStyle: "normal",
-  },
-  "template-4": {
-    id: "template-4", label: "Traditional Ledger", desc: "Classic double-border accounting style",
-    layout: L.classic, font: "'Georgia', 'Times New Roman', serif", bodyBg: "#fefcf5",
-    borderColor: "#000000", borderWidth: "2px", borderStyle: "double", primary: "#000000",
-    headerBg: "#f5f0e8", headerText: "#000000", accentBg: "#000000", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#f5f0e8", tableHeaderText: "#000000",
-    tableRowHeight: 30, compact: false, labelStyle: "normal",
   },
   "template-5": {
     id: "template-5", label: "Minimalist", desc: "Borderless design with maximum whitespace",
@@ -119,28 +103,12 @@ const TEMPLATE_THEMES = {
     sectionTitleBorder: true, tableHeaderBg: "#2d6a4f", tableHeaderText: "#ffffff",
     tableRowHeight: 28, compact: false, labelStyle: "normal",
   },
-  "template-7": {
-    id: "template-7", label: "Compact Pro", desc: "Space-efficient for dense invoice data",
-    layout: L.classic, font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
-    borderColor: "#94a3b8", borderWidth: "1px", borderStyle: "solid", primary: "#334155",
-    headerBg: "#f1f5f9", headerText: "#334155", accentBg: "#334155", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#f1f5f9", tableHeaderText: "#334155",
-    tableRowHeight: 24, compact: true, labelStyle: "normal",
-  },
   "template-8": {
     id: "template-8", label: "Premium Gold", desc: "Elegant navy and gold luxury style",
     layout: L.classic, font: "'Playfair Display', Georgia, 'Times New Roman', serif", bodyBg: "#fdfcf8",
     borderColor: "#b8860b", borderWidth: "1px", borderStyle: "solid", primary: "#1a1a2e",
     headerBg: "#1a1a2e", headerText: "#ffffff", accentBg: "#b8860b", accentText: "#1a1a2e",
     sectionTitleBorder: true, tableHeaderBg: "#1a1a2e", tableHeaderText: "#ffffff",
-    tableRowHeight: 28, compact: false, labelStyle: "normal",
-  },
-  "template-9": {
-    id: "template-9", label: "Sunset Warm", desc: "Energetic amber and orange tones",
-    layout: L.classic, font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#fffcf5",
-    borderColor: "#c2410c", borderWidth: "1px", borderStyle: "solid", primary: "#c2410c",
-    headerBg: "#c2410c", headerText: "#ffffff", accentBg: "#ea580c", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#fff7ed", tableHeaderText: "#9a3412",
     tableRowHeight: 28, compact: false, labelStyle: "normal",
   },
   "template-10": {
@@ -175,22 +143,6 @@ const TEMPLATE_THEMES = {
     sectionTitleBorder: true, tableHeaderBg: "#f5f3ff", tableHeaderText: "#5b21b6",
     tableRowHeight: 28, compact: false, labelStyle: "normal",
   },
-  "template-14": {
-    id: "template-14", label: "Card Style", desc: "Each section in its own bordered card",
-    layout: L.cards, font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#fafafa",
-    borderColor: "#e11d48", borderWidth: "1px", borderStyle: "solid", primary: "#be123c",
-    headerBg: "#be123c", headerText: "#ffffff", accentBg: "#be123c", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#fff1f2", tableHeaderText: "#9f1239",
-    tableRowHeight: 28, compact: false, labelStyle: "normal",
-  },
-  "template-15": {
-    id: "template-15", label: "Compact Header", desc: "Tight compact header section",
-    layout: L.compact, font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
-    borderColor: "#78716c", borderWidth: "1px", borderStyle: "solid", primary: "#44403c",
-    headerBg: "#44403c", headerText: "#ffffff", accentBg: "#78716c", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#f5f5f4", tableHeaderText: "#44403c",
-    tableRowHeight: 28, compact: true, labelStyle: "normal",
-  },
   "template-16": {
     id: "template-16", label: "Modern", desc: "Seller + metadata side by side, buyer below",
     layout: L.modern, font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
@@ -223,28 +175,12 @@ const TEMPLATE_THEMES = {
     sectionTitleBorder: true, tableHeaderBg: "#f1f5f9", tableHeaderText: "#334155",
     tableRowHeight: 28, compact: false, labelStyle: "normal",
   },
-  "template-20": {
-    id: "template-20", label: "Minimal Bar", desc: "Thin company bar, compact buyer, max item space",
-    layout: L["minimal-bar"], font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
-    borderColor: "#1c1917", borderWidth: "1px", borderStyle: "solid", primary: "#292524",
-    headerBg: "#292524", headerText: "#ffffff", accentBg: "#57534e", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#fafaf9", tableHeaderText: "#44403c",
-    tableRowHeight: 28, compact: true, labelStyle: "normal",
-  },
   "template-21": {
     id: "template-21", label: "Letterhead", desc: "Formal letter style with company letterhead",
     layout: L.letterhead, font: "'Georgia', 'Times New Roman', serif", bodyBg: "#fefefe",
     borderColor: "#991b1b", borderWidth: "1px", borderStyle: "solid", primary: "#991b1b",
     headerBg: "#991b1b", headerText: "#ffffff", accentBg: "#991b1b", accentText: "#ffffff",
     sectionTitleBorder: true, tableHeaderBg: "#fef2f2", tableHeaderText: "#991b1b",
-    tableRowHeight: 28, compact: false, labelStyle: "normal",
-  },
-  "template-22": {
-    id: "template-22", label: "Panel", desc: "Company info in a colored side panel",
-    layout: L.panel, font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
-    borderColor: "#065f46", borderWidth: "1px", borderStyle: "solid", primary: "#065f46",
-    headerBg: "#065f46", headerText: "#ffffff", accentBg: "#065f46", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#ecfdf5", tableHeaderText: "#065f46",
     tableRowHeight: 28, compact: false, labelStyle: "normal",
   },
   "template-23": {
@@ -255,34 +191,10 @@ const TEMPLATE_THEMES = {
     sectionTitleBorder: true, tableHeaderBg: "#fafafa", tableHeaderText: "#555555",
     tableRowHeight: 30, compact: false, labelStyle: "normal",
   },
-  "template-24": {
-    id: "template-24", label: "Bold Corporate", desc: "High contrast black & white with thick borders",
-    layout: L["bold-corporate"], font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
-    borderColor: "#000000", borderWidth: "2px", borderStyle: "solid", primary: "#000000",
-    headerBg: "#000000", headerText: "#ffffff", accentBg: "#000000", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#000000", tableHeaderText: "#ffffff",
-    tableRowHeight: 28, compact: false, labelStyle: "normal",
-  },
-  "template-25": {
-    id: "template-25", label: "Classic Formal", desc: "Traditional serif greyscale with double borders",
-    layout: L["classic-formal"], font: "'Georgia', 'Times New Roman', serif", bodyBg: "#fafafa",
-    borderColor: "#666666", borderWidth: "1px", borderStyle: "solid", primary: "#444444",
-    headerBg: "#e8e8e8", headerText: "#222222", accentBg: "#444444", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#f0f0f0", tableHeaderText: "#333333",
-    tableRowHeight: 30, compact: false, labelStyle: "normal",
-  },
-  "template-26": {
-    id: "template-26", label: "Dark Modern", desc: "Dark greyscale headers with clean light content",
-    layout: L["dark-modern"], font: "'Inter', 'Segoe UI', Arial, sans-serif", bodyBg: "#ffffff",
-    borderColor: "#999999", borderWidth: "1px", borderStyle: "solid", primary: "#2d2d2d",
-    headerBg: "#2d2d2d", headerText: "#ffffff", accentBg: "#4a4a4a", accentText: "#ffffff",
-    sectionTitleBorder: true, tableHeaderBg: "#f2f2f2", tableHeaderText: "#2d2d2d",
-    tableRowHeight: 28, compact: false, labelStyle: "normal",
-  },
 };
 
 const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, form, items, totals, discountPercent, type, invoiceNumber }, ref) => {
-  const t = TEMPLATE_THEMES[theme] || TEMPLATE_THEMES["template-2"];
+  const t = TEMPLATE_THEMES[theme] || TEMPLATE_THEMES["template-3"];
   const S = { border: `${t.borderWidth} ${t.borderStyle} ${t.borderColor}` };
   const displayInvNo = invoiceNumber || "DRAFT";
   const validItems = (items || []).filter((i) => i.itemName?.trim() && parseFloat(i.qty) > 0);
@@ -330,13 +242,13 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
         <div style={{
           position: "relative", textAlign: "center", fontSize: titleFS, fontWeight: "bold",
           padding: t.compact ? "4px 8px" : "6px 10px",
-          color: t.headerText !== "#1e293b" ? t.headerText : "#000",
+          color: t.primary === t.headerText ? "#ffffff" : (t.headerText !== "#1e293b" ? t.headerText : "#000"),
         }}>
           {type === "PROFORMA_INVOICE" ? "Proforma Invoice" : "Tax Invoice"}
           <span style={{
             position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)",
             fontSize: "11px", fontStyle: "italic", fontWeight: "normal",
-            color: t.headerText !== "#1e293b" ? t.headerText : "#000",
+            color: t.primary === t.headerText ? "#ffffff" : (t.headerText !== "#1e293b" ? t.headerText : "#000"),
           }}>
             (ORIGINAL FOR RECIPIENT)
           </span>

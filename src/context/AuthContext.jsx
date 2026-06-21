@@ -19,6 +19,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedTemplate, setSelectedTemplate] = useState(() =>
+    localStorage.getItem("invoice_template") || "template-1"
+  );
 
   useEffect(() => {
     localStorage.removeItem("token");
@@ -27,7 +30,12 @@ export function AuthProvider({ children }) {
     if (storedToken && storedUser && !isTokenExpired(storedToken)) {
       setAuthToken(storedToken);
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      const parsed = JSON.parse(storedUser);
+      setUser(parsed);
+      if (parsed.selectedTemplate) {
+        localStorage.setItem("invoice_template", parsed.selectedTemplate);
+        setSelectedTemplate(parsed.selectedTemplate);
+      }
     } else {
       localStorage.removeItem("ii_token");
       localStorage.removeItem("user");
@@ -42,7 +50,20 @@ export function AuthProvider({ children }) {
     localStorage.setItem("user", JSON.stringify(data));
     setToken(data.accessToken);
     setUser(data);
+    if (data.selectedTemplate) {
+      localStorage.setItem("invoice_template", data.selectedTemplate);
+      setSelectedTemplate(data.selectedTemplate);
+    }
     return data;
+  };
+
+  const updateTemplate = async (templateId) => {
+    await authAPI.updateProfile({ ...user, selectedTemplate: templateId });
+    localStorage.setItem("invoice_template", templateId);
+    setSelectedTemplate(templateId);
+    const updated = { ...user, selectedTemplate: templateId };
+    localStorage.setItem("user", JSON.stringify(updated));
+    setUser(updated);
   };
 
   const setupBusiness = async (businessData) => {
@@ -56,8 +77,10 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setAuthToken(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("invoice_template");
     setToken(null);
     setUser(null);
+    setSelectedTemplate("template-1");
   };
 
   const isAuthenticated = !!token;
@@ -78,6 +101,8 @@ export function AuthProvider({ children }) {
         isAuthenticated,
         isBusinessSetupComplete,
         isAdmin,
+        selectedTemplate,
+        updateTemplate,
       }}
     >
       {children}
