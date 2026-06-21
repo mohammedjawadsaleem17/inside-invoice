@@ -243,22 +243,22 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                          { a: "center", v: "Piece", w: 42 },
                          { a: "right", v: formatINR(item.total), w: 90 },
                        ].map((c, ci) => (
-                         <td key={ci} style={{
-                           ...cell(c.w),
-                            borderRight: S.border,
-                           borderBottom: S.border,
-                           textAlign: c.a,
-                           fontSize: "10px",
-                           padding: "5px 6px",
-                           verticalAlign: "middle",
-                         }}>
-                           {c.v}
-                         </td>
-                       ))}
-                    </tr>
-                   )) : (
+                          <td key={ci} style={{
+                            ...cell(c.w),
+                             borderRight: S.border,
+                            borderBottom: S.border,
+                            textAlign: c.a,
+                            fontSize: "10px",
+                            padding: "5px 6px",
+                            verticalAlign: "middle",
+                          }}>
+                            {c.v}
+                          </td>
+                        ))}
+                     </tr>
+                    )) : (
           <tr>
-                       <td colSpan={8} style={{ borderTop: S.border, borderLeft: S.border, borderBottom: S.border, textAlign: "center", padding: "8px", fontSize: "10px" }}>No items</td>
+                        <td colSpan={8} style={{ borderTop: S.border, borderLeft: S.border, borderBottom: S.border, textAlign: "center", padding: "8px", fontSize: "10px" }}>No items</td>
                      </tr>
                    )}
                 </tbody>
@@ -356,25 +356,25 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                      const taxable = parseFloat(item.taxableValue) || 0;
                      const taxAmt = parseFloat(item.taxAmount) || 0;
                      return (
-                        <tr id={`section-hsn-row-${idx}`} key={idx} style={{ height: "26px" }}>
-                          <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{item.hsn || "-"}</td>
-                          <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxable)}</td>
-                          <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
-                          <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
-                          <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
-                          <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
-                          <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(taxAmt)}</td>
+                         <tr id={`section-hsn-row-${idx}`} key={idx} style={{ height: "26px" }}>
+                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{item.hsn || "-"}</td>
+                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxable)}</td>
+                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
+                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
+                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
+                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
+                           <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(taxAmt)}</td>
                         </tr>
                       );
                     })}
-                    <tr id="section-hsn-total" style={{ height: "26px", background: "#f0f0f0" }}>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>Total</td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(totals.subtotal)}</td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}></td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(totals.taxAmount / 2)}</td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}></td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(totals.taxAmount / 2)}</td>
-                      <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(totals.taxAmount)}</td>
+                    <tr id="section-hsn-total" style={{ height: "26px" }}>
+                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>Total</td>
+                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.subtotal)}</td>
+                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
+                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
+                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
+                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
+                      <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to left, transparent 4px, #f0f0f0 4px)" }}>{formatINR(totals.taxAmount)}</td>
                     </tr>
                  </tbody>
                </table>
@@ -488,18 +488,6 @@ export async function downloadInvoicePDF(element, filename) {
     const LEFT = 10;
     const PAGE_H = 277;
 
-    const canvas = await html2canvas(element, {
-      scale: SCALE,
-      useCORS: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-    });
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pxToMm = CONTENT_W / canvas.width;
-    const onePagePx = PAGE_H / pxToMm;
-    const invoiceRect = element.getBoundingClientRect();
-
     const rowSelectors = [
       '[id^="section-item-row-"]',
       '[id^="section-hsn-row-"]',
@@ -513,6 +501,18 @@ export async function downloadInvoicePDF(element, filename) {
     ];
 
     const allRowEls = element.querySelectorAll(rowSelectors.join(", "));
+    const invoiceRect = element.getBoundingClientRect();
+
+    const canvas = await html2canvas(element, {
+      scale: SCALE,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+    });
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pxToMm = CONTENT_W / canvas.width;
+    const onePagePx = PAGE_H / pxToMm;
 
     const safeCuts = new Set([0, canvas.height]);
     allRowEls.forEach((el) => {
@@ -562,7 +562,11 @@ export async function downloadInvoicePDF(element, filename) {
         sliceHeightPx
       );
 
-      if (!isFirstPage) pdf.addPage();
+      if (!isFirstPage) {
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, 2);
+        pdf.addPage();
+      }
 
       pdf.addImage(
         sliceCanvas.toDataURL("image/png"),
