@@ -104,7 +104,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
 
   return (
     <div ref={ref} style={{
-      width: `${TABLE_W}px`,
+      width: `${TABLE_W + 2}px`,
       margin: "0 auto",
       background: "#fff",
       fontFamily: "Arial, Helvetica, sans-serif",

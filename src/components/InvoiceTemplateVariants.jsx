@@ -1125,7 +1125,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
 
   return (
     <div ref={ref} style={{
-      width: `${TABLE_W}px`,
+      width: `${TABLE_W + 2}px`,
       margin: "0 auto",
       background: t.bodyBg,
       fontFamily: t.font,
