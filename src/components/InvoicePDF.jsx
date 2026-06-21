@@ -368,13 +368,13 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                       );
                     })}
                     <tr id="section-hsn-total" style={{ height: "26px" }}>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>Total</td>
+                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to right, transparent 1px, #f0f0f0 1px)" }}>Total</td>
                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.subtotal)}</td>
                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
-                      <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to left, transparent 4px, #f0f0f0 4px)" }}>{formatINR(totals.taxAmount)}</td>
+                      <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to left, transparent 1px, #f0f0f0 1px)" }}>{formatINR(totals.taxAmount)}</td>
                     </tr>
                  </tbody>
                </table>
