@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
 import { authAPI, businessAPI } from "../api/auth";
 import toast from "react-hot-toast";
-import { ArrowLeft, User, Lock, Upload, Trash2, Pen, Eye, EyeOff, Landmark, Building, MapPin, Globe, Phone, Mail, Hash, FileText } from "lucide-react";
+import { User, Lock, Upload, Trash2, Pen, Eye, EyeOff, Landmark, Building, MapPin, Globe, Phone, Mail, Hash, FileText } from "lucide-react";
 
 export default function Profile() {
   const { user, token, setUser, logout, isAdmin } = useAuth();
@@ -170,10 +170,6 @@ export default function Profile() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
       <div className="px-6 py-6">
-        <button onClick={() => navigate(-1)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all mb-6">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="flex items-center gap-2 mb-5">
@@ -198,46 +194,48 @@ export default function Profile() {
           </form>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-slate-600" />
-              <h2 className="text-base font-semibold text-slate-900">Ghost Mode</h2>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <Eye className="w-5 h-5 text-slate-600" />
+                <h2 className="text-base font-semibold text-slate-900">Ghost Mode</h2>
+              </div>
+              <button onClick={() => {
+                const next = !ghostMode;
+                setGhostMode(next);
+                localStorage.setItem("ghost_mode", String(next));
+              }}
+                className={`relative w-11 h-6 rounded-full transition-colors ${ghostMode ? "bg-amber-500" : "bg-slate-300"}`}>
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${ghostMode ? "translate-x-5" : ""}`} />
+              </button>
             </div>
-            <button onClick={() => {
-              const next = !ghostMode;
-              setGhostMode(next);
-              localStorage.setItem("ghost_mode", String(next));
-            }}
-              className={`relative w-11 h-6 rounded-full transition-colors ${ghostMode ? "bg-amber-500" : "bg-slate-300"}`}>
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${ghostMode ? "translate-x-5" : ""}`} />
-            </button>
+            <p className="text-xs text-slate-500">
+              When enabled, you can manually set the invoice number when creating invoices.
+              Use this only for corrections (e.g., fixing a mistakenly generated invoice).
+              Auto-increment resumes when Ghost Mode is off.
+            </p>
           </div>
-          <p className="text-xs text-slate-500">
-            When enabled, you can manually set the invoice number when creating invoices.
-            Use this only for corrections (e.g., fixing a mistakenly generated invoice).
-            Auto-increment resumes when Ghost Mode is off.
-          </p>
-        </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-slate-600" />
-              <h2 className="text-base font-semibold text-slate-900">Company Seal</h2>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-slate-600" />
+                <h2 className="text-base font-semibold text-slate-900">Company Seal</h2>
+              </div>
+              <button onClick={() => {
+                const next = !sealEnabled;
+                setSealEnabled(next);
+                localStorage.setItem("show_seal", String(next));
+              }}
+                className={`relative w-11 h-6 rounded-full transition-colors ${sealEnabled ? "bg-blue-500" : "bg-slate-300"}`}>
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${sealEnabled ? "translate-x-5" : ""}`} />
+              </button>
             </div>
-            <button onClick={() => {
-              const next = !sealEnabled;
-              setSealEnabled(next);
-              localStorage.setItem("show_seal", String(next));
-            }}
-              className={`relative w-11 h-6 rounded-full transition-colors ${sealEnabled ? "bg-blue-500" : "bg-slate-300"}`}>
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${sealEnabled ? "translate-x-5" : ""}`} />
-            </button>
+            <p className="text-xs text-slate-500">
+              When enabled, select the seal type on the invoice page before downloading.
+            </p>
           </div>
-          <p className="text-xs text-slate-500">
-            When enabled, select the seal type on the invoice page before downloading.
-          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">

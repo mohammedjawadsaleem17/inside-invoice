@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
@@ -12,8 +12,86 @@ import {
 import { downloadInvoicePDF } from "../components/InvoicePDF";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { addToQueue, processQueue } from "../utils/retryQueue";
+import { INDIAN_STATES, DELIVERY_TERMS, PAYMENT_TERMS } from "../constants/indianStates";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
+const inputClass = "w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 bg-white transition-all";
+const labelClass = "block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide uppercase";
+
+const FOCUS_ORDER = ["phone", "name", "email", "billingAddress", "gstIn", "invoiceType", "invoiceDate", "dueDate", "placeOfSupply", "destination", "paymentTerms", "paymentMode", "deliveryNote", "deliveryNoteDate", "referenceNumber", "buyerOrderNumber", "dispatchDocNumber", "dispatchedThrough", "termsOfDelivery", "otherReferences", "notes"];
+
+const focusNext = (currentName) => {
+  const i = FOCUS_ORDER.indexOf(currentName);
+  if (i === -1 || i === FOCUS_ORDER.length - 1) return;
+  const next = document.querySelector(`[name="${FOCUS_ORDER[i + 1]}"], select[name="${FOCUS_ORDER[i + 1]}"]`);
+  next?.focus();
+};
+
+const ItemRow = memo(({ item, idx, onItemChange, onRemove, onAdd }) => (
+  <tr className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"} hover:bg-blue-50/20 transition-colors`}>
+    <td className="py-3 px-3 text-center text-slate-400 font-mono text-xs border-b border-slate-100">{idx + 1}</td>
+    <td className="py-3 px-3 border-b border-slate-100">
+      <div className="relative">
+        <input type="text" value={item.itemName} name={`desc-${idx + 1}`}
+          onChange={(e) => onItemChange(idx, "itemName", e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const next = document.querySelector(`input[name="hsn-${idx + 1}"]`); next?.focus(); } }}
+          className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white pr-8"
+          placeholder="Item name" />
+        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300" title="Barcode scannable">
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5V3h4v2H5v2H3V5zm14 0V3h4v2h-2v2h-2V5zM3 19v-2h2v-2h2v4H3zm14 0v-2h2v-2h2v4h-4zM7 7h1v10H7V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7z"/></svg>
+        </span>
+      </div>
+    </td>
+    <td className="py-3 px-3 border-b border-slate-100">
+      <div className="relative">
+        <input type="text" value={item.hsn} name={`hsn-${idx + 1}`}
+          onChange={(e) => onItemChange(idx, "hsn", e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const qty = document.querySelector(`input[name="qty-${idx + 1}"]`); qty?.focus(); } }}
+          className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-8"
+          placeholder="Scan or type" />
+        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300" title="Barcode scannable">
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5V3h4v2H5v2H3V5zm14 0V3h4v2h-2v2h-2V5zM3 19v-2h2v-2h2v4H3zm14 0v-2h2v-2h2v4h-4zM7 7h1v10H7V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7z"/></svg>
+        </span>
+      </div>
+    </td>
+    <td className="py-3 px-3 border-b border-slate-100">
+      <input type="number" step="0.01" min="0" value={item.qty} name={`qty-${idx + 1}`}
+        onChange={(e) => onItemChange(idx, "qty", e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const rate = document.querySelector(`input[name="rate-${idx + 1}"]`); rate?.focus(); } }}
+        className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+    </td>
+    <td className="py-3 px-3 border-b border-slate-100">
+      <input type="number" step="0.01" min="0" value={item.rate} name={`rate-${idx + 1}`}
+        onChange={(e) => onItemChange(idx, "rate", e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const gst = document.querySelector(`input[name="gst-${idx + 1}"]`); gst?.focus(); } }}
+        className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+    </td>
+    <td className="py-3 px-3 border-b border-slate-100">
+      <div className="relative">
+        <input type="number" step="0.01" min="0" max="100" value={item.gstPercentage} name={`gst-${idx + 1}`}
+          onChange={(e) => onItemChange(idx, "gstPercentage", e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onAdd(); } }}
+          className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-7 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
+      </div>
+    </td>
+    <td className="py-3 px-3 text-right font-mono text-sm text-slate-700 border-b border-slate-100 truncate">
+      {(parseFloat(item.taxableValue) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+    </td>
+    <td className="py-3 px-3 text-right font-mono text-sm text-slate-600 border-b border-slate-100 truncate">
+      {(parseFloat(item.taxAmount) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+    </td>
+    <td className="py-3 px-3 text-right font-mono text-sm font-semibold text-slate-900 border-b border-slate-100 truncate">
+      {(parseFloat(item.total) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+    </td>
+    <td className="py-3 px-2 text-center border-b border-slate-100">
+      <button onClick={() => onRemove(idx)}
+        className="p-1.5 hover:bg-red-50 rounded transition-colors text-slate-400 hover:text-red-500">
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    </td>
+  </tr>
+));
 
 export default function InvoiceForm() {
   const { logout } = useAuth();
@@ -38,20 +116,24 @@ export default function InvoiceForm() {
   const [customer, setCustomer] = useState({
     name: "", email: "", phone: "", billingAddress: "", gstIn: "",
   });
+  const [existingCustomer, setExistingCustomer] = useState(null);
+  const [customerCheckLoading, setCustomerCheckLoading] = useState(false);
+  const [customerSaved, setCustomerSaved] = useState(false);
 
   const [form, setForm] = useState({
     invoiceType: "TAX_INVOICE",
     invoiceDate: today,
-    dueDate: "",
+    dueDate: today,
     placeOfSupply: "",
     deliveryNote: "",
-    deliveryNoteDate: "",
+    deliveryNoteDate: today,
     referenceNumber: "",
     buyerOrderNumber: "",
     dispatchDocNumber: "",
     dispatchedThrough: "",
-    termsOfDelivery: "",
-    paymentTerms: "",
+    termsOfDelivery: "Standard Shipping",
+    paymentTerms: "Net 30",
+    paymentMode: "CASH",
     otherReferences: "",
     destination: "",
     notes: "",
@@ -100,46 +182,85 @@ export default function InvoiceForm() {
   const handleCustomerChange = (e) => {
     const { name, value } = e.target;
     setCustomer((prev) => ({ ...prev, [name]: value }));
+    if (existingCustomer) setExistingCustomer(null);
   };
 
-  const handleItemChange = (idx, field, value) => {
-    const newItems = items.map((item, i) => {
+  const handleCheckCustomer = useCallback((phone) => {
+    if (!phone || phone.length !== 10) return;
+    setCustomerCheckLoading(true);
+    customerAPI.check({ phone })
+      .then((res) => {
+        const found = res.data.data;
+        if (found) {
+          setExistingCustomer(found);
+          setCustomer({
+            name: found.name || "",
+            email: found.email || "",
+            phone: found.phone || "",
+            billingAddress: found.billingAddress || "",
+            gstIn: found.gstIn || "",
+          });
+        }
+      })
+      .catch(() => setExistingCustomer(null))
+      .finally(() => setCustomerCheckLoading(false));
+  }, []);
+
+  const handleSaveCustomer = async () => {
+    if (!customer.name.trim() || (!customer.email && !customer.phone)) return;
+    try {
+      await customerAPI.create({
+        name: customer.name.trim(),
+        email: customer.email || undefined,
+        phone: customer.phone || undefined,
+        billingAddress: customer.billingAddress || undefined,
+        gstIn: customer.gstIn || undefined,
+      });
+      setCustomerSaved(true);
+      toast.success("Customer saved");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to save customer");
+    }
+  };
+
+  const handleItemChange = useCallback((idx, field, value) => {
+    setItems((prev) => prev.map((item, i) => {
       if (i !== idx) return item;
       const updated = { ...item, [field]: value };
       if (["qty", "rate", "gstPercentage"].includes(field)) {
-        recalcItem(updated);
+        const qty = parseFloat(updated.qty) || 0;
+        const rate = parseFloat(updated.rate) || 0;
+        const gst = parseFloat(updated.gstPercentage) || 0;
+        const taxableValue = qty * rate;
+        const taxAmount = (taxableValue * gst) / 100;
+        updated.taxableValue = Math.round(taxableValue * 100) / 100;
+        updated.taxAmount = Math.round(taxAmount * 100) / 100;
+        updated.total = Math.round((taxableValue + taxAmount) * 100) / 100;
       }
       return updated;
-    });
-    setItems(newItems);
-  };
-
-  const recalcItem = (item) => {
-    const qty = parseFloat(item.qty) || 0;
-    const rate = parseFloat(item.rate) || 0;
-    const gst = parseFloat(item.gstPercentage) || 0;
-    const taxableValue = qty * rate;
-    const taxAmount = (taxableValue * gst) / 100;
-    item.taxableValue = Math.round(taxableValue * 100) / 100;
-    item.taxAmount = Math.round(taxAmount * 100) / 100;
-    item.total = Math.round((taxableValue + taxAmount) * 100) / 100;
-  };
-
-  const recalcAll = () => {
-    setItems(items.map((item) => {
-      recalcItem(item);
-      return { ...item };
     }));
-  };
+  }, []);
 
-  const addItem = () => setItems([...items, { ...emptyItem }]);
+  const recalcAll = useCallback(() => {
+    setItems((prev) => prev.map((item) => {
+      const qty = parseFloat(item.qty) || 0;
+      const rate = parseFloat(item.rate) || 0;
+      const gst = parseFloat(item.gstPercentage) || 0;
+      const taxableValue = qty * rate;
+      const taxAmount = (taxableValue * gst) / 100;
+      return { ...item, taxableValue: Math.round(taxableValue * 100) / 100, taxAmount: Math.round(taxAmount * 100) / 100, total: Math.round((taxableValue + taxAmount) * 100) / 100 };
+    }));
+  }, []);
 
-  const removeItem = (idx) => {
-    if (items.length === 1) return;
-    setItems(items.filter((_, i) => i !== idx));
-  };
+  const addItem = useCallback(() => {
+    setItems((prev) => [...prev, { ...emptyItem }]);
+  }, []);
 
-  const totals = items.reduce(
+  const removeItem = useCallback((idx) => {
+    setItems((prev) => prev.length === 1 ? prev : prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const totals = useMemo(() => items.reduce(
     (acc, item) => {
       const tv = parseFloat(item.taxableValue) || 0;
       const ta = parseFloat(item.taxAmount) || 0;
@@ -147,7 +268,7 @@ export default function InvoiceForm() {
       return { subtotal: acc.subtotal + tv, taxAmount: acc.taxAmount + ta, grandTotal: acc.grandTotal + t };
     },
     { subtotal: 0, taxAmount: 0, grandTotal: 0 }
-  );
+  ), [items]);
 
   const validate = () => {
     if (!customer.name.trim()) { toast.error("Customer name is required"); return false; }
@@ -165,6 +286,7 @@ export default function InvoiceForm() {
     dueDate: form.dueDate,
     placeOfSupply: form.placeOfSupply || undefined,
     paymentTerms: form.paymentTerms || undefined,
+    paymentMode: form.paymentMode || undefined,
     notes: form.notes || undefined,
     deliveryNote: form.deliveryNote || undefined,
     deliveryNoteDate: form.deliveryNoteDate || undefined,
@@ -217,7 +339,6 @@ export default function InvoiceForm() {
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
     setSaving(true);
     try {
       const res = await saveInvoice();
@@ -270,9 +391,6 @@ export default function InvoiceForm() {
     );
   }
 
-  const inputClass = "w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 bg-white transition-all";
-  const labelClass = "block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide uppercase";
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
@@ -300,18 +418,53 @@ export default function InvoiceForm() {
 
             {/* Customer Details - Inline Fields */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-slate-100">
-                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                  <User className="w-4 h-4 text-slate-600" />
+              <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <User className="w-4 h-4 text-slate-600" />
+                  </div>
+                  <h2 className="text-sm font-bold text-slate-800">Customer Details</h2>
                 </div>
-                <h2 className="text-sm font-bold text-slate-800">Customer Details</h2>
+                <div className="flex items-center gap-2">
+                  {customerCheckLoading && (
+                    <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+                  )}
+                  {existingCustomer && (
+                    <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Existing customer</span>
+                  )}
+                  {customerSaved && (
+                    <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Customer saved</span>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className={labelClass}>Phone <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                    <input type="tel" name="phone" value={customer.phone} onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, 10);
+                      handleCustomerChange({ target: { name: "phone", value: v } });
+                    }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (customer.phone.length === 10) handleCheckCustomer(customer.phone);
+                          focusNext("phone");
+                        }
+                      }}
+                      onBlur={() => {
+                        if (customer.phone.length === 10) handleCheckCustomer(customer.phone);
+                      }}
+                      className={"pl-10 " + inputClass} placeholder="e.g. 9036843735" inputMode="numeric" />
+                  </div>
+                </div>
                 <div className="md:col-span-2">
                   <label className={labelClass}>Customer Name <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                     <input type="text" name="name" value={customer.name} onChange={handleCustomerChange}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("name"); } }}
                       className={"pl-10 " + inputClass} placeholder="e.g. Good Luck Enterprises" />
                   </div>
                 </div>
@@ -320,15 +473,8 @@ export default function InvoiceForm() {
                   <div className="relative">
                     <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     <input type="email" name="email" value={customer.email} onChange={handleCustomerChange}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("email"); } }}
                       className={"pl-10 " + inputClass} placeholder="customer@email.com" />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass}>Phone <span className="text-red-500">*</span></label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                    <input type="text" name="phone" value={customer.phone} onChange={handleCustomerChange}
-                      className={"pl-10 " + inputClass} placeholder="e.g. 9036843735" />
                   </div>
                 </div>
                 <div className="md:col-span-2">
@@ -336,6 +482,7 @@ export default function InvoiceForm() {
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 text-slate-400 w-4 h-4" />
                     <textarea name="billingAddress" value={customer.billingAddress} onChange={handleCustomerChange}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("billingAddress"); } }}
                       rows={2} className={"pl-10 " + inputClass + " resize-none"} placeholder="Full billing address" />
                   </div>
                 </div>
@@ -344,10 +491,20 @@ export default function InvoiceForm() {
                   <div className="relative">
                     <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                     <input type="text" name="gstIn" value={customer.gstIn} onChange={handleCustomerChange}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("gstIn"); } }}
                       className={"pl-10 font-mono uppercase tracking-wider " + inputClass} placeholder="e.g. 29AEQPJ1655J1Z0" />
                   </div>
                 </div>
               </div>
+              {!existingCustomer && !customerSaved && customer.name.trim() && customer.phone && (
+                <div className="mt-4 pt-4 border-t border-slate-100 flex justify-end">
+                  <button onClick={handleSaveCustomer}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-all shadow-sm">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                    Save Customer
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Invoice Details */}
@@ -361,7 +518,9 @@ export default function InvoiceForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className={labelClass}>Type</label>
-                  <select name="invoiceType" value={form.invoiceType} onChange={handleFieldChange} className={inputClass}>
+                  <select name="invoiceType" value={form.invoiceType} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("invoiceType"); } }}
+                    className={inputClass}>
                     <option value="TAX_INVOICE">Tax Invoice</option>
                     <option value="PROFORMA_INVOICE">Proforma Invoice</option>
                   </select>
@@ -388,23 +547,54 @@ export default function InvoiceForm() {
                 )}
                 <div>
                   <label className={labelClass}>Date <span className="text-red-500">*</span></label>
-                  <input type="date" name="invoiceDate" value={form.invoiceDate} onChange={handleFieldChange} className={inputClass} />
+                  <input type="date" name="invoiceDate" value={form.invoiceDate} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("invoiceDate"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Due Date <span className="text-red-500">*</span></label>
-                  <input type="date" name="dueDate" value={form.dueDate} onChange={handleFieldChange} className={inputClass} />
+                  <input type="date" name="dueDate" value={form.dueDate} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("dueDate"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Place of Supply</label>
-                  <input type="text" name="placeOfSupply" value={form.placeOfSupply} onChange={handleFieldChange} className={inputClass} placeholder="e.g. Karnataka" />
+                  <select name="placeOfSupply" value={form.placeOfSupply} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("placeOfSupply"); } }}
+                    className={inputClass}>
+                    <option value="">Select state</option>
+                    {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
                 </div>
                 <div>
                   <label className={labelClass}>Destination</label>
-                  <input type="text" name="destination" value={form.destination} onChange={handleFieldChange} className={inputClass} placeholder="e.g. Karnataka" />
+                  <select name="destination" value={form.destination} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("destination"); } }}
+                    className={inputClass}>
+                    <option value="">Select state</option>
+                    {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
                 </div>
                 <div>
                   <label className={labelClass}>Payment Terms</label>
-                  <input type="text" name="paymentTerms" value={form.paymentTerms} onChange={handleFieldChange} className={inputClass} placeholder="e.g. Net 30" />
+                  <select name="paymentTerms" value={form.paymentTerms} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("paymentTerms"); } }}
+                    className={inputClass}>
+                    {PAYMENT_TERMS.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Payment Mode</label>
+                  <select name="paymentMode" value={form.paymentMode} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("paymentMode"); } }}
+                    className={inputClass}>
+                    <option value="UPI">UPI</option>
+                    <option value="CASH">Cash</option>
+                    <option value="CARD">Card</option>
+                    <option value="CHEQUE">Cheque</option>
+                    <option value="NEFT">NEFT</option>
+                    <option value="IMPS">IMPS</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -420,35 +610,53 @@ export default function InvoiceForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className={labelClass}>Delivery Note</label>
-                  <input type="text" name="deliveryNote" value={form.deliveryNote} onChange={handleFieldChange} className={inputClass} />
+                  <input type="text" name="deliveryNote" value={form.deliveryNote} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("deliveryNote"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Delivery Note Date</label>
-                  <input type="date" name="deliveryNoteDate" value={form.deliveryNoteDate} onChange={handleFieldChange} className={inputClass} />
+                  <input type="date" name="deliveryNoteDate" value={form.deliveryNoteDate} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("deliveryNoteDate"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Reference No</label>
-                  <input type="text" name="referenceNumber" value={form.referenceNumber} onChange={handleFieldChange} className={inputClass} />
+                  <input type="text" name="referenceNumber" value={form.referenceNumber} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("referenceNumber"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Buyer Order No</label>
-                  <input type="text" name="buyerOrderNumber" value={form.buyerOrderNumber} onChange={handleFieldChange} className={inputClass} />
+                  <input type="text" name="buyerOrderNumber" value={form.buyerOrderNumber} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("buyerOrderNumber"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Dispatch Doc No</label>
-                  <input type="text" name="dispatchDocNumber" value={form.dispatchDocNumber} onChange={handleFieldChange} className={inputClass} />
+                  <input type="text" name="dispatchDocNumber" value={form.dispatchDocNumber} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("dispatchDocNumber"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Dispatched Through</label>
-                  <input type="text" name="dispatchedThrough" value={form.dispatchedThrough} onChange={handleFieldChange} className={inputClass} />
+                  <input type="text" name="dispatchedThrough" value={form.dispatchedThrough} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("dispatchedThrough"); } }}
+                    className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Terms of Delivery</label>
-                  <input type="text" name="termsOfDelivery" value={form.termsOfDelivery} onChange={handleFieldChange} className={inputClass} placeholder="e.g. Free delivery" />
+                  <select name="termsOfDelivery" value={form.termsOfDelivery} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("termsOfDelivery"); } }}
+                    className={inputClass}>
+                    {DELIVERY_TERMS.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
                 </div>
                 <div>
                   <label className={labelClass}>Other References</label>
-                  <input type="text" name="otherReferences" value={form.otherReferences} onChange={handleFieldChange} className={inputClass} />
+                  <input type="text" name="otherReferences" value={form.otherReferences} onChange={handleFieldChange}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("otherReferences"); } }}
+                    className={inputClass} />
                 </div>
               </div>
             </div>
@@ -486,53 +694,7 @@ export default function InvoiceForm() {
                   </thead>
                   <tbody>
                     {items.map((item, idx) => (
-                      <tr key={idx} className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"} hover:bg-blue-50/20 transition-colors`}>
-                        <td className="py-3 px-3 text-center text-slate-400 font-mono text-xs border-b border-slate-100">{idx + 1}</td>
-                        <td className="py-3 px-3 border-b border-slate-100">
-                          <input type="text" value={item.itemName}
-                            onChange={(e) => handleItemChange(idx, "itemName", e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white"
-                            placeholder="Item name" />
-                        </td>
-                        <td className="py-3 px-3 border-b border-slate-100">
-                          <input type="text" value={item.hsn}
-                            onChange={(e) => handleItemChange(idx, "hsn", e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono" />
-                        </td>
-                        <td className="py-3 px-3 border-b border-slate-100">
-                          <input type="number" step="0.01" min="0" value={item.qty}
-                            onChange={(e) => handleItemChange(idx, "qty", e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                        </td>
-                        <td className="py-3 px-3 border-b border-slate-100">
-                          <input type="number" step="0.01" min="0" value={item.rate}
-                            onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                        </td>
-                        <td className="py-3 px-3 border-b border-slate-100">
-                          <div className="relative">
-                            <input type="number" step="0.01" min="0" max="100" value={item.gstPercentage}
-                              onChange={(e) => handleItemChange(idx, "gstPercentage", e.target.value)}
-                              className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-7 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-right font-mono text-sm text-slate-700 border-b border-slate-100 truncate">
-                          {(parseFloat(item.taxableValue) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-3 px-3 text-right font-mono text-sm text-slate-600 border-b border-slate-100 truncate">
-                          {(parseFloat(item.taxAmount) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-3 px-3 text-right font-mono text-sm font-semibold text-slate-900 border-b border-slate-100 truncate">
-                          {(parseFloat(item.total) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-3 px-2 text-center border-b border-slate-100">
-                          <button onClick={() => removeItem(idx)}
-                            className="p-1.5 hover:bg-red-50 rounded transition-colors text-slate-400 hover:text-red-500">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
+                      <ItemRow key={idx} item={item} idx={idx} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} />
                     ))}
                   </tbody>
                 </table>
@@ -560,6 +722,7 @@ export default function InvoiceForm() {
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
               <textarea name="notes" value={form.notes} onChange={handleFieldChange}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("notes"); } }}
                 rows={2} className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 resize-none"
                 placeholder="Additional notes or remarks..." />
             </div>
@@ -642,11 +805,11 @@ export default function InvoiceForm() {
                   {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="w-4 h-4" />}
                   {saving ? "Saving..." : "Save Invoice"}
                 </button>
-                <button onClick={() => generatePDF("TAX_INVOICE")} disabled={sealRequired}
+                <button onClick={() => generatePDF("TAX_INVOICE")} disabled={sealRequired || totals.grandTotal <= 0}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm">
                   <Download className="w-4 h-4" /> Tax Invoice PDF
                 </button>
-                <button onClick={() => generatePDF("PROFORMA_INVOICE")} disabled={sealRequired}
+                <button onClick={() => generatePDF("PROFORMA_INVOICE")} disabled={sealRequired || totals.grandTotal <= 0}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm">
                   <Download className="w-4 h-4" /> Proforma PDF
                 </button>

@@ -65,8 +65,10 @@ const tStyleSep = {
   boxSizing: "border-box",
 };
 
-const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, discountPercent, type, invoiceNumber }, ref) => {
+const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, items, totals, discountPercent, type, invoiceNumber }, ref) => {
   const displayInvNo = invoiceNumber || "DRAFT";
+  const isProforma = type === "PROFORMA_INVOICE";
+  const pl = (label) => isProforma ? ({ "Invoice No.": "Proforma Ref", "Invoice#": "Proforma Ref", "Due Date": "Valid Until", "Due": "Valid Until" }[label] || label) : label;
   const validItems = (items || []).filter((i) => i.itemName?.trim() && parseFloat(i.qty) > 0);
   const sigSrc = business?.signature ? `data:image/png;base64,${business.signature}` : null;
   const discPct = parseFloat(discountPercent) || 0;
@@ -81,13 +83,15 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
     sgstTotal += (taxable * halfGst) / 100;
   });
 
-  const rightLabels = [
-    "Invoice No.", "Delivery Note", "Reference No. & Date.", "Buyer's Order No.",
-    "Dispatch Doc No.", "Dispatched through", "Terms of Delivery", "Payment Date",
-    "Mode/Terms of Payment", "Other References", "Dated", "Delivery Note Date", "Destination",
-  ];
+  const rightLabels = isProforma
+    ? ["Proforma Ref.", "Delivery Note", "Reference No. & Date.", "Buyer's Order No.",
+       "Dispatch Doc No.", "Dispatched through", "Terms of Delivery", "Valid Until",
+       "Mode/Terms of Payment", "Other References", "Dated", "Delivery Note Date", "Destination"]
+    : ["Invoice No.", "Delivery Note", "Reference No. & Date.", "Buyer's Order No.",
+       "Dispatch Doc No.", "Dispatched through", "Terms of Delivery", "Payment Date",
+       "Mode/Terms of Payment", "Other References", "Dated", "Delivery Note Date", "Destination"];
   const rightValues = [
-    displayInvNo, form?.deliveryNote,
+    isProforma ? `PF-${displayInvNo}` : displayInvNo, form?.deliveryNote,
     form?.referenceNumber ? `${form.referenceNumber} / ${form.invoiceDate || ""}` : form?.invoiceDate,
     form?.buyerOrderNumber, form?.dispatchDocNumber, form?.dispatchedThrough,
     form?.termsOfDelivery, form?.dueDate, form?.paymentTerms, form?.otherReferences,
@@ -119,10 +123,16 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
           <tr>
             <td colSpan={2} style={{ borderBottom: S.border, padding: 0 }}>
               <div style={{ position: "relative", textAlign: "center", fontSize: "14px", fontWeight: "bold", padding: "6px 10px" }}>
-                {type === "PROFORMA_INVOICE" ? "Proforma Invoice" : "Tax Invoice"}
-                <span style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "11px", fontStyle: "italic", fontWeight: "normal" }}>
-                  (ORIGINAL FOR RECIPIENT)
-                </span>
+                {isProforma ? "PROFORMA INVOICE" : "Tax Invoice"}
+                {isProforma ? (
+                  <div style={{ fontSize: "9px", fontWeight: "normal", fontStyle: "italic" }}>
+                    — NOT A TAX INVOICE —
+                  </div>
+                ) : (
+                  <span style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "11px", fontStyle: "italic", fontWeight: "normal" }}>
+                    (ORIGINAL FOR RECIPIENT)
+                  </span>
+                )}
               </div>
             </td>
           </tr>
@@ -259,6 +269,8 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
             </td>
           </tr>
 
+          {!isProforma && (
+            <>
           {/* GST SUMMARY */}
           <tr id="section-subtotals">
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
@@ -384,6 +396,9 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
             </td>
           </tr>
 
+          </>
+          )}
+
           {/* BOTTOM SECTION: Bank | Declaration | Signature */}
           <tr id="section-footer">
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
@@ -469,7 +484,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
       </table>
     </div>
   );
-});
+}));
 
 InvoicePDF.displayName = "InvoicePDF";
 

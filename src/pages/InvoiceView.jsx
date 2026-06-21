@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
@@ -8,11 +8,90 @@ import { ArrowLeft, Download, Save, Edit3, Plus, Trash2, FileText, AlertCircle, 
 import { downloadInvoicePDF } from "../components/InvoicePDF";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { processQueue } from "../utils/retryQueue";
+import { INDIAN_STATES, DELIVERY_TERMS, PAYMENT_TERMS } from "../constants/indianStates";
 
 const emptyItem = () => ({ itemName: "", hsn: "", qty: "1", rate: "", gstPercentage: "18", taxableValue: "0", taxAmount: "0", total: "0" });
 const fmt = (v) => parseFloat(v || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 });
 const inputClass = "w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400";
 const labelClass = "block text-xs font-semibold text-slate-600 mb-1.5";
+
+const ViewItemRow = memo(({ item, idx, isEditing, onItemChange, onRemove, onAdd }) => (
+  <tr className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"} ${isEditing ? "hover:bg-blue-50/20" : ""} transition-colors`}>
+    <td className="py-3 px-3 text-center text-slate-400 font-mono text-xs border-b border-slate-100">{idx + 1}</td>
+    {isEditing ? (
+      <>
+        <td className="py-3 px-3 border-b border-slate-100">
+          <div className="relative">
+            <input type="text" value={item.itemName} name={`desc-${idx + 1}`}
+              onChange={(e) => onItemChange(idx, "itemName", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const next = document.querySelector(`input[name="hsn-${idx + 1}"]`); next?.focus(); } }}
+              className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white pr-8" placeholder="Item name" />
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300" title="Barcode scannable">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5V3h4v2H5v2H3V5zm14 0V3h4v2h-2v2h-2V5zM3 19v-2h2v-2h2v4H3zm14 0v-2h2v-2h2v4h-4zM7 7h1v10H7V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7z"/></svg>
+            </span>
+          </div>
+        </td>
+        <td className="py-3 px-3 border-b border-slate-100">
+          <div className="relative">
+            <input type="text" value={item.hsn} name={`hsn-${idx + 1}`}
+              onChange={(e) => onItemChange(idx, "hsn", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const qty = document.querySelector(`input[name="qty-${idx + 1}"]`); qty?.focus(); } }}
+              className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-8" placeholder="Scan or type" />
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300" title="Barcode scannable">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5V3h4v2H5v2H3V5zm14 0V3h4v2h-2v2h-2V5zM3 19v-2h2v-2h2v4H3zm14 0v-2h2v-2h2v4h-4zM7 7h1v10H7V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7z"/></svg>
+            </span>
+          </div>
+        </td>
+        <td className="py-3 px-3 border-b border-slate-100">
+          <input type="number" step="0.01" min="0" value={item.qty} name={`qty-${idx + 1}`}
+            onChange={(e) => onItemChange(idx, "qty", e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const rate = document.querySelector(`input[name="rate-${idx + 1}"]`); rate?.focus(); } }}
+            className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+        </td>
+        <td className="py-3 px-3 border-b border-slate-100">
+          <input type="number" step="0.01" min="0" value={item.rate} name={`rate-${idx + 1}`}
+            onChange={(e) => onItemChange(idx, "rate", e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const gst = document.querySelector(`input[name="gst-${idx + 1}"]`); gst?.focus(); } }}
+            className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+        </td>
+        <td className="py-3 px-3 border-b border-slate-100">
+          <div className="relative">
+            <input type="number" step="0.01" min="0" max="100" value={item.gstPercentage} name={`gst-${idx + 1}`}
+              onChange={(e) => onItemChange(idx, "gstPercentage", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onAdd(); } }}
+              className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-7 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
+          </div>
+        </td>
+      </>
+    ) : (
+      <>
+        <td className="py-3 px-3 text-slate-800 border-b border-slate-100 truncate">{item.itemName}</td>
+        <td className="py-3 px-3 text-center font-mono text-xs text-slate-500 border-b border-slate-100">{item.hsn || "-"}</td>
+        <td className="py-3 px-3 text-right font-mono text-sm text-slate-700 border-b border-slate-100">{item.qty}</td>
+        <td className="py-3 px-3 text-right font-mono text-sm text-slate-700 border-b border-slate-100">{fmt(item.rate)}</td>
+        <td className="py-3 px-3 text-right font-mono text-sm text-slate-600 border-b border-slate-100">{item.gstPercentage}%</td>
+      </>
+    )}
+    <td className={`py-3 px-3 text-right font-mono text-sm border-b border-slate-100 truncate ${isEditing ? "text-slate-700" : "text-slate-700"}`}>
+      {fmt(item.taxableValue)}
+    </td>
+    <td className={`py-3 px-3 text-right font-mono text-sm border-b border-slate-100 truncate ${isEditing ? "text-slate-600" : "text-slate-600"}`}>
+      {fmt(item.taxAmount)}
+    </td>
+    <td className={`py-3 px-3 text-right font-mono text-sm font-semibold border-b border-slate-100 truncate ${isEditing ? "text-slate-900" : "text-slate-900"}`}>
+      {fmt(item.total)}
+    </td>
+    {isEditing && (
+      <td className="py-3 px-2 text-center border-b border-slate-100">
+        <button onClick={() => onRemove(idx)}
+          className="p-1.5 hover:bg-red-50 rounded transition-colors text-slate-400 hover:text-red-500">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </td>
+    )}
+  </tr>
+));
 
 export default function InvoiceView() {
   const { id } = useParams();
@@ -34,7 +113,7 @@ export default function InvoiceView() {
   const [form, setForm] = useState({
     customerName: "", customerEmail: "", customerPhone: "", billingAddress: "", customerGstIn: "",
     invoiceDate: "", dueDate: "", placeOfSupply: "", destination: "", termsOfDelivery: "",
-    paymentTerms: "", deliveryNote: "", otherReferences: "", notes: "", invoiceNumber: "",
+    paymentTerms: "", paymentMode: "CASH", deliveryNote: "", otherReferences: "", notes: "", invoiceNumber: "",
     deliveryNoteDate: "", referenceNumber: "", buyerOrderNumber: "",
     dispatchDocNumber: "", dispatchedThrough: "",
   });
@@ -53,7 +132,7 @@ export default function InvoiceView() {
         billingAddress: "", customerGstIn: "", invoiceDate: inv.invoiceDate || "",
         dueDate: inv.dueDate || "", placeOfSupply: inv.placeOfSupply || "",
         destination: inv.destination || "", termsOfDelivery: inv.termsOfDelivery || "",
-        paymentTerms: inv.paymentTerms || "", deliveryNote: inv.deliveryNote || "",
+        paymentTerms: inv.paymentTerms || "", paymentMode: inv.paymentMode || "CASH", deliveryNote: inv.deliveryNote || "",
         otherReferences: inv.otherReferences || "", notes: inv.notes || "",
         invoiceNumber: inv.invoiceNumber || "",
         deliveryNoteDate: inv.deliveryNoteDate || "", referenceNumber: inv.referenceNumber || "",
@@ -91,22 +170,33 @@ export default function InvoiceView() {
   }, []);
 
   const handleFieldChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
-  const calcItem = (item) => {
-    const qty = parseFloat(item.qty) || 0;
-    const rate = parseFloat(item.rate) || 0;
-    const gst = parseFloat(item.gstPercentage) || 0;
-    const taxableValue = qty * rate;
-    const taxAmount = taxableValue * gst / 100;
-    const total = taxableValue + taxAmount;
-    return { ...item, taxableValue: taxableValue.toFixed(2), taxAmount: taxAmount.toFixed(2), total: total.toFixed(2) };
-  };
-  const handleItemChange = (idx, field, value) => {
-    setItems(items.map((item, i) => i !== idx ? item : calcItem({ ...item, [field]: value })));
-  };
-  const addItem = () => setItems([...items, { ...emptyItem() }]);
-  const removeItem = (idx) => { if (items.length > 1) setItems(items.filter((_, i) => i !== idx)); };
+  const handleItemChange = useCallback((idx, field, value) => {
+    setItems((prev) => prev.map((item, i) => {
+      if (i !== idx) return item;
+      const qty = parseFloat(field === "qty" ? value : item.qty) || 0;
+      const rate = parseFloat(field === "rate" ? value : item.rate) || 0;
+      const gst = parseFloat(field === "gstPercentage" ? value : item.gstPercentage) || 0;
+      const updated = { ...item, [field]: value };
+      if (["qty", "rate", "gstPercentage"].includes(field)) {
+        const taxableValue = qty * rate;
+        const taxAmount = taxableValue * gst / 100;
+        updated.taxableValue = taxableValue.toFixed(2);
+        updated.taxAmount = taxAmount.toFixed(2);
+        updated.total = (taxableValue + taxAmount).toFixed(2);
+      }
+      return updated;
+    }));
+  }, []);
 
-  const totals = items.reduce(
+  const addItem = useCallback(() => {
+    setItems((prev) => [...prev, { ...emptyItem() }]);
+  }, []);
+
+  const removeItem = useCallback((idx) => {
+    setItems((prev) => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev);
+  }, []);
+
+  const totals = useMemo(() => items.reduce(
     (acc, item) => {
       const tv = parseFloat(item.taxableValue) || 0;
       const ta = parseFloat(item.taxAmount) || 0;
@@ -114,7 +204,7 @@ export default function InvoiceView() {
       return { subtotal: acc.subtotal + tv, taxAmount: acc.taxAmount + ta, grandTotal: acc.grandTotal + t };
     },
     { subtotal: 0, taxAmount: 0, grandTotal: 0 }
-  );
+  ), [items]);
 
   const validate = () => {
     if (!form.customerName.trim()) { toast.error("Customer name is required"); return false; }
@@ -132,6 +222,7 @@ export default function InvoiceView() {
         invoiceDate: form.invoiceDate, dueDate: form.dueDate || undefined,
         placeOfSupply: form.placeOfSupply || undefined, destination: form.destination || undefined,
         termsOfDelivery: form.termsOfDelivery || undefined, paymentTerms: form.paymentTerms || undefined,
+        paymentMode: form.paymentMode || "CASH",
         deliveryNote: form.deliveryNote || undefined, otherReferences: form.otherReferences || undefined,
         notes: form.notes || undefined,
         customerName: form.customerName.trim(), customerEmail: form.customerEmail || undefined,
@@ -314,19 +405,29 @@ export default function InvoiceView() {
                   </div>
                   <div>
                     <label className={labelClass}>Place of Supply</label>
-                    <input name="placeOfSupply" value={form.placeOfSupply} onChange={handleFieldChange} className={inputClass} />
+                    <select name="placeOfSupply" value={form.placeOfSupply} onChange={handleFieldChange} className={inputClass}>
+                      <option value="">Select state</option>
+                      {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>Destination</label>
-                    <input name="destination" value={form.destination} onChange={handleFieldChange} className={inputClass} />
+                    <select name="destination" value={form.destination} onChange={handleFieldChange} className={inputClass}>
+                      <option value="">Select state</option>
+                      {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>Terms of Delivery</label>
-                    <input name="termsOfDelivery" value={form.termsOfDelivery} onChange={handleFieldChange} className={inputClass} />
+                    <select name="termsOfDelivery" value={form.termsOfDelivery} onChange={handleFieldChange} className={inputClass}>
+                      {DELIVERY_TERMS.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>Payment Terms</label>
-                    <input name="paymentTerms" value={form.paymentTerms} onChange={handleFieldChange} className={inputClass} />
+                    <select name="paymentTerms" value={form.paymentTerms} onChange={handleFieldChange} className={inputClass}>
+                      {PAYMENT_TERMS.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>Delivery Note</label>
@@ -335,6 +436,17 @@ export default function InvoiceView() {
                   <div>
                     <label className={labelClass}>Other References</label>
                     <input name="otherReferences" value={form.otherReferences} onChange={handleFieldChange} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Payment Mode</label>
+                    <select name="paymentMode" value={form.paymentMode} onChange={handleFieldChange} className={inputClass}>
+                      <option value="UPI">UPI</option>
+                      <option value="CASH">CASH</option>
+                      <option value="CARD">CARD</option>
+                      <option value="CHEQUE">CHEQUE</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="IMPS">IMPS</option>
+                    </select>
                   </div>
                 </div>
               ) : (
@@ -375,6 +487,10 @@ export default function InvoiceView() {
                     <label className={labelClass}>Other References</label>
                     <p className="text-sm text-slate-800">{form.otherReferences}</p>
                   </div>}
+                  {form.paymentMode && <div>
+                    <label className={labelClass}>Payment Mode</label>
+                    <p className="text-sm text-slate-800">{form.paymentMode}</p>
+                  </div>}
                 </div>
               )}
             </div>
@@ -412,66 +528,7 @@ export default function InvoiceView() {
                   </thead>
                   <tbody>
                     {items.map((item, idx) => (
-                      <tr key={idx} className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"} ${isEditing ? "hover:bg-blue-50/20" : ""} transition-colors`}>
-                        <td className="py-3 px-3 text-center text-slate-400 font-mono text-xs border-b border-slate-100">{idx + 1}</td>
-                        {isEditing ? (
-                          <>
-                            <td className="py-3 px-3 border-b border-slate-100">
-                              <input type="text" value={item.itemName}
-                                onChange={(e) => handleItemChange(idx, "itemName", e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white" placeholder="Item name" />
-                            </td>
-                            <td className="py-3 px-3 border-b border-slate-100">
-                              <input type="text" value={item.hsn}
-                                onChange={(e) => handleItemChange(idx, "hsn", e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono" />
-                            </td>
-                            <td className="py-3 px-3 border-b border-slate-100">
-                              <input type="number" step="0.01" min="0" value={item.qty}
-                                onChange={(e) => handleItemChange(idx, "qty", e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                            </td>
-                            <td className="py-3 px-3 border-b border-slate-100">
-                              <input type="number" step="0.01" min="0" value={item.rate}
-                                onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                            </td>
-                            <td className="py-3 px-3 border-b border-slate-100">
-                              <div className="relative">
-                                <input type="number" step="0.01" min="0" max="100" value={item.gstPercentage}
-                                  onChange={(e) => handleItemChange(idx, "gstPercentage", e.target.value)}
-                                  className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-7 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
-                              </div>
-                            </td>
-                          </>
-                        ) : (
-                          <>
-                            <td className="py-3 px-3 text-slate-800 border-b border-slate-100 truncate">{item.itemName}</td>
-                            <td className="py-3 px-3 text-center font-mono text-xs text-slate-500 border-b border-slate-100">{item.hsn || "-"}</td>
-                            <td className="py-3 px-3 text-right font-mono text-sm text-slate-700 border-b border-slate-100">{item.qty}</td>
-                            <td className="py-3 px-3 text-right font-mono text-sm text-slate-700 border-b border-slate-100">{fmt(item.rate)}</td>
-                            <td className="py-3 px-3 text-right font-mono text-sm text-slate-600 border-b border-slate-100">{item.gstPercentage}%</td>
-                          </>
-                        )}
-                        <td className={`py-3 px-3 text-right font-mono text-sm border-b border-slate-100 truncate ${isEditing ? "text-slate-700" : "text-slate-700"}`}>
-                          {fmt(item.taxableValue)}
-                        </td>
-                        <td className={`py-3 px-3 text-right font-mono text-sm border-b border-slate-100 truncate ${isEditing ? "text-slate-600" : "text-slate-600"}`}>
-                          {fmt(item.taxAmount)}
-                        </td>
-                        <td className={`py-3 px-3 text-right font-mono text-sm font-semibold border-b border-slate-100 truncate ${isEditing ? "text-slate-900" : "text-slate-900"}`}>
-                          {fmt(item.total)}
-                        </td>
-                        {isEditing && (
-                          <td className="py-3 px-2 text-center border-b border-slate-100">
-                            <button onClick={() => removeItem(idx)}
-                              className="p-1.5 hover:bg-red-50 rounded transition-colors text-slate-400 hover:text-red-500">
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </td>
-                        )}
-                      </tr>
+                      <ViewItemRow key={idx} item={item} idx={idx} isEditing={isEditing} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} />
                     ))}
                   </tbody>
                 </table>

@@ -193,10 +193,12 @@ const TEMPLATE_THEMES = {
   },
 };
 
-const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, form, items, totals, discountPercent, type, invoiceNumber }, ref) => {
+const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, customer, form, items, totals, discountPercent, type, invoiceNumber }, ref) => {
   const t = TEMPLATE_THEMES[theme] || TEMPLATE_THEMES["template-3"];
   const S = { border: `${t.borderWidth} ${t.borderStyle} ${t.borderColor}` };
   const displayInvNo = invoiceNumber || "DRAFT";
+  const isProforma = type === "PROFORMA_INVOICE";
+  const pl = (label) => isProforma ? ({ "Invoice No.": "Proforma Ref", "Invoice#": "Proforma Ref", "Due Date": "Valid Until", "Due": "Valid Until" }[label] || label) : label;
   const validItems = (items || []).filter((i) => i.itemName?.trim() && parseFloat(i.qty) > 0);
   const sigSrc = business?.signature ? `data:image/png;base64,${business.signature}` : null;
   const discPct = parseFloat(discountPercent) || 0;
@@ -211,13 +213,15 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
     sgstTotal += (taxable * halfGst) / 100;
   });
 
-  const rightLabels = [
-    "Invoice No.", "Delivery Note", "Reference No. & Date.", "Buyer's Order No.",
-    "Dispatch Doc No.", "Dispatched through", "Terms of Delivery", "Payment Date",
-    "Mode/Terms of Payment", "Other References", "Dated", "Delivery Note Date", "Destination",
-  ];
+  const rightLabels = isProforma
+    ? ["Proforma Ref.", "Delivery Note", "Reference No. & Date.", "Buyer's Order No.",
+       "Dispatch Doc No.", "Dispatched through", "Terms of Delivery", "Valid Until",
+       "Mode/Terms of Payment", "Other References", "Dated", "Delivery Note Date", "Destination"]
+    : [pl("Invoice No."), "Delivery Note", "Reference No. & Date.", "Buyer's Order No.",
+       "Dispatch Doc No.", "Dispatched through", "Terms of Delivery", "Payment Date",
+       "Mode/Terms of Payment", "Other References", "Dated", "Delivery Note Date", "Destination"];
   const rightValues = [
-    displayInvNo, form?.deliveryNote,
+    isProforma ? `PF-${displayInvNo}` : displayInvNo, form?.deliveryNote,
     form?.referenceNumber ? `${form.referenceNumber} / ${form.invoiceDate || ""}` : form?.invoiceDate,
     form?.buyerOrderNumber, form?.dispatchDocNumber, form?.dispatchedThrough,
     form?.termsOfDelivery, form?.dueDate, form?.paymentTerms, form?.otherReferences,
@@ -236,7 +240,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
   const baseFS = t.compact ? "9px" : "10px";
   const titleFS = t.compact ? "13px" : "14px";
 
-  const titleRow = (
+  const titleRow = () => (
     <tr>
       <td colSpan={2} style={{ borderBottom: S.border, padding: 0, background: t.primary !== "#ffffff" ? t.primary : "transparent", borderLeft: `${t.borderWidth} ${t.borderStyle} ${t.primary !== "#ffffff" ? t.primary : "transparent"}`, borderRight: `${t.borderWidth} ${t.borderStyle} ${t.primary !== "#ffffff" ? t.primary : "transparent"}` }}>
         <div style={{
@@ -244,14 +248,20 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
           padding: t.compact ? "4px 8px" : "6px 10px",
           color: t.primary === t.headerText ? "#ffffff" : (t.headerText !== "#1e293b" ? t.headerText : "#000"),
         }}>
-          {type === "PROFORMA_INVOICE" ? "Proforma Invoice" : "Tax Invoice"}
-          <span style={{
-            position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)",
-            fontSize: "11px", fontStyle: "italic", fontWeight: "normal",
-            color: t.primary === t.headerText ? "#ffffff" : (t.headerText !== "#1e293b" ? t.headerText : "#000"),
-          }}>
-            (ORIGINAL FOR RECIPIENT)
-          </span>
+          {isProforma ? "PROFORMA INVOICE" : "Tax Invoice"}
+          {isProforma ? (
+            <div style={{ fontSize: "9px", fontWeight: "normal", fontStyle: "italic", opacity: 0.8 }}>
+              — NOT A TAX INVOICE —
+            </div>
+          ) : (
+            <span style={{
+              position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)",
+              fontSize: "11px", fontStyle: "italic", fontWeight: "normal",
+              color: t.primary === t.headerText ? "#ffffff" : (t.headerText !== "#1e293b" ? t.headerText : "#000"),
+            }}>
+              (ORIGINAL FOR RECIPIENT)
+            </span>
+          )}
         </div>
       </td>
     </tr>
@@ -421,9 +431,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                   <tbody>
                     <tr>
                       {[
-                        ["Invoice No.", displayInvNo],
+                        [pl("Invoice No."), displayInvNo],
                         ["Date", form?.invoiceDate || "-"],
-                        ["Due Date", form?.dueDate || "-"],
+                        [pl("Due Date"), form?.dueDate || "-"],
                         ["PO No.", form?.buyerOrderNumber || "-"],
                         ["Terms", form?.paymentTerms || "-"],
                       ].map(([l, v], i) => (
@@ -517,9 +527,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                 <table style={tStyle}>
                   <tbody>
                     {[
-                      ["Invoice#", displayInvNo],
+                      [pl("Invoice#"), displayInvNo],
                       ["Date", form?.invoiceDate || "-"],
-                      ["Due Date", form?.dueDate || "-"],
+                      [pl("Due Date"), form?.dueDate || "-"],
                       ["PO No.", form?.buyerOrderNumber || "-"],
                       ["Terms", form?.paymentTerms || "-"],
                       ["Ref.", form?.referenceNumber || "-"],
@@ -559,9 +569,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                     <td style={{ width: "33%", padding: t.compact ? "6px 8px" : "8px 10px", verticalAlign: "top" }}>
                       <div style={{ fontSize: "10px", fontWeight: "bold", color: t.primary, marginBottom: "4px", textTransform: "uppercase" }}>Details</div>
                       {[
-                        ["Invoice#", displayInvNo],
+                        [pl("Invoice#"), displayInvNo],
                         ["Date", form?.invoiceDate || "-"],
-                        ["Due Date", form?.dueDate || "-"],
+                        [pl("Due Date"), form?.dueDate || "-"],
                         ["PO No.", form?.buyerOrderNumber || "-"],
                         ["Terms", form?.paymentTerms || "-"],
                       ].map(([l, v], i) => (
@@ -614,7 +624,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                     <tr>
                       {[
                         ["Date", form?.invoiceDate || "-"],
-                        ["Due", form?.dueDate || "-"],
+                        [pl("Due"), form?.dueDate || "-"],
                         ["PO", form?.buyerOrderNumber || "-"],
                         ["Terms", form?.paymentTerms || "-"],
                         ["Ref", form?.referenceNumber || "-"],
@@ -663,9 +673,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                 <table style={tStyle}>
                   <tbody>
                     {[
-                      ["Invoice No.", displayInvNo],
+                      [pl("Invoice No."), displayInvNo],
                       ["Date", form?.invoiceDate || "-"],
-                      ["Due Date", form?.dueDate || "-"],
+                      [pl("Due Date"), form?.dueDate || "-"],
                       ["PO No.", form?.buyerOrderNumber || "-"],
                       ["Payment Terms", form?.paymentTerms || "-"],
                       ["Place of Supply", form?.placeOfSupply || "-"],
@@ -728,9 +738,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                     <tr>
                       <td style={{ padding: t.compact ? "4px 8px" : "6px 12px", verticalAlign: "top" }}>
                         {[
-                          ["Invoice#", displayInvNo],
+                          [pl("Invoice#"), displayInvNo],
                           ["Date", form?.invoiceDate || "-"],
-                          ["Due Date", form?.dueDate || "-"],
+                          [pl("Due Date"), form?.dueDate || "-"],
                           ["PO No.", form?.buyerOrderNumber || "-"],
                           ["Terms", form?.paymentTerms || "-"],
                         ].map(([l, v], i) => (
@@ -791,7 +801,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                 <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
                   {[
                     ["Date", form?.invoiceDate || "-"],
-                    ["Due", form?.dueDate || "-"],
+                    [pl("Due"), form?.dueDate || "-"],
                     ["PO", form?.buyerOrderNumber || "-"],
                     ["Terms", form?.paymentTerms || "-"],
                     ["Ref", form?.referenceNumber || "-"],
@@ -847,9 +857,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                   <tbody>
                     <tr>
                       {[
-                        ["Invoice#", displayInvNo],
+                        [pl("Invoice#"), displayInvNo],
                         ["Date", form?.invoiceDate || "-"],
-                        ["Due", form?.dueDate || "-"],
+                        [pl("Due"), form?.dueDate || "-"],
                         ["PO#", form?.buyerOrderNumber || "-"],
                         ["Terms", form?.paymentTerms || "-"],
                       ].map(([l, v], i) => (
@@ -901,9 +911,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                   <tbody>
                     <tr>
                       {[
-                        ["Invoice No.", displayInvNo],
+                        [pl("Invoice No."), displayInvNo],
                         ["Date", form?.invoiceDate || "-"],
-                        ["Due Date", form?.dueDate || "-"],
+                        [pl("Due Date"), form?.dueDate || "-"],
                       ].map(([l, v], i) => (
                         <td key={i} style={{
                           width: "33%", borderRight: i < 2 ? S.border : 0,
@@ -974,8 +984,8 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                         <table style={{ width: "100%", borderCollapse: "collapse" }}>
                           <tbody>
                             {[
-                              ["Invoice No.", displayInvNo, "Date", form?.invoiceDate || "-"],
-                              ["Due Date", form?.dueDate || "-", "PO No.", form?.buyerOrderNumber || "-"],
+                              [pl("Invoice No."), displayInvNo, "Date", form?.invoiceDate || "-"],
+                              [pl("Due Date"), form?.dueDate || "-", "PO No.", form?.buyerOrderNumber || "-"],
                               ["Terms", form?.paymentTerms || "-", "Ref.", form?.referenceNumber || "-"],
                             ].map((row, ri) => (
                               <tr key={ri}>
@@ -1045,7 +1055,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
     }}>
       <table style={tStyle}>
         <tbody>
-          {titleRow}
+          {titleRow()}
           {renderTop()}
 
           {/* ITEM TABLE */}
@@ -1111,6 +1121,8 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
             </td>
           </tr>
 
+          {!isProforma && (
+            <>
           {/* GST SUMMARY */}
           <tr id="section-subtotals">
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
@@ -1238,6 +1250,9 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
             </td>
           </tr>
 
+          </>
+          )}
+
           {/* BOTTOM SECTION */}
           <tr id="section-footer">
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
@@ -1341,7 +1356,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
       </table>
     </div>
   );
-});
+}));
 
 InvoiceTemplateVariants.displayName = "InvoiceTemplateVariants";
 export { TEMPLATE_THEMES };

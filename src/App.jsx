@@ -64,7 +64,7 @@ function AppRoutes() {
       <Route path="/customers/new" element={<PrivateRoute><AddCustomer /></PrivateRoute>} />
       <Route path="/products/new" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
       <Route path="/invoice-templates" element={<PrivateRoute><InvoiceTemplates /></PrivateRoute>} />
-      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      <Route path="/settings" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/admin/users" element={<PrivateRoute><AdminAddUsers /></PrivateRoute>} />
       <Route path="/admin/users-list" element={<PrivateRoute><AdminUsersList /></PrivateRoute>} />
       <Route path="/admin/businesses" element={<PrivateRoute><AdminBusinessesList /></PrivateRoute>} />

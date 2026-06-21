@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   LogOut, Users, PlusCircle, List, Menu, X, UserPlus, UserCheck,
-  UserCircle, LayoutDashboard, Shield, Package, FileText
+  UserCircle, LayoutDashboard, Shield, Package, FileText, Settings
 } from "lucide-react";
 
 const navItems = (isAdmin) => [
@@ -13,7 +13,7 @@ const navItems = (isAdmin) => [
   { label: "Add Customer", icon: Users, path: "/customers/new", color: "from-emerald-500 to-emerald-600" },
   { label: "Add Product", icon: Package, path: "/products/new", color: "from-purple-500 to-purple-600" },
   { label: "Invoice Templates", icon: FileText, path: "/invoice-templates", color: "from-cyan-500 to-cyan-600" },
-  { label: "Profile", icon: UserCircle, path: "/profile", color: "from-amber-500 to-amber-600" },
+  { label: "Profile", icon: UserCircle, path: "/settings", color: "from-amber-500 to-amber-600" },
   ...(isAdmin ? [
     { label: "Add User", icon: UserPlus, path: "/admin/users", color: "from-rose-500 to-rose-600" },
     { label: "All Users", icon: UserCheck, path: "/admin/users-list", color: "from-teal-500 to-teal-600" },
@@ -51,8 +51,11 @@ export default function AppNavbar() {
                 <Shield className="w-3 h-3" /> Admin
               </span>
             )}
-            <button onClick={() => navigate("/profile")} className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800 transition-colors">
-              {user?.username || user?.name}
+            <span className="flex items-center gap-1 text-sm text-slate-600">
+              {user?.email || user?.username || user?.name}
+            </span>
+            <button onClick={() => navigate("/settings")} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
+              <Settings className="w-4 h-4" /> Settings
             </button>
             <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
               <LogOut className="w-4 h-4" /> Logout
@@ -88,7 +91,7 @@ export default function AppNavbar() {
               ))}
             </div>
             <div className="mt-6 pt-4 border-t border-slate-200">
-              <button onClick={() => { navigate("/profile"); closeMenu(); }}
+              <button onClick={() => { navigate("/settings"); closeMenu(); }}
                 className="flex items-center gap-3 w-full px-3 py-3 rounded-xl hover:bg-slate-50 transition-colors text-left">
                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shadow-sm">
                   <UserCircle className="w-4 h-4 text-white" />
