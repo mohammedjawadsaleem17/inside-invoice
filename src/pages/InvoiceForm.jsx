@@ -344,8 +344,9 @@ export default function InvoiceForm() {
       const res = await saveInvoice();
       toast.success(`Invoice ${res.data.data.invoiceNumber} ${savedInvoiceId ? "updated" : "created"} successfully`);
     } catch (err) {
+      const msg = err.response?.data?.message || err.response?.data?.details?.[0]?.msg || "Failed to save to server";
       saveToQueue();
-      toast.error("Invoice saved locally. Will sync automatically.");
+      toast.error(`Saved locally - ${msg}. Will sync automatically.`);
     } finally {
       setSaving(false);
     }
