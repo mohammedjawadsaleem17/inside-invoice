@@ -199,22 +199,15 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
             </td>
           </tr>
 
-          {/* SEPARATOR LINE before item table */}
-          <tr>
-            <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderTop: S.border, padding: 0, height: "6px" }}>
-            </td>
-          </tr>
-
           {/* ITEM TABLE */}
           <tr>
-            <td colSpan={2} style={{ padding: "4px 0 0", borderLeft: S.border, borderRight: S.border }}>
+            <td colSpan={2} style={{ padding: "0", borderTop: S.border, borderLeft: S.border, borderRight: S.border }}>
               <table style={tStyleSep}>
                 <thead>
                    <tr style={{ height: "32px" }}>
                      {ITEM_COLS.map((col, idx) => (
                         <th key={idx} style={{
                           ...cell(col.w),
-                          borderTop: S.border,
                           borderRight: idx < ITEM_COLS.length - 1 ? S.border : "none",
                           borderBottom: S.border,
                           textAlign: "center",

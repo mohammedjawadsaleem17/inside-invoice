@@ -787,7 +787,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
               </td>
             </tr>
             <tr>
-              <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: "5px 10px", background: "#fafafa" }}>
+              <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: "5px 10px 10px", background: "#fafafa" }}>
                 <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
                   {[
                     ["Date", form?.invoiceDate || "-"],
@@ -1050,7 +1050,7 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
 
           {/* ITEM TABLE */}
           <tr>
-            <td colSpan={2} style={{ padding: "0", borderLeft: S.border, borderRight: S.border }}>
+            <td colSpan={2} style={{ padding: "0", borderTop: S.border, borderLeft: S.border, borderRight: S.border }}>
               <table style={tStyleSep}>
                 <thead>
                   <tr style={{ height: t.compact ? "28px" : "32px" }}>
