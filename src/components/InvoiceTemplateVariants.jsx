@@ -1027,9 +1027,6 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
                 {metadataBlock(false)}
               </td>
             </tr>
-            <tr>
-              <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderTop: S.border, padding: 0, height: "6px" }} />
-            </tr>
           </>
         );
     }
@@ -1053,14 +1050,13 @@ const InvoiceTemplateVariants = React.forwardRef(({ theme, business, customer, f
 
           {/* ITEM TABLE */}
           <tr>
-            <td colSpan={2} style={{ padding: t.compact ? "2px 0 0" : "4px 0 0", borderLeft: S.border, borderRight: S.border }}>
+            <td colSpan={2} style={{ padding: "0", borderLeft: S.border, borderRight: S.border }}>
               <table style={tStyleSep}>
                 <thead>
                   <tr style={{ height: t.compact ? "28px" : "32px" }}>
                     {ITEM_COLS.map((col, idx) => (
                       <th key={idx} style={{
                         ...cell(col.w),
-                        borderTop: S.border,
                         borderRight: idx < ITEM_COLS.length - 1 ? S.border : "none",
                         borderBottom: S.border,
                         textAlign: "center",
