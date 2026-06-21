@@ -6,7 +6,8 @@ import AppNavbar from "../components/AppNavbar";
 import { invoiceAPI, businessAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import { ArrowLeft, FileText, Download, Eye } from "lucide-react";
-import InvoicePDF, { downloadInvoicePDF } from "../components/InvoicePDF";
+import { downloadInvoicePDF } from "../components/InvoicePDF";
+import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 
 export default function InvoicesList() {
   const { logout } = useAuth();
@@ -53,7 +54,7 @@ export default function InvoicesList() {
       await new Promise((resolve, reject) => {
         let done = false;
         root.render(
-          <InvoicePDF
+          <InvoiceTemplateRenderer
             ref={(el) => {
               if (el && !done) {
                 done = true;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   LogOut, Users, PlusCircle, List, Menu, X, UserPlus, UserCheck,
-  UserCircle, LayoutDashboard, Shield, Package
+  UserCircle, LayoutDashboard, Shield, Package, FileText
 } from "lucide-react";
 
 const navItems = (isAdmin) => [
@@ -12,6 +12,7 @@ const navItems = (isAdmin) => [
   { label: "View Invoices", icon: List, path: "/invoices", color: "from-indigo-500 to-indigo-600" },
   { label: "Add Customer", icon: Users, path: "/customers/new", color: "from-emerald-500 to-emerald-600" },
   { label: "Add Product", icon: Package, path: "/products/new", color: "from-purple-500 to-purple-600" },
+  { label: "Invoice Templates", icon: FileText, path: "/invoice-templates", color: "from-cyan-500 to-cyan-600" },
   { label: "Profile", icon: UserCircle, path: "/profile", color: "from-amber-500 to-amber-600" },
   ...(isAdmin ? [
     { label: "Add User", icon: UserPlus, path: "/admin/users", color: "from-rose-500 to-rose-600" },

@@ -5,7 +5,8 @@ import AppNavbar from "../components/AppNavbar";
 import { invoiceAPI, businessAPI, customerAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import { ArrowLeft, Download, Save, Edit3, Plus, Trash2, FileText, AlertCircle, User, Building2, Phone, MapPin, Hash, Package, Mail, Globe, X } from "lucide-react";
-import InvoicePDF, { downloadInvoicePDF } from "../components/InvoicePDF";
+import { downloadInvoicePDF } from "../components/InvoicePDF";
+import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { processQueue } from "../utils/retryQueue";
 
 const emptyItem = () => ({ itemName: "", hsn: "", qty: "1", rate: "", gstPercentage: "18", taxableValue: "0", taxAmount: "0", total: "0" });
@@ -204,7 +205,7 @@ export default function InvoiceView() {
       <AppNavbar />
       {/* Hidden Invoice PDF for capture */}
       <div style={{ position: "absolute", left: "-9999px", top: 0, pointerEvents: "none" }}>
-        <InvoicePDF
+        <InvoiceTemplateRenderer
           ref={invoiceRef}
           business={business}
           customer={{ name: form.customerName, billingAddress: form.billingAddress, gstIn: form.customerGstIn, phone: form.customerPhone, email: form.customerEmail, state: form.placeOfSupply }}

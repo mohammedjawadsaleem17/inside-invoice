@@ -22,6 +22,7 @@ import InvoiceView from "./pages/InvoiceView";
 import InvoicesList from "./pages/InvoicesList";
 import AddCustomer from "./pages/AddCustomer";
 import AddProduct from "./pages/AddProduct";
+import InvoiceTemplates from "./pages/InvoiceTemplates";
 import Profile from "./pages/Profile";
 import AdminAddUsers from "./pages/AdminAddUsers";
 import AdminUsersList from "./pages/AdminUsersList";
@@ -62,6 +63,7 @@ function AppRoutes() {
       <Route path="/invoices" element={<PrivateRoute><InvoicesList /></PrivateRoute>} />
       <Route path="/customers/new" element={<PrivateRoute><AddCustomer /></PrivateRoute>} />
       <Route path="/products/new" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
+      <Route path="/invoice-templates" element={<PrivateRoute><InvoiceTemplates /></PrivateRoute>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/admin/users" element={<PrivateRoute><AdminAddUsers /></PrivateRoute>} />
       <Route path="/admin/users-list" element={<PrivateRoute><AdminUsersList /></PrivateRoute>} />

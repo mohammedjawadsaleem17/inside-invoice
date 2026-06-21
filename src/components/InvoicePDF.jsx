@@ -208,20 +208,20 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
           {/* ITEM TABLE */}
           <tr>
             <td colSpan={2} style={{ padding: "4px 0 0", borderLeft: S.border, borderRight: S.border }}>
-              <table style={{ ...tStyleSep, borderRight: "1px solid #000" }}>
+              <table style={tStyleSep}>
                 <thead>
                    <tr style={{ height: "32px" }}>
                      {ITEM_COLS.map((col, idx) => (
                         <th key={idx} style={{
                           ...cell(col.w),
                           borderTop: S.border,
-                           borderRight: S.border,
+                          borderRight: idx < ITEM_COLS.length - 1 ? S.border : "none",
                           borderBottom: S.border,
                           textAlign: "center",
                           fontSize: "10px",
                           padding: "6px 6px 7px 6px",
                           verticalAlign: "middle",
-                          background: idx === 0 ? "linear-gradient(to right, transparent 1px, #f0f0f0 1px)" : idx === ITEM_COLS.length - 1 ? "linear-gradient(to left, transparent 2px, #f0f0f0 2px)" : "#f0f0f0",
+                          background: "#f0f0f0",
                           lineHeight: "1.5",
                           whiteSpace: "normal",
                         }}>
@@ -245,7 +245,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
                        ].map((c, ci) => (
                           <td key={ci} style={{
                             ...cell(c.w),
-                             borderRight: S.border,
+                            borderRight: ci < ITEM_COLS.length - 1 ? S.border : "none",
                             borderBottom: S.border,
                             textAlign: c.a,
                             fontSize: "10px",
@@ -260,7 +260,7 @@ const InvoicePDF = React.forwardRef(({ business, customer, form, items, totals, 
           <tr>
                         <td colSpan={8} style={{ borderTop: S.border, borderLeft: S.border, borderBottom: S.border, textAlign: "center", padding: "8px", fontSize: "10px" }}>No items</td>
                      </tr>
-                   )}
+                    )}
                 </tbody>
               </table>
             </td>

@@ -9,7 +9,8 @@ import {
   User, Building2, Phone, MapPin, Hash,
   Package, FileSpreadsheet
 } from "lucide-react";
-import InvoicePDF, { downloadInvoicePDF } from "../components/InvoicePDF";
+import { downloadInvoicePDF } from "../components/InvoicePDF";
+import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { addToQueue, processQueue } from "../utils/retryQueue";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
@@ -277,7 +278,7 @@ export default function InvoiceForm() {
       <AppNavbar />
       {/* Hidden Invoice PDF for capture */}
       <div style={{ position: "absolute", left: "-9999px", top: 0, pointerEvents: "none" }}>
-        <InvoicePDF
+        <InvoiceTemplateRenderer
           ref={invoiceRef}
           business={business}
           customer={customer}

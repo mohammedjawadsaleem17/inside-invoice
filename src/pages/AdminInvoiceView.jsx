@@ -4,7 +4,8 @@ import { adminAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import { ArrowLeft, FileText, Save, Edit2, Download } from "lucide-react";
 import AppNavbar from "../components/AppNavbar";
-import InvoicePDF, { downloadInvoicePDF } from "../components/InvoicePDF";
+import { downloadInvoicePDF } from "../components/InvoicePDF";
+import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
 
@@ -187,7 +188,7 @@ export default function AdminInvoiceView() {
 
         {/* Hidden Invoice PDF for capture */}
         <div style={{ position: "absolute", left: "-9999px", top: 0, pointerEvents: "none" }}>
-          <InvoicePDF
+          <InvoiceTemplateRenderer
             ref={invoiceRef}
             business={business}
             customer={{ name: invoice.customerName, billingAddress: undefined, gstIn: undefined, phone: undefined, email: undefined, state: form.placeOfSupply }}
