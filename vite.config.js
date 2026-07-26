@@ -6,38 +6,21 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/auth': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/business': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/customers': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/products': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/invoices': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/admin': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/contact': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/actuator': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
+      '/api': { target: 'http://localhost:8080', changeOrigin: true },
     },
+    fs: { strict: false },
+    middlewareMode: false,
   },
+  appType: 'spa',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          charts: ['recharts'],
+          pdf: ['jspdf', 'html2canvas', 'qrcode.react'],
+        }
+      }
+    }
+  }
 })

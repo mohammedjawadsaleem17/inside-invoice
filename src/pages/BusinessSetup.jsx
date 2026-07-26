@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
+import PageHeader from "../components/PageHeader";
 import toast from "react-hot-toast";
 import { ArrowLeft, Check, ArrowRight, Building2, MapPin, Phone, Mail, Globe, FileText, Landmark } from "lucide-react";
 
@@ -57,12 +58,9 @@ export default function BusinessSetup() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-6 py-6">
-        <button onClick={() => navigate("/dashboard")}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all mb-4">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-        <div className="max-w-2xl mx-auto glass-effect rounded-xl shadow-lg p-6 lg:p-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <PageHeader title="Business Setup" />
+        <div className="max-w-2xl mx-auto glass-effect rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
           <div className="text-center mb-6">
             <div className="w-14 h-14 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center mx-auto mb-3">
               <Building2 className="w-7 h-7 text-white" />
@@ -72,8 +70,8 @@ export default function BusinessSetup() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-slate-600 mb-1">Business Name *</label>
                 <input type="text" name="businessName" value={formData.businessName} onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="Acme Corp" />
@@ -103,12 +101,12 @@ export default function BusinessSetup() {
                 <input type="text" name="website" value={formData.website} onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="https://acme.com" />
               </div>
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-slate-600 mb-1">Address Line 1</label>
                 <input type="text" name="addressLine1" value={formData.addressLine1} onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="123 Main Road" />
               </div>
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-slate-600 mb-1">Address Line 2</label>
                 <input type="text" name="addressLine2" value={formData.addressLine2} onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="Koramangala" />
@@ -140,7 +138,7 @@ export default function BusinessSetup() {
                 <Landmark className="w-5 h-5 text-slate-600" />
                 <h2 className="text-sm font-semibold text-slate-800">Company Bank Details</h2>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1">Bank Name</label>
                   <input type="text" name="bankName" value={formData.bankName} onChange={handleChange}
@@ -161,10 +159,16 @@ export default function BusinessSetup() {
                   <input type="text" name="ifsc" value={formData.ifsc} onChange={handleChange}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 uppercase" placeholder="SBIN0001234" />
                 </div>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-slate-600 mb-1">Bank Address</label>
                   <input type="text" name="bankAddress" value={formData.bankAddress} onChange={handleChange}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="MG Road, Bangalore" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-1">UPI ID</label>
+                  <input type="text" name="upiId" value={formData.upiId} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="business@upi" />
+                  <p className="text-[10px] text-slate-400 mt-0.5">Automatically generates QR code on invoices for scan-to-pay</p>
                 </div>
               </div>
             </div>

@@ -3,21 +3,40 @@ import { useAuth } from "../context/AuthContext";
 import InvoicePDF from "./InvoicePDF";
 import InvoiceTemplateVariants from "./InvoiceTemplateVariants";
 
+const PAPER_WIDTHS = {
+  A4_PORTRAIT: 794,
+  A4_LANDSCAPE: 1123,
+  A5: 559,
+  LETTER: 816,
+};
+
 const InvoiceTemplateRenderer = React.forwardRef((props, ref) => {
-  let templateId;
+  const { paperSize, template } = props;
+  let globalTemplate;
   try {
-    templateId = useAuth().selectedTemplate;
+    globalTemplate = useAuth().selectedTemplate;
   } catch {
-    templateId = typeof window !== "undefined"
+    globalTemplate = typeof window !== "undefined"
       ? localStorage.getItem("invoice_template") || "template-1"
       : "template-1";
   }
 
+  const templateId = template || globalTemplate;
+  const width = PAPER_WIDTHS[paperSize] || 794;
+
   if (templateId === "template-1") {
-    return <InvoicePDF ref={ref} {...props} />;
+    return (
+      <div style={{ width: `${width}px`, overflow: "hidden" }}>
+        <InvoicePDF ref={ref} {...props} />
+      </div>
+    );
   }
 
-  return <InvoiceTemplateVariants ref={ref} theme={templateId} {...props} />;
+  return (
+    <div style={{ width: `${width}px`, overflow: "hidden" }}>
+      <InvoiceTemplateVariants ref={ref} theme={templateId} {...props} />
+    </div>
+  );
 });
 
 InvoiceTemplateRenderer.displayName = "InvoiceTemplateRenderer";

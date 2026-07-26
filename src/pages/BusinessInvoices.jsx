@@ -4,6 +4,7 @@ import { adminAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import { ArrowLeft, FileText, Building2 } from "lucide-react";
 import AppNavbar from "../components/AppNavbar";
+import PageHeader from "../components/PageHeader";
 
 export default function BusinessInvoices() {
   const { businessId } = useParams();
@@ -36,35 +37,20 @@ export default function BusinessInvoices() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/admin/businesses")}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all">
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-slate-900">
-                {business?.businessName || `Business #${businessId}`}
-              </h1>
-              <p className="text-xs text-slate-500">
-                {business?.ownerName ? `${business.ownerName} — ` : ""}
-                {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} total
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <PageHeader title={business?.businessName || `Business #${businessId}`} backTo="/admin/businesses" />
+        <p className="text-xs text-slate-500 -mt-4 mb-6">
+          {business?.ownerName ? `${business.ownerName} — ` : ""}
+          {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} total
+        </p>
 
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
           </div>
         ) : invoices.length > 0 ? (
-          <div className="overflow-auto -mx-6">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-slate-200">
                   <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Invoice #</th>

@@ -38,6 +38,7 @@ export const productAPI = {
   getById: (id) => api.get(`/products/${id}`),
   update: (id, data) => api.put(`/products/${id}`, data),
   delete: (id) => api.delete(`/products/${id}`),
+  findByHsn: (hsn) => api.get(`/products/by-hsn/${hsn}`),
 };
 
 export const invoiceAPI = {
@@ -46,6 +47,14 @@ export const invoiceAPI = {
   getById: (id) => api.get(`/invoices/${id}`),
   update: (id, data) => api.put(`/invoices/${id}`, data),
   delete: (id) => api.delete(`/invoices/${id}`),
+};
+
+export const paymentAPI = {
+  create: (data) => api.post("/payments", data),
+  getAll: (params) => api.get("/payments", { params }),
+  getById: (id) => api.get(`/payments/${id}`),
+  getByInvoice: (invoiceId) => api.get(`/payments/by-invoice/${invoiceId}`),
+  delete: (id) => api.delete(`/payments/${id}`),
 };
 
 export const adminAPI = {
@@ -63,4 +72,5 @@ export const adminAPI = {
   getAllInvoices: () => api.get("/admin/invoices"),
   getBusiness: (id) => api.get(`/admin/businesses/${id}`),
   getAnalytics: () => api.get("/admin/analytics"),
+  getAllProducts: () => api.get("/admin/products"),
 };

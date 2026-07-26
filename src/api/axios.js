@@ -3,6 +3,7 @@ import axios from "axios";
 const TOKEN_KEY = "ii_token";
 
 const api = axios.create({
+  baseURL: '/api',
   headers: {
     "Content-Type": "application/json",
   },

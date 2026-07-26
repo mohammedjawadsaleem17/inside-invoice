@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
+import PageHeader from "../components/PageHeader";
 import { authAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import { ArrowLeft, UserPlus, AlertCircle, Mail, Lock, User, Building2, Shield } from "lucide-react";
@@ -67,12 +68,9 @@ export default function AdminAddUsers() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-6 py-6">
-        <button onClick={() => navigate("/admin/users-list")}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all mb-4">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <PageHeader title="Add User" backTo="/admin/users-list" />
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
           <div className="mb-6">
             <h1 className="text-lg font-semibold text-slate-900">Create User Account</h1>
             <p className="text-sm text-slate-500 mt-1">The user will be able to login with these credentials and set up their business.</p>

@@ -4,8 +4,9 @@ import { adminAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import { ArrowLeft, FileText, Save, Edit2, Download } from "lucide-react";
 import AppNavbar from "../components/AppNavbar";
-import { downloadInvoicePDF } from "../components/InvoicePDF";
+import PageHeader from "../components/PageHeader";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
+import { processPrint } from "../utils/printInvoice";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
 
@@ -104,9 +105,9 @@ export default function AdminInvoiceView() {
     try {
       const filename = `Invoice_${form.invoiceNumber || invoice?.invoiceNumber || "DRAFT"}.pdf`;
       await new Promise((r) => setTimeout(r, 100));
-      await downloadInvoicePDF(invoiceRef.current, filename);
+      await processPrint(invoiceRef, form.invoiceType || invoice?.invoiceType || "TAX_INVOICE", filename);
     } catch (err) {
-      toast.error("Failed to generate PDF");
+      toast.error("Failed to generate");
     }
   };
 
@@ -180,11 +181,8 @@ export default function AdminInvoiceView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <button onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-4 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <PageHeader title="Invoice Details" backTo={-1} />
 
         {/* Hidden Invoice PDF for capture */}
         <div style={{ position: "absolute", left: "-9999px", top: 0, pointerEvents: "none" }}>
@@ -201,36 +199,36 @@ export default function AdminInvoiceView() {
           />
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 pb-4 border-b border-slate-100">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
               <FileText className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-semibold text-slate-900">{invoice.invoiceNumber}</h1>
+              <h1 className="text-base sm:text-lg font-semibold text-slate-900">{invoice.invoiceNumber}</h1>
               <p className="text-xs text-slate-500">
                 {invoice.invoiceType === "PROFORMA_INVOICE" ? "Proforma Invoice" : "Tax Invoice"} — {invoice.customerName}
               </p>
             </div>
             {!editing ? (
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <button onClick={downloadPDF}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
                   <Download className="w-3.5 h-3.5" /> PDF
                 </button>
                 <button onClick={() => setEditing(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition-colors">
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition-colors">
                   <Edit2 className="w-3.5 h-3.5" /> Edit
                 </button>
               </div>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <button onClick={() => { setEditing(false); }}
-                  className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                  className="flex-1 sm:flex-initial justify-center px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
                   Cancel
                 </button>
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors disabled:opacity-50">
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors disabled:opacity-50">
                   <Save className="w-3.5 h-3.5" /> {saving ? "Saving..." : "Save"}
                 </button>
               </div>
@@ -250,7 +248,7 @@ export default function AdminInvoiceView() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-[10px] font-medium text-slate-500 uppercase mb-1">Customer</p>
               <p className="text-sm font-medium text-slate-800">{invoice.customerName}</p>
@@ -360,15 +358,15 @@ export default function AdminInvoiceView() {
           )}
 
           <div className="border-t border-slate-100 pt-4 flex flex-col items-end">
-            <div className="text-sm text-slate-600 flex justify-between w-64 mb-1">
+            <div className="text-sm text-slate-600 flex justify-between w-full sm:w-64 mb-1">
               <span>Subtotal:</span>
               <span>₹{Number(editing ? totals.subtotal : invoice.subtotal).toLocaleString()}</span>
             </div>
-            <div className="text-sm text-slate-600 flex justify-between w-64 mb-1">
+            <div className="text-sm text-slate-600 flex justify-between w-full sm:w-64 mb-1">
               <span>Tax Amount:</span>
               <span>₹{Number(editing ? totals.taxAmount : invoice.taxAmount).toLocaleString()}</span>
             </div>
-            <div className="text-base font-semibold text-slate-900 flex justify-between w-64 pt-2 border-t border-slate-200">
+            <div className="text-base font-semibold text-slate-900 flex justify-between w-full sm:w-64 pt-2 border-t border-slate-200">
               <span>Grand Total:</span>
               <span>₹{Number(editing ? totals.grandTotal : invoice.grandTotal).toLocaleString()}</span>
             </div>

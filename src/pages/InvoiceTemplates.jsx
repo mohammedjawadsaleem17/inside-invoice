@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
+import PageHeader from "../components/PageHeader";
 import InvoicePDF from "../components/InvoicePDF";
 import InvoiceTemplateVariants, { TEMPLATE_THEMES } from "../components/InvoiceTemplateVariants";
 import { ArrowLeft, Check, X, Eye, FileText } from "lucide-react";
@@ -114,7 +115,7 @@ function TemplateCard({ template, isSelected, onSelect, onPreview }) {
         <p className="text-xs text-slate-500 mb-3 line-clamp-2">{template.desc}</p>
         <div
           ref={containerRef}
-          className="relative overflow-hidden rounded-lg border border-slate-100 bg-white"
+          className="relative overflow-x-auto overflow-y-hidden rounded-lg border border-slate-100 bg-white"
           style={{ height: "220px" }}
           onClick={() => onPreview(template.id)}
         >
@@ -174,19 +175,9 @@ export default function InvoiceTemplates() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="max-w-[1800px] mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/dashboard")}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all">
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-            <div>
-              <h1 className="text-lg font-bold text-slate-800">Invoice Templates</h1>
-              <p className="text-xs text-slate-500 mt-0.5">Choose a template style for your invoices</p>
-            </div>
-          </div>
-        </div>
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-6">
+        <PageHeader title="Invoice Templates" />
+        <p className="text-xs text-slate-500 -mt-4 mb-6">Choose a template style for your invoices</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {ALL_TEMPLATES.map((t) => (
@@ -204,39 +195,43 @@ export default function InvoiceTemplates() {
       {/* Full-size Preview Modal */}
       {previewId && previewTemplate && (
         <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-10"
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-start sm:items-center justify-center overflow-y-auto py-0 sm:py-10"
           onClick={() => setPreviewId(null)}
         >
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full sm:w-auto mx-0 sm:mx-4" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setPreviewId(null)}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white rounded-full shadow-md border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
+              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white rounded-full shadow-md border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors hidden sm:flex"
             >
               <X className="w-4 h-4" />
             </button>
-            <div className="bg-white rounded-xl shadow-2xl overflow-hidden" style={{ maxWidth: "900px" }}>
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-slate-600" />
-                  <h2 className="text-base font-bold text-slate-800">{previewTemplate.label} Template</h2>
+            <div className="bg-white shadow-2xl overflow-hidden rounded-none sm:rounded-xl" style={{ maxWidth: "900px" }}>
+              <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 gap-2 sticky top-0 bg-white z-10">
+                <div className="flex items-center gap-2 min-w-0">
+                  <button onClick={() => setPreviewId(null)}
+                    className="sm:hidden p-1.5 -ml-1 hover:bg-slate-100 rounded-lg transition-colors text-slate-500">
+                    <X className="w-5 h-5" />
+                  </button>
+                  <FileText className="w-5 h-5 text-slate-600 shrink-0" />
+                  <h2 className="text-sm sm:text-base font-bold text-slate-800 truncate">{previewTemplate.label} Template</h2>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   {selected !== previewId && (
                     <button
                       onClick={() => { handleSelect(previewId); setPreviewId(null); }}
-                      className="text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all"
+                      className="text-xs font-semibold px-3 sm:px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all whitespace-nowrap"
                     >
-                      Select This Template
+                      Select
                     </button>
                   )}
                   {selected === previewId && (
                     <span className="flex items-center gap-1 text-xs font-medium text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg">
-                      <Check className="w-3.5 h-3.5" /> Currently Active
+                      <Check className="w-3.5 h-3.5" /> Active
                     </span>
                   )}
                 </div>
               </div>
-              <div className="p-6 overflow-auto max-h-[80vh]">
+              <div className="p-4 sm:p-6 overflow-auto max-h-[calc(100vh-4rem)] sm:max-h-[80vh]">
                 <TemplatePreview templateId={previewId} />
               </div>
             </div>

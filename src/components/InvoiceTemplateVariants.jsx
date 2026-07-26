@@ -202,12 +202,14 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
   const validItems = (items || []).filter((i) => i.itemName?.trim() && parseFloat(i.qty) > 0);
   const sigSrc = business?.signature ? `data:image/png;base64,${business.signature}` : null;
   const discPct = parseFloat(discountPercent) || 0;
-  const discAmt = totals.grandTotal * Math.min(discPct, 100) / 100;
+  const discAmt = totals.subtotal * Math.min(discPct, 100) / 100;
+  const taxableAmount = totals.subtotal - discAmt;
+  const discRatio = totals.subtotal > 0 ? (taxableAmount / totals.subtotal) : 0;
 
   let cgstTotal = 0, sgstTotal = 0;
   validItems.forEach((item) => {
     const gst = parseFloat(item.gstPercentage) || 0;
-    const taxable = parseFloat(item.taxableValue) || parseFloat(item.qty || 0) * parseFloat(item.rate || 0);
+    const taxable = (parseFloat(item.taxableValue) || parseFloat(item.qty || 0) * parseFloat(item.rate || 0)) * discRatio;
     const halfGst = gst / 2;
     cgstTotal += (taxable * halfGst) / 100;
     sgstTotal += (taxable * halfGst) / 100;
@@ -1085,7 +1087,12 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
                   </tr>
                 </thead>
                 <tbody>
-                  {validItems.length > 0 ? validItems.map((item, idx) => (
+                  {validItems.length > 0 ? validItems.map((item, idx) => {
+                    const itemTaxable = (parseFloat(item.taxableValue) || 0) * discRatio;
+                    const itemGst = parseFloat(item.gstPercentage) || 0;
+                    const itemTax = (itemTaxable * itemGst) / 100;
+                    const itemTotal = itemTaxable + itemTax;
+                    return (
                     <tr id={`section-item-row-${idx}`} key={idx} style={{ height: t.tableRowHeight }}>
                       {[
                         { a: "center", v: idx + 1, w: 52 },
@@ -1095,7 +1102,7 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
                         { a: "center", v: parseFloat(item.qty).toFixed(2), w: 72 },
                         { a: "center", v: formatINR(item.rate), w: 76 },
                         { a: "center", v: "Piece", w: 42 },
-                        { a: "right", v: formatINR(item.total), w: 72 },
+                        { a: "right", v: formatINR(itemTotal), w: 72 },
                       ].map((c, ci) => (
                         <td key={ci} style={{
                           ...cell(c.w),
@@ -1111,7 +1118,7 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
                         </td>
                       ))}
                     </tr>
-                  )) : (
+                    ); }) : (
                     <tr>
                       <td colSpan={8} style={{ borderTop: S.border, borderLeft: S.border, borderBottom: S.border, textAlign: "center", padding: "8px", fontSize: baseFS }}>No items</td>
                     </tr>
@@ -1121,7 +1128,71 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
             </td>
           </tr>
 
-          {!isProforma && (
+          {isProforma ? (
+            <>
+          {/* PROFORMA ESTIMATED TOTALS */}
+          <tr id="section-subtotals">
+            <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <tbody>
+                  <tr>
+                    <td style={{ textAlign: "right", padding: "4px 10px", border: 0 }}>
+                      {totals.taxAmount > 0 ? (
+                        <>
+                          <div style={{ fontSize: baseFS, marginBottom: "1px" }}>
+                            <span style={{ marginRight: "16px", color: t.primary, fontWeight: "bold" }}>CGST (Estimated)</span>
+                            <span style={{ fontWeight: "bold" }}>{formatINR(cgstTotal)}</span>
+                          </div>
+                          <div style={{ fontSize: baseFS, marginBottom: "1px" }}>
+                            <span style={{ marginRight: "16px", color: t.primary, fontWeight: "bold" }}>SGST (Estimated)</span>
+                            <span style={{ fontWeight: "bold" }}>{formatINR(sgstTotal)}</span>
+                          </div>
+                        </>
+                      ) : null}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          {/* PROFORMA AMOUNT IN WORDS + TOTAL */}
+          <tr id="section-amount-words">
+            <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <tbody>
+                  <tr>
+                    <td style={{ width: "72%", borderRight: S.border, padding: basePadH, verticalAlign: "top" }}>
+                      <div style={{ fontSize: baseFS, fontWeight: "bold", marginBottom: "3px", color: t.primary }}>
+                        Estimated Amount (in words)
+                      </div>
+                      <div style={{ fontSize: t.compact ? "10px" : "11px", fontWeight: "bold" }}>
+                        {(totals.grandTotal - discAmt) > 0 ? numberToWords(totals.grandTotal - discAmt) : "Zero Rupees Only"}
+                      </div>
+                    </td>
+                    <td style={{ width: "28%", padding: basePadH, verticalAlign: "top" }}>
+                      {discAmt > 0 && (
+                        <div style={{ fontSize: "9px", fontWeight: "bold", textAlign: "left", color: "#16a34a", marginBottom: "2px" }}>
+                          Discount ({discPct}%): -Rs. {formatINR(discAmt)}
+                        </div>
+                      )}
+                      <div style={{ fontSize: baseFS, fontWeight: "bold", marginBottom: "2px", textAlign: "left", color: t.primary }}>
+                        Estimated Total
+                      </div>
+                      <div style={{ fontSize: t.compact ? "15px" : "18px", fontWeight: "bold", margin: "2px 0", textAlign: "left", color: t.accentBg !== "#ffffff" ? t.accentBg : "#000" }}>
+                        Rs: {formatINR(totals.grandTotal - discAmt)}
+                      </div>
+                      <div style={{ fontSize: baseFS, fontStyle: "italic", textAlign: "right" }}>
+                        E. & O.E
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+            </>
+          ) : (
             <>
           {/* GST SUMMARY */}
           <tr id="section-subtotals">
@@ -1212,8 +1283,8 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
                   {validItems.map((item, idx) => {
                     const gst = parseFloat(item.gstPercentage) || 0;
                     const halfGst = gst / 2;
-                    const taxable = parseFloat(item.taxableValue) || 0;
-                    const taxAmt = parseFloat(item.taxAmount) || 0;
+                    const taxable = (parseFloat(item.taxableValue) || 0) * discRatio;
+                    const taxAmt = (taxable * gst) / 100;
                     return (
                       <tr id={`section-hsn-row-${idx}`} key={idx} style={{ height: t.compact ? "22px" : "26px" }}>
                         <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: baseFS, padding: basePad, lineHeight: "1.5" }}>{item.hsn || "-"}</td>
@@ -1286,8 +1357,15 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
                         Declaration
                       </div>
                       <div style={{ fontSize: baseFS, lineHeight: "1.4" }}>
-                        We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
+                        {isProforma
+                          ? "We declare that this Proforma Invoice is issued for quotation purposes only. It is not a demand for payment and not valid for GST input tax credit claims."
+                          : "We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct."}
                       </div>
+                      {isProforma && (
+                        <div style={{ fontSize: "9px", marginTop: "8px", fontStyle: "italic", color: "#666" }}>
+                          This is a Proforma Invoice — not a demand for payment and not valid for GST input tax credit claims.
+                        </div>
+                      )}
                     </td>
                     <td style={{ width: "30%", padding: t.compact ? "6px 6px 16px 6px" : "8px 8px 24px 8px", verticalAlign: "top" }}>
                       <div style={{
@@ -1318,7 +1396,7 @@ const InvoiceTemplateVariants = React.memo(React.forwardRef(({ theme, business, 
                   <tr>
                     <td style={{ textAlign: "center", padding: 0 }}>
                       <div style={{ fontSize: baseFS, fontWeight: "bold" }}>SUBJECT TO BENGALURU JURISDICTION</div>
-                      <div style={{ fontSize: baseFS, marginTop: "1px" }}>This is a Computer Generated Invoice</div>
+                      <div style={{ fontSize: baseFS, marginTop: "1px" }}>{isProforma ? "This is a Computer Generated Proforma Invoice" : "This is a Computer Generated Invoice"}</div>
                     </td>
                   </tr>
                   <tr>

@@ -1,24 +1,26 @@
-import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
-import { invoiceAPI, customerAPI, businessAPI } from "../api/auth";
+import PageHeader from "../components/PageHeader";
+import { invoiceAPI, customerAPI, businessAPI, productAPI } from "../api/auth";
 import toast from "react-hot-toast";
 import {
   ArrowLeft, Plus, Trash2, Save, FileText, Download,
   User, Building2, Phone, MapPin, Hash,
-  Package, FileSpreadsheet
+  Package, FileSpreadsheet, Printer
 } from "lucide-react";
-import { downloadInvoicePDF } from "../components/InvoicePDF";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
-import { addToQueue, processQueue } from "../utils/retryQueue";
+import { processQueue } from "../utils/retryQueue";
+import { processPrint } from "../utils/printInvoice";
+import { getPrintSettings } from "../constants/paperSizes";
 import { INDIAN_STATES, DELIVERY_TERMS, PAYMENT_TERMS } from "../constants/indianStates";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
-const inputClass = "w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 bg-white transition-all";
+const inputClass = "w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 bg-white transition-all min-h-[44px]";
 const labelClass = "block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide uppercase";
 
-const FOCUS_ORDER = ["phone", "name", "email", "billingAddress", "gstIn", "invoiceType", "invoiceDate", "dueDate", "placeOfSupply", "destination", "paymentTerms", "paymentMode", "deliveryNote", "deliveryNoteDate", "referenceNumber", "buyerOrderNumber", "dispatchDocNumber", "dispatchedThrough", "termsOfDelivery", "otherReferences", "notes"];
+const FOCUS_ORDER = ["phone", "name", "email", "gstIn", "billingAddress", "invoiceType", "invoiceDate", "dueDate", "placeOfSupply", "destination", "paymentTerms", "paymentMode", "deliveryNote", "deliveryNoteDate", "referenceNumber", "buyerOrderNumber", "dispatchDocNumber", "dispatchedThrough", "termsOfDelivery", "otherReferences", "notes"];
 
 const focusNext = (currentName) => {
   const i = FOCUS_ORDER.indexOf(currentName);
@@ -27,26 +29,51 @@ const focusNext = (currentName) => {
   next?.focus();
 };
 
-const ItemRow = memo(({ item, idx, onItemChange, onRemove, onAdd }) => (
+const FOCUS_FIELDS = ["hsn", "desc", "qty", "rate", "gst"];
+
+const ItemRow = ({ item, idx, onItemChange, onRemove, onAdd, onHsnLookup }) => {
+  const handleKeyDown = (e, field) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      onAdd();
+      setTimeout(() => {
+        const next = document.querySelector('input[name="hsn-1"]');
+        next?.focus();
+      }, 50);
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const fieldIndex = FOCUS_FIELDS.indexOf(field);
+      if (fieldIndex === FOCUS_FIELDS.length - 1) {
+        onAdd();
+        setTimeout(() => {
+          const next = document.querySelector(`input[name="hsn-${idx + 2}"]`);
+          next?.focus();
+        }, 50);
+      } else {
+        const nextField = FOCUS_FIELDS[fieldIndex + 1];
+        const next = document.querySelector(`input[name="${nextField}-${idx + 1}"]`);
+        next?.focus();
+      }
+    }
+  };
+
+  return (
   <tr className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"} hover:bg-blue-50/20 transition-colors`}>
     <td className="py-3 px-3 text-center text-slate-400 font-mono text-xs border-b border-slate-100">{idx + 1}</td>
     <td className="py-3 px-3 border-b border-slate-100">
       <div className="relative">
-        <input type="text" value={item.itemName} name={`desc-${idx + 1}`}
-          onChange={(e) => onItemChange(idx, "itemName", e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const next = document.querySelector(`input[name="hsn-${idx + 1}"]`); next?.focus(); } }}
-          className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white pr-8"
-          placeholder="Item name" />
-        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300" title="Barcode scannable">
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5V3h4v2H5v2H3V5zm14 0V3h4v2h-2v2h-2V5zM3 19v-2h2v-2h2v4H3zm14 0v-2h2v-2h2v4h-4zM7 7h1v10H7V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7zm3 0h1v10h-1V7z"/></svg>
-        </span>
-      </div>
-    </td>
-    <td className="py-3 px-3 border-b border-slate-100">
-      <div className="relative">
         <input type="text" value={item.hsn} name={`hsn-${idx + 1}`}
           onChange={(e) => onItemChange(idx, "hsn", e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const qty = document.querySelector(`input[name="qty-${idx + 1}"]`); qty?.focus(); } }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !(e.metaKey || e.ctrlKey)) {
+              e.target.dataset.enterPressed = "true";
+              onHsnLookup(idx, item.hsn);
+            }
+            handleKeyDown(e, "hsn");
+          }}
+          onBlur={(e) => { if (item.hsn && !e.target.dataset.enterPressed) onHsnLookup(idx, item.hsn); delete e.target.dataset.enterPressed; }}
           className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-8"
           placeholder="Scan or type" />
         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300" title="Barcode scannable">
@@ -55,22 +82,29 @@ const ItemRow = memo(({ item, idx, onItemChange, onRemove, onAdd }) => (
       </div>
     </td>
     <td className="py-3 px-3 border-b border-slate-100">
+      <input type="text" value={item.itemName} name={`desc-${idx + 1}`}
+        onChange={(e) => onItemChange(idx, "itemName", e.target.value)}
+        onKeyDown={(e) => handleKeyDown(e, "desc")}
+        className="w-full px-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white"
+        placeholder="Item name" />
+    </td>
+    <td className="py-3 px-3 border-b border-slate-100">
       <input type="number" step="0.01" min="0" value={item.qty} name={`qty-${idx + 1}`}
         onChange={(e) => onItemChange(idx, "qty", e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const rate = document.querySelector(`input[name="rate-${idx + 1}"]`); rate?.focus(); } }}
+        onKeyDown={(e) => handleKeyDown(e, "qty")}
         className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
     </td>
     <td className="py-3 px-3 border-b border-slate-100">
       <input type="number" step="0.01" min="0" value={item.rate} name={`rate-${idx + 1}`}
         onChange={(e) => onItemChange(idx, "rate", e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const gst = document.querySelector(`input[name="gst-${idx + 1}"]`); gst?.focus(); } }}
+        onKeyDown={(e) => handleKeyDown(e, "rate")}
         className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
     </td>
     <td className="py-3 px-3 border-b border-slate-100">
       <div className="relative">
-        <input type="number" step="0.01" min="0" max="100" value={item.gstPercentage} name={`gst-${idx + 1}`}
+        <input type="number" step="0.01" min="0" max="40" value={item.gstPercentage} name={`gst-${idx + 1}`}
           onChange={(e) => onItemChange(idx, "gstPercentage", e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onAdd(); } }}
+          onKeyDown={(e) => handleKeyDown(e, "gst")}
           className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-7 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
       </div>
@@ -91,7 +125,8 @@ const ItemRow = memo(({ item, idx, onItemChange, onRemove, onAdd }) => (
       </button>
     </td>
   </tr>
-));
+  );
+};
 
 export default function InvoiceForm() {
   const { logout } = useAuth();
@@ -124,7 +159,7 @@ export default function InvoiceForm() {
     invoiceType: "TAX_INVOICE",
     invoiceDate: today,
     dueDate: today,
-    placeOfSupply: "",
+    placeOfSupply: "Karnataka",
     deliveryNote: "",
     deliveryNoteDate: today,
     referenceNumber: "",
@@ -132,10 +167,10 @@ export default function InvoiceForm() {
     dispatchDocNumber: "",
     dispatchedThrough: "",
     termsOfDelivery: "Standard Shipping",
-    paymentTerms: "Net 30",
+    paymentTerms: "Due on Receipt",
     paymentMode: "CASH",
-    otherReferences: "",
-    destination: "",
+    otherReferences: "N/A",
+    destination: "Karnataka",
     notes: "",
   });
 
@@ -226,6 +261,7 @@ export default function InvoiceForm() {
   const handleItemChange = useCallback((idx, field, value) => {
     setItems((prev) => prev.map((item, i) => {
       if (i !== idx) return item;
+      if (field === "gstPercentage" && parseFloat(value) > 40) value = "40";
       const updated = { ...item, [field]: value };
       if (["qty", "rate", "gstPercentage"].includes(field)) {
         const qty = parseFloat(updated.qty) || 0;
@@ -239,6 +275,40 @@ export default function InvoiceForm() {
       }
       return updated;
     }));
+  }, []);
+
+  const handleHsnLookup = useCallback(async (idx, hsn) => {
+    if (!hsn || hsn.length < 3) return;
+    try {
+      const res = await productAPI.findByHsn(hsn);
+      if (res.data.data) {
+        const p = res.data.data;
+        setItems((prev) => prev.map((item, i) => {
+          if (i !== idx) return item;
+          const qty = item.qty || "1";
+          const rate = p.rate?.toString() || item.rate;
+          const gst = p.gstPercentage?.toString() || item.gstPercentage;
+          const q = parseFloat(qty) || 0;
+          const r = parseFloat(rate) || 0;
+          const g = parseFloat(gst) || 0;
+          const taxableValue = q * r;
+          const taxAmount = (taxableValue * g) / 100;
+          return {
+            ...item,
+            itemName: p.name || item.itemName,
+            rate,
+            gstPercentage: gst,
+            qty,
+            taxableValue: Math.round(taxableValue * 100) / 100,
+            taxAmount: Math.round(taxAmount * 100) / 100,
+            total: Math.round((taxableValue + taxAmount) * 100) / 100,
+          };
+        }));
+        toast.success(`Found: ${p.name}`);
+      }
+    } catch {
+      // No product found with this HSN - silently ignore
+    }
   }, []);
 
   const recalcAll = useCallback(() => {
@@ -257,18 +327,24 @@ export default function InvoiceForm() {
   }, []);
 
   const removeItem = useCallback((idx) => {
-    setItems((prev) => prev.length === 1 ? prev : prev.filter((_, i) => i !== idx));
+    setItems((prev) => {
+      const filtered = prev.filter((_, i) => i !== idx);
+      return filtered.length === 0 ? [{ ...emptyItem }] : filtered;
+    });
   }, []);
 
-  const totals = useMemo(() => items.reduce(
-    (acc, item) => {
+  const totals = useMemo(() => {
+    const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.taxableValue) || 0), 0);
+    const discountAmount = discountEnabled ? subtotal * Math.min(discountVal, 100) / 100 : 0;
+    const taxableAmount = subtotal - discountAmount;
+    const ratio = subtotal > 0 ? (taxableAmount / subtotal) : 0;
+    const taxAmount = items.reduce((sum, item) => {
       const tv = parseFloat(item.taxableValue) || 0;
-      const ta = parseFloat(item.taxAmount) || 0;
-      const t = parseFloat(item.total) || 0;
-      return { subtotal: acc.subtotal + tv, taxAmount: acc.taxAmount + ta, grandTotal: acc.grandTotal + t };
-    },
-    { subtotal: 0, taxAmount: 0, grandTotal: 0 }
-  ), [items]);
+      const gst = parseFloat(item.gstPercentage) || 0;
+      return sum + (tv * ratio * gst / 100);
+    }, 0);
+    return { subtotal, discountAmount, taxableAmount, taxAmount, grandTotal: taxableAmount + taxAmount };
+  }, [items, discountEnabled, discountVal]);
 
   const validate = () => {
     if (!customer.name.trim()) { toast.error("Customer name is required"); return false; }
@@ -322,20 +398,8 @@ export default function InvoiceForm() {
     }
     setSavedInvoiceId(res.data.data.id);
     setSavedInvoiceNumber(res.data.data.invoiceNumber);
+    businessAPI.getProfile().then((bRes) => setBusiness(bRes.data.data)).catch(() => {});
     return res;
-  };
-
-  const saveToQueue = () => {
-    const customerData = {
-      name: customer.name,
-      email: customer.email || undefined,
-      phone: customer.phone || undefined,
-      billingAddress: customer.billingAddress || undefined,
-      gstIn: customer.gstIn || undefined,
-    };
-    const invoiceData = buildPayload(null);
-    delete invoiceData.customerId;
-    addToQueue({ customerData, invoiceData });
   };
 
   const handleSave = async () => {
@@ -344,9 +408,8 @@ export default function InvoiceForm() {
       const res = await saveInvoice();
       toast.success(`Invoice ${res.data.data.invoiceNumber} ${savedInvoiceId ? "updated" : "created"} successfully`);
     } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data?.details?.[0]?.msg || "Failed to save to server";
-      saveToQueue();
-      toast.error(`Saved locally - ${msg}. Will sync automatically.`);
+      const msg = err.response?.data?.message || err.response?.data?.details?.[0]?.msg || "Failed to save invoice";
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -362,26 +425,59 @@ export default function InvoiceForm() {
     setSaving(true);
     try {
       const filename = `${type === "PROFORMA_INVOICE" ? "Proforma_Invoice" : "Tax_Invoice"}_${form.invoiceDate || new Date().toISOString().split("T")[0]}.pdf`;
-      // Small delay to let React render the hidden component with latest data
       await new Promise((r) => setTimeout(r, 100));
-      await downloadInvoicePDF(invoiceRef.current, filename);
+      await processPrint(invoiceRef, type, filename);
     } catch (err) {
       toast.error("Failed to generate PDF");
       setSaving(false);
       return;
     }
 
-    // 2. Persist to backend asynchronously (fire-and-forget with retry queue)
+    // 2. Persist to backend asynchronously
     if (!savedInvoiceId) {
       try {
         const res = await saveInvoice();
         toast.success(`Invoice ${res.data.data.invoiceNumber} saved`);
       } catch {
-        saveToQueue();
-        toast.success("PDF downloaded. Invoice will be saved in background.");
+        toast.error("Failed to save invoice");
       }
     }
     setSaving(false);
+  };
+
+  const handlePrint = async () => {
+    if (!validate()) return;
+    recalcAll();
+    setSaving(true);
+    try {
+      await new Promise((r) => setTimeout(r, 100));
+      const { jsPDF } = await import("jspdf");
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
+      const pdf = new jsPDF("p", "mm", "a4");
+      const PAGE_W = 210, PAGE_H = 297, LEFT = 10, CONTENT_W = 190, PY = 10;
+      const usableH = PAGE_H - PY * 2;
+      const pxToMm = CONTENT_W / canvas.width;
+      const onePagePx = usableH / pxToMm;
+      let pageStartPx = 0, isFirstPage = true;
+      while (pageStartPx < canvas.height) {
+        const sliceH = Math.min(onePagePx, canvas.height - pageStartPx);
+        const sc = document.createElement("canvas");
+        sc.width = canvas.width; sc.height = sliceH;
+        sc.getContext("2d").drawImage(canvas, 0, pageStartPx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        if (!isFirstPage) pdf.addPage();
+        pdf.addImage(sc.toDataURL("image/png"), "PNG", LEFT, PY, CONTENT_W, sliceH * pxToMm);
+        pageStartPx += sliceH; isFirstPage = false;
+      }
+      const blob = pdf.output("blob");
+      const url = URL.createObjectURL(blob);
+      const w = window.open(url);
+      if (w) w.print();
+    } catch (err) {
+      toast.error("Failed to print");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -407,13 +503,12 @@ export default function InvoiceForm() {
           discountPercent={discountEnabled ? discountPercent : "0"}
           type={form.invoiceType}
           invoiceNumber={savedInvoiceNumber || customInvoiceNumber || nextInvoiceNumber || ""}
+          paperSize={(getPrintSettings()[form.invoiceType] || {}).paperSize || "A4_PORTRAIT"}
+          template={(getPrintSettings()[form.invoiceType] || {}).template}
         />
       </div>
-      <div className="pl-6 pr-12 py-6">
-        <button onClick={() => navigate("/dashboard")}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all mb-4">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
+      <div className="p-4 sm:p-6 lg:p-8 max-w-full overflow-x-hidden">
+        <PageHeader title="Create Invoice" />
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
           <div className="xl:col-span-4 space-y-6">
 
@@ -439,7 +534,7 @@ export default function InvoiceForm() {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
+                <div>
                   <label className={labelClass}>Phone <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -460,7 +555,7 @@ export default function InvoiceForm() {
                       className={"pl-10 " + inputClass} placeholder="e.g. 9036843735" inputMode="numeric" />
                   </div>
                 </div>
-                <div className="md:col-span-2">
+                <div>
                   <label className={labelClass}>Customer Name <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -478,6 +573,15 @@ export default function InvoiceForm() {
                       className={"pl-10 " + inputClass} placeholder="customer@email.com" />
                   </div>
                 </div>
+                <div>
+                  <label className={labelClass}>GSTIN</label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                    <input type="text" name="gstIn" value={customer.gstIn} onChange={handleCustomerChange}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("gstIn"); } }}
+                      className={"pl-10 font-mono uppercase tracking-wider " + inputClass} placeholder="e.g. 29AEQPJ1655J1Z0" />
+                  </div>
+                </div>
                 <div className="md:col-span-2">
                   <label className={labelClass}>Billing Address</label>
                   <div className="relative">
@@ -487,20 +591,11 @@ export default function InvoiceForm() {
                       rows={2} className={"pl-10 " + inputClass + " resize-none"} placeholder="Full billing address" />
                   </div>
                 </div>
-                <div className="md:col-span-2">
-                  <label className={labelClass}>GSTIN</label>
-                  <div className="relative">
-                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                    <input type="text" name="gstIn" value={customer.gstIn} onChange={handleCustomerChange}
-                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("gstIn"); } }}
-                      className={"pl-10 font-mono uppercase tracking-wider " + inputClass} placeholder="e.g. 29AEQPJ1655J1Z0" />
-                  </div>
-                </div>
               </div>
               {!existingCustomer && !customerSaved && customer.name.trim() && customer.phone && (
                 <div className="mt-4 pt-4 border-t border-slate-100 flex justify-end">
                   <button onClick={handleSaveCustomer}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-all shadow-sm">
+                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[44px]">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                     Save Customer
                   </button>
@@ -516,7 +611,7 @@ export default function InvoiceForm() {
                 </div>
                 <h2 className="text-sm font-bold text-slate-800">Invoice Details</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className={labelClass}>Type</label>
                   <select name="invoiceType" value={form.invoiceType} onChange={handleFieldChange}
@@ -608,7 +703,7 @@ export default function InvoiceForm() {
                 </div>
                 <h2 className="text-sm font-bold text-slate-800">References & Delivery</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className={labelClass}>Delivery Note</label>
                   <input type="text" name="deliveryNote" value={form.deliveryNote} onChange={handleFieldChange}
@@ -662,74 +757,7 @@ export default function InvoiceForm() {
               </div>
             </div>
 
-            {/* Items Table - Professional */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Package className="w-4 h-4 text-slate-600" />
-                  </div>
-                  <h2 className="text-sm font-bold text-slate-800">Items</h2>
-                </div>
-                <button onClick={addItem}
-                  className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm">
-                  <Plus className="w-3.5 h-3.5" /> Add Item
-                </button>
-              </div>
-
-              <div className="overflow-hidden border border-slate-200 rounded-lg">
-                <table className="w-full text-sm border-collapse table-fixed">
-                  <thead>
-                    <tr className="bg-slate-800">
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-10">#</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left w-72">Description</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-40">HSN/SAC</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-28">Qty</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-36">Rate</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-28">GST %</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-36">Taxable</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-28">Tax</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-36">Total</th>
-                      <th className="text-white w-12"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item, idx) => (
-                      <ItemRow key={idx} item={item} idx={idx} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="mt-5 pt-4 border-t border-slate-200 flex justify-end">
-                <div className="w-72 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Subtotal:</span>
-                    <span className="font-mono font-medium text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Tax Amount:</span>
-                    <span className="font-mono font-medium text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  <div className="flex justify-between text-base font-bold pt-2 border-t-2 border-slate-800">
-                    <span className="text-slate-800">Grand Total:</span>
-                    <span className="font-mono text-slate-800">Rs. {totals.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
-              <textarea name="notes" value={form.notes} onChange={handleFieldChange}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("notes"); } }}
-                rows={2} className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 resize-none"
-                placeholder="Additional notes or remarks..." />
-            </div>
           </div>
-
-          {/* Right Sidebar */}
           <div className="xl:col-span-1 space-y-4">
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
               <div className="flex items-center justify-between mb-3">
@@ -752,12 +780,12 @@ export default function InvoiceForm() {
                     value={discountPercent}
                     onChange={(e) => setDiscountPercent(e.target.value)}
                     placeholder="0"
-                    className="w-20 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400"
+                    className="w-20 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 min-h-[44px]"
                   />
                   <span className="text-sm text-slate-600">%</span>
                   {discountVal > 0 && (
                     <span className="text-xs text-emerald-600 font-medium ml-auto">
-                      -Rs. {(totals.grandTotal * Math.min(discountVal, 100) / 100).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      -Rs. {(totals.subtotal * Math.min(discountVal, 100) / 100).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </span>
                   )}
                 </div>
@@ -802,17 +830,21 @@ export default function InvoiceForm() {
               <h2 className="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">Actions</h2>
               <div className="space-y-3">
                 <button onClick={handleSave} disabled={saving}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 disabled:opacity-50 transition-all shadow-sm">
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 disabled:opacity-50 transition-all shadow-sm min-h-[44px]">
                   {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="w-4 h-4" />}
                   {saving ? "Saving..." : "Save Invoice"}
                 </button>
                 <button onClick={() => generatePDF("TAX_INVOICE")} disabled={sealRequired || totals.grandTotal <= 0}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm">
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm min-h-[44px]">
                   <Download className="w-4 h-4" /> Tax Invoice PDF
                 </button>
                 <button onClick={() => generatePDF("PROFORMA_INVOICE")} disabled={sealRequired || totals.grandTotal <= 0}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm">
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm min-h-[44px]">
                   <Download className="w-4 h-4" /> Proforma PDF
+                </button>
+                <button onClick={handlePrint} disabled={sealRequired || totals.grandTotal <= 0}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-all shadow-sm min-h-[44px]">
+                  <Printer className="w-4 h-4" /> Print Invoice
                 </button>
               </div>
 
@@ -827,19 +859,23 @@ export default function InvoiceForm() {
                     <span className="text-slate-500">Subtotal:</span>
                     <span className="font-mono text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
+                  {discountEnabled && discountVal > 0 && (
+                    <div className="flex justify-between text-emerald-600">
+                      <span>Discount ({discountVal}%):</span>
+                      <span className="font-mono">-Rs. {totals.discountAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Taxable Amount:</span>
+                    <span className="font-mono text-slate-700">Rs. {totals.taxableAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Tax:</span>
                     <span className="font-mono text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                   </div>
-                  {discountEnabled && discountVal > 0 && (
-                    <div className="flex justify-between text-emerald-600">
-                      <span>Discount ({discountVal}%):</span>
-                      <span className="font-mono">-Rs. {(totals.grandTotal * Math.min(discountVal, 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between font-bold text-slate-800 pt-2 border-t border-slate-200">
                     <span>Total:</span>
-                    <span className="font-mono">Rs. {(totals.grandTotal - totals.grandTotal * Math.min(discountVal, 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                    <span className="font-mono">Rs. {totals.grandTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
@@ -848,11 +884,80 @@ export default function InvoiceForm() {
                 <div className="mt-6 pt-4 border-t border-slate-100">
                   <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Business</h3>
                   <p className="text-xs text-slate-600 font-medium">{business.businessName}</p>
+                  {business.phone && <p className="text-xs text-slate-400">Phone: {business.phone}</p>}
+                  {business.email && <p className="text-xs text-slate-400">Email: {business.email}</p>}
+                  {business.addressLine1 && <p className="text-xs text-slate-400">{business.addressLine1}{business.city ? `, ${business.city}` : ""}{business.state ? `, ${business.state}` : ""}{business.pincode ? ` - ${business.pincode}` : ""}</p>}
                   {business.gstIn && <p className="text-xs text-slate-400 font-mono">GST: {business.gstIn}</p>}
                 </div>
               )}
             </div>
           </div>
+        </div>
+
+        {/* Items Table - Full Width */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 my-6">
+          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                <Package className="w-4 h-4 text-slate-600" />
+              </div>
+              <h2 className="text-sm font-bold text-slate-800">Items</h2>
+            </div>
+            <button onClick={addItem}
+              className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[44px]">
+              <Plus className="w-3.5 h-3.5" /> Add Item
+            </button>
+          </div>
+
+          <div className="overflow-x-auto sm:overflow-x-visible border border-slate-200 rounded-lg">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-slate-800">
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[3%]">#</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[13%]">HSN/SAC</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-left w-[27%]">Description</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">Qty</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[10%]">Rate</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">GST %</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[11%]">Taxable</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[8%]">Tax</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[10%]">Total</th>
+                  <th className="text-white w-[2%]"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, idx) => (
+                  <ItemRow key={idx} item={item} idx={idx} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-slate-200 flex justify-end">
+            <div className="w-72 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Subtotal:</span>
+                <span className="font-mono font-medium text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Tax Amount:</span>
+                <span className="font-mono font-medium text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div className="flex justify-between text-base font-bold pt-2 border-t-2 border-slate-800">
+                <span className="text-slate-800">Grand Total:</span>
+                <span className="font-mono text-slate-800">Rs. {totals.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
+          <textarea name="notes" value={form.notes} onChange={handleFieldChange}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("notes"); } }}
+            rows={2} className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 resize-none"
+            placeholder="Additional notes or remarks..." />
         </div>
       </div>
     </div>

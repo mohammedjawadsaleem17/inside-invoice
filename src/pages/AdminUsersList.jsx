@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
+import PageHeader from "../components/PageHeader";
 import toast from "react-hot-toast";
 import { adminAPI } from "../api/auth";
 import { ArrowLeft, Users, Eye, EyeOff, Shield, AlertCircle, Trash2, ToggleLeft, ToggleRight, KeyRound } from "lucide-react";
@@ -89,22 +90,9 @@ export default function AdminUsersList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/dashboard")}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all">
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
-              <Users className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-slate-900">User Management</h1>
-              <p className="text-xs text-slate-500">{users.length} total user{users.length !== 1 ? "s" : ""} on the platform</p>
-            </div>
-          </div>
-        </div>
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <PageHeader title="User Management" />
+        <p className="text-xs text-slate-500 -mt-4 mb-6">{users.length} total user{users.length !== 1 ? "s" : ""} on the platform</p>
 
         {loading ? (
           <div className="flex items-center justify-center py-24">
@@ -113,8 +101,8 @@ export default function AdminUsersList() {
         ) : users.length === 0 ? (
           <div className="text-center py-16 text-sm text-slate-400">No users found</div>
         ) : (
-          <div className="overflow-auto -mx-6">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-slate-200">
                   <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">#</th>

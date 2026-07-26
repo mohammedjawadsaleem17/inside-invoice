@@ -2,12 +2,15 @@ import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
+import PageHeader from "../components/PageHeader";
 import { invoiceAPI, businessAPI, customerAPI } from "../api/auth";
 import toast from "react-hot-toast";
-import { ArrowLeft, Download, Save, Edit3, Plus, Trash2, FileText, AlertCircle, User, Building2, Phone, MapPin, Hash, Package, Mail, Globe, X } from "lucide-react";
-import { downloadInvoicePDF } from "../components/InvoicePDF";
+import { ArrowLeft, Download, Save, Edit3, Plus, Trash2, FileText, AlertCircle, User, Building2, Phone, MapPin, Hash, Package, Mail, Globe, X, Printer, Smartphone } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { processQueue } from "../utils/retryQueue";
+import { processPrint } from "../utils/printInvoice";
+import { getPrintSettings } from "../constants/paperSizes";
 import { INDIAN_STATES, DELIVERY_TERMS, PAYMENT_TERMS } from "../constants/indianStates";
 
 const emptyItem = () => ({ itemName: "", hsn: "", qty: "1", rate: "", gstPercentage: "18", taxableValue: "0", taxAmount: "0", total: "0" });
@@ -103,21 +106,25 @@ export default function InvoiceView() {
   const [isEditing, setIsEditing] = useState(false);
   const [invoiceType, setInvoiceType] = useState("TAX_INVOICE");
   const invoiceRef = useRef(null);
+  const proformaRef = useRef(null);
   const [sealType, setSealType] = useState(localStorage.getItem("seal_type") || "");
   const sealEnabled = localStorage.getItem("show_seal") === "true";
   const sealRequired = sealEnabled && !sealType;
+  const ghostMode = localStorage.getItem("ghost_mode") === "true";
   const [discountPercent, setDiscountPercent] = useState("");
   const [discountEnabled, setDiscountEnabled] = useState(false);
   const discountVal = parseFloat(discountPercent) || 0;
   const [business, setBusiness] = useState(null);
   const [form, setForm] = useState({
-    customerName: "", customerEmail: "", customerPhone: "", billingAddress: "", customerGstIn: "",
+    customerId: null, customerName: "", customerEmail: "", customerPhone: "", billingAddress: "", customerGstIn: "",
     invoiceDate: "", dueDate: "", placeOfSupply: "", destination: "", termsOfDelivery: "",
     paymentTerms: "", paymentMode: "CASH", deliveryNote: "", otherReferences: "", notes: "", invoiceNumber: "",
     deliveryNoteDate: "", referenceNumber: "", buyerOrderNumber: "",
-    dispatchDocNumber: "", dispatchedThrough: "",
+    dispatchDocNumber: "", dispatchedThrough: "", invoiceType: "TAX_INVOICE", status: "DRAFT",
   });
   const [items, setItems] = useState([{ ...emptyItem() }]);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -128,7 +135,7 @@ export default function InvoiceView() {
       setBusiness(bizRes?.data?.data || null);
       setInvoiceType(inv.invoiceType || "TAX_INVOICE");
       setForm({
-        customerName: inv.customerName || "", customerEmail: "", customerPhone: "",
+        customerId: inv.customerId || null, customerName: inv.customerName || "", customerEmail: "", customerPhone: "",
         billingAddress: "", customerGstIn: "", invoiceDate: inv.invoiceDate || "",
         dueDate: inv.dueDate || "", placeOfSupply: inv.placeOfSupply || "",
         destination: inv.destination || "", termsOfDelivery: inv.termsOfDelivery || "",
@@ -138,6 +145,7 @@ export default function InvoiceView() {
         deliveryNoteDate: inv.deliveryNoteDate || "", referenceNumber: inv.referenceNumber || "",
         buyerOrderNumber: inv.buyerOrderNumber || "", dispatchDocNumber: inv.dispatchDocNumber || "",
         dispatchedThrough: inv.dispatchedThrough || "",
+        invoiceType: inv.invoiceType || "TAX_INVOICE", status: inv.status || "DRAFT",
       });
       setItems((inv.items || []).length > 0 ? inv.items.map((i) => ({
         itemName: i.itemName, hsn: i.hsn || "", qty: String(i.qty), rate: String(i.rate),
@@ -196,15 +204,18 @@ export default function InvoiceView() {
     setItems((prev) => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev);
   }, []);
 
-  const totals = useMemo(() => items.reduce(
-    (acc, item) => {
+  const totals = useMemo(() => {
+    const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.taxableValue) || 0), 0);
+    const discountAmount = discountEnabled ? subtotal * Math.min(discountVal, 100) / 100 : 0;
+    const taxableAmount = subtotal - discountAmount;
+    const ratio = subtotal > 0 ? (taxableAmount / subtotal) : 0;
+    const taxAmount = items.reduce((sum, item) => {
       const tv = parseFloat(item.taxableValue) || 0;
-      const ta = parseFloat(item.taxAmount) || 0;
-      const t = parseFloat(item.total) || 0;
-      return { subtotal: acc.subtotal + tv, taxAmount: acc.taxAmount + ta, grandTotal: acc.grandTotal + t };
-    },
-    { subtotal: 0, taxAmount: 0, grandTotal: 0 }
-  ), [items]);
+      const gst = parseFloat(item.gstPercentage) || 0;
+      return sum + (tv * ratio * gst / 100);
+    }, 0);
+    return { subtotal, discountAmount, taxableAmount, taxAmount, grandTotal: taxableAmount + taxAmount };
+  }, [items, discountEnabled, discountVal]);
 
   const validate = () => {
     if (!form.customerName.trim()) { toast.error("Customer name is required"); return false; }
@@ -219,26 +230,37 @@ export default function InvoiceView() {
     setSaving(true);
     try {
       await invoiceAPI.update(id, {
-        invoiceDate: form.invoiceDate, dueDate: form.dueDate || undefined,
-        placeOfSupply: form.placeOfSupply || undefined, destination: form.destination || undefined,
-        termsOfDelivery: form.termsOfDelivery || undefined, paymentTerms: form.paymentTerms || undefined,
+        customerId: form.customerId,
+        invoiceType: form.invoiceType,
+        ...(ghostMode && form.invoiceNumber ? { invoiceNumber: form.invoiceNumber } : {}),
+        invoiceDate: form.invoiceDate || undefined,
+        dueDate: form.dueDate || undefined,
+        status: form.status || "DRAFT",
+        placeOfSupply: form.placeOfSupply || undefined,
+        destination: form.destination || undefined,
+        termsOfDelivery: form.termsOfDelivery || undefined,
+        paymentTerms: form.paymentTerms || undefined,
         paymentMode: form.paymentMode || "CASH",
-        deliveryNote: form.deliveryNote || undefined, otherReferences: form.otherReferences || undefined,
+        deliveryNote: form.deliveryNote || undefined,
+        deliveryNoteDate: form.deliveryNoteDate || undefined,
+        referenceNumber: form.referenceNumber || undefined,
+        buyerOrderNumber: form.buyerOrderNumber || undefined,
+        dispatchDocNumber: form.dispatchDocNumber || undefined,
+        dispatchedThrough: form.dispatchedThrough || undefined,
+        otherReferences: form.otherReferences || undefined,
         notes: form.notes || undefined,
-        customerName: form.customerName.trim(), customerEmail: form.customerEmail || undefined,
-        customerPhone: form.customerPhone || undefined, billingAddress: form.billingAddress || undefined,
-        customerGstIn: form.customerGstIn || undefined,
         items: items.filter((i) => i.itemName.trim() && parseFloat(i.qty) > 0 && parseFloat(i.rate) > 0)
           .map((i, idx) => ({
-            sno: idx + 1, itemName: i.itemName, hsn: i.hsn || undefined, qty: parseFloat(i.qty),
-            rate: parseFloat(i.rate), gstPercentage: parseFloat(i.gstPercentage) || 0,
-            taxableValue: parseFloat(i.taxableValue), taxAmount: parseFloat(i.taxAmount), total: parseFloat(i.total),
+            sno: idx + 1, itemName: i.itemName, hsn: i.hsn || undefined,
+            qty: parseFloat(i.qty), rate: parseFloat(i.rate), gstPercentage: parseFloat(i.gstPercentage) || 0,
           })),
       });
       toast.success("Invoice updated successfully");
       setIsEditing(false);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to update invoice");
+      const msg = err.response?.data?.message || err.response?.data?.error || "Failed to update invoice";
+      toast.error(msg);
+      console.error("Update invoice error:", err.response?.data);
     } finally {
       setSaving(false);
     }
@@ -251,20 +273,70 @@ export default function InvoiceView() {
     }
     try {
       const filename = `${type === "PROFORMA_INVOICE" ? "Proforma" : "Tax"}_Invoice_${form.invoiceNumber}.pdf`;
-      await new Promise((r) => setTimeout(r, 100));
-      await downloadInvoicePDF(invoiceRef.current, filename);
+      const captureRef = type === "PROFORMA_INVOICE" ? proformaRef : invoiceRef;
+      await processPrint(captureRef, type, filename);
     } catch (err) {
-      toast.error("Failed to generate PDF");
+      toast.error("Failed to generate");
     }
   };
 
-  const viewPDF = async (type) => {
+  const viewPDF = async () => {
     try {
-      const filename = `${type === "PROFORMA_INVOICE" ? "Proforma" : "Tax"}_Invoice_${form.invoiceNumber}.pdf`;
       await new Promise((r) => setTimeout(r, 100));
-      await downloadInvoicePDF(invoiceRef.current, filename);
+      const { jsPDF } = await import("jspdf");
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
+      const pdf = new jsPDF("p", "mm", "a4");
+      const PAGE_W = 210, PAGE_H = 297, LEFT = 10, CONTENT_W = 190, PY = 10;
+      const usableH = PAGE_H - PY * 2;
+      const pxToMm = CONTENT_W / canvas.width;
+      const onePagePx = usableH / pxToMm;
+      let pageStartPx = 0, isFirstPage = true;
+      while (pageStartPx < canvas.height) {
+        const sliceH = Math.min(onePagePx, canvas.height - pageStartPx);
+        const sc = document.createElement("canvas");
+        sc.width = canvas.width; sc.height = sliceH;
+        sc.getContext("2d").drawImage(canvas, 0, pageStartPx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        if (!isFirstPage) pdf.addPage();
+        pdf.addImage(sc.toDataURL("image/png"), "PNG", LEFT, PY, CONTENT_W, sliceH * pxToMm);
+        pageStartPx += sliceH; isFirstPage = false;
+      }
+      const blob = pdf.output("blob");
+      const blobUrl = URL.createObjectURL(blob) + "#toolbar=0";
+      setPdfPreviewUrl(blobUrl);
+      setShowPdfPreview(true);
     } catch (err) {
-      toast.error("Failed to generate PDF");
+      toast.error("Failed to generate PDF preview");
+    }
+  };
+
+  const printPDF = async () => {
+    try {
+      await new Promise((r) => setTimeout(r, 100));
+      const { jsPDF } = await import("jspdf");
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
+      const pdf = new jsPDF("p", "mm", "a4");
+      const PAGE_W = 210, PAGE_H = 297, LEFT = 10, CONTENT_W = 190, PY = 10;
+      const usableH = PAGE_H - PY * 2;
+      const pxToMm = CONTENT_W / canvas.width;
+      const onePagePx = usableH / pxToMm;
+      let pageStartPx = 0, isFirstPage = true;
+      while (pageStartPx < canvas.height) {
+        const sliceH = Math.min(onePagePx, canvas.height - pageStartPx);
+        const sc = document.createElement("canvas");
+        sc.width = canvas.width; sc.height = sliceH;
+        sc.getContext("2d").drawImage(canvas, 0, pageStartPx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        if (!isFirstPage) pdf.addPage();
+        pdf.addImage(sc.toDataURL("image/png"), "PNG", LEFT, PY, CONTENT_W, sliceH * pxToMm);
+        pageStartPx += sliceH; isFirstPage = false;
+      }
+      const blob = pdf.output("blob");
+      const url = URL.createObjectURL(blob);
+      const w = window.open(url);
+      if (w) w.print();
+    } catch (err) {
+      toast.error("Failed to print");
     }
   };
 
@@ -306,13 +378,29 @@ export default function InvoiceView() {
           discountPercent={discountEnabled ? discountPercent : "0"}
           type={invoiceType}
           invoiceNumber={form.invoiceNumber}
+          paperSize={(getPrintSettings()[invoiceType] || {}).paperSize || "A4_PORTRAIT"}
+          template={(getPrintSettings()[invoiceType] || {}).template}
         />
       </div>
-      <div className="max-w-[1800px] mx-auto px-6 py-6">
+      {/* Hidden Proforma renderer (always rendered for instant capture) */}
+      <div style={{ position: "absolute", left: "-9999px", top: 0, pointerEvents: "none" }}>
+        <InvoiceTemplateRenderer
+          ref={proformaRef}
+          business={business}
+          customer={{ name: form.customerName, billingAddress: form.billingAddress, gstIn: form.customerGstIn, phone: form.customerPhone, email: form.customerEmail, state: form.placeOfSupply }}
+          form={form}
+          items={items}
+          totals={totals}
+          discountPercent={discountEnabled ? discountPercent : "0"}
+          type="PROFORMA_INVOICE"
+          invoiceNumber={form.invoiceNumber}
+          paperSize={(getPrintSettings()["PROFORMA_INVOICE"] || {}).paperSize || "A4_PORTRAIT"}
+          template={(getPrintSettings()["PROFORMA_INVOICE"] || {}).template}
+        />
+      </div>
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="flex items-center justify-between mb-6">
-          <button onClick={() => navigate("/invoices")} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Invoices
-          </button>
+          <PageHeader title="View Invoice" backTo="/invoices" />
           <div className="flex items-center gap-2">
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
               invoiceType === "PROFORMA_INVOICE" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
@@ -331,15 +419,28 @@ export default function InvoiceView() {
                   <Building2 className="w-5 h-5 text-slate-600" />
                   <h2 className="text-sm font-bold text-slate-800">Seller</h2>
                 </div>
-                {business ? (
-                  <>
-                    <p className="text-sm font-semibold text-slate-800">{business.businessName}</p>
-                    <InfoRow label="GSTIN" value={business.gstIn} />
-                    <InfoRow label="Phone" value={business.phone} />
-                    <InfoRow label="Email" value={business.email} />
-                    {business.addressLine1 && <p className="text-xs text-slate-500 mt-1">{business.addressLine1}{business.city ? `, ${business.city}` : ""}{business.state ? `, ${business.state}` : ""}{business.pincode ? ` - ${business.pincode}` : ""}</p>}
-                  </>
-                ) : (
+                  {business ? (
+                    <div className="flex gap-6">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-slate-800">{business.businessName}</p>
+                        <InfoRow label="GSTIN" value={business.gstIn} />
+                        <InfoRow label="Phone" value={business.phone} />
+                        <InfoRow label="Email" value={business.email} />
+                        {business.addressLine1 && <p className="text-xs text-slate-500 mt-1">{business.addressLine1}{business.city ? `, ${business.city}` : ""}{business.state ? `, ${business.state}` : ""}{business.pincode ? ` - ${business.pincode}` : ""}</p>}
+                      </div>
+                      {business.upiId && (
+                        <div className="flex-shrink-0 flex flex-col items-center justify-center border-l border-slate-100 pl-6">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-xs font-medium text-emerald-700">Pay via UPI</span>
+                          </div>
+                          <div className="bg-white p-1 rounded-lg border border-slate-200 inline-flex">
+                            <QRCodeSVG value={`upi://pay?pa=${business.upiId}&pn=${encodeURIComponent(business.businessName || "")}&am=${totals.grandTotal.toFixed(2)}&tr=${encodeURIComponent(form.invoiceNumber)}&tn=${encodeURIComponent(form.invoiceNumber)}&cu=INR`} size={70} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
                   <p className="text-sm text-slate-400">Business details not available</p>
                 )}
               </div>
@@ -350,21 +451,25 @@ export default function InvoiceView() {
                 </div>
                 {isEditing ? (
                   <div className="space-y-3">
-                    <div>
-                      <label className={labelClass}>Name *</label>
-                      <input name="customerName" value={form.customerName} onChange={handleFieldChange} className={inputClass} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelClass}>Phone *</label>
+                        <input name="customerPhone" value={form.customerPhone} onChange={handleFieldChange} className={inputClass} />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Customer Name *</label>
+                        <input name="customerName" value={form.customerName} onChange={handleFieldChange} className={inputClass} />
+                      </div>
                     </div>
-                    <div>
-                      <label className={labelClass}>Email</label>
-                      <input name="customerEmail" value={form.customerEmail} onChange={handleFieldChange} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Phone</label>
-                      <input name="customerPhone" value={form.customerPhone} onChange={handleFieldChange} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>GSTIN</label>
-                      <input name="customerGstIn" value={form.customerGstIn} onChange={handleFieldChange} className={inputClass + " font-mono uppercase"} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelClass}>Email</label>
+                        <input name="customerEmail" value={form.customerEmail} onChange={handleFieldChange} className={inputClass} />
+                      </div>
+                      <div>
+                        <label className={labelClass}>GSTIN</label>
+                        <input name="customerGstIn" value={form.customerGstIn} onChange={handleFieldChange} className={inputClass + " font-mono uppercase"} />
+                      </div>
                     </div>
                     <div>
                       <label className={labelClass}>Billing Address</label>
@@ -393,7 +498,13 @@ export default function InvoiceView() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   <div>
                     <label className={labelClass}>Invoice No.</label>
-                    <input value={form.invoiceNumber} disabled className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 text-slate-500 font-mono" />
+                    {ghostMode ? (
+                      <input type="text" name="invoiceNumber" value={form.invoiceNumber}
+                        onChange={handleFieldChange}
+                        className={inputClass + " font-mono"} placeholder="Enter invoice number" />
+                    ) : (
+                      <input value={form.invoiceNumber} disabled className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 text-slate-500 font-mono" />
+                    )}
                   </div>
                   <div>
                     <label className={labelClass}>Invoice Date *</label>
@@ -510,8 +621,8 @@ export default function InvoiceView() {
                 )}
               </div>
 
-              <div className="overflow-hidden border border-slate-200 rounded-lg">
-                <table className="w-full text-sm border-collapse table-fixed">
+              <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                <table className="w-full text-sm border-collapse table-fixed min-w-[700px]">
                   <thead>
                     <tr className="bg-slate-800">
                       <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-10">#</th>
@@ -535,7 +646,7 @@ export default function InvoiceView() {
               </div>
 
               <div className="flex justify-end mt-5 pt-4 border-t border-slate-200">
-                <div className="w-72 space-y-2">
+                <div className="w-full sm:w-72 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">Subtotal:</span>
                     <span className="font-mono font-medium text-slate-700">Rs. {fmt(totals.subtotal)}</span>
@@ -594,7 +705,7 @@ export default function InvoiceView() {
                   <span className="text-sm text-slate-600">%</span>
                   {discountVal > 0 && (
                     <span className="text-xs text-emerald-600 font-medium ml-auto">
-                      -Rs. {(totals.grandTotal * Math.min(discountVal, 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      -Rs. {(totals.subtotal * Math.min(discountVal, 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </span>
                   )}
                 </div>
@@ -637,7 +748,7 @@ export default function InvoiceView() {
             )}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sticky top-6">
               <h2 className="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">Actions</h2>
-              <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row xl:flex-col gap-2 sm:flex-wrap">
                 {isEditing ? (
                   <>
                     <button onClick={handleSave} disabled={saving}
@@ -664,6 +775,10 @@ export default function InvoiceView() {
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-indigo-300 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-50 disabled:opacity-50 transition-all">
                   <Download className="w-4 h-4" /> Download PDF
                 </button>
+                <button onClick={printPDF}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-all shadow-sm">
+                  <Printer className="w-4 h-4" /> Print Invoice
+                </button>
                 <button onClick={() => downloadPDF("PROFORMA_INVOICE")} disabled={sealRequired}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-emerald-300 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50 disabled:opacity-50 transition-all">
                   <Download className="w-4 h-4" /> Proforma PDF
@@ -681,19 +796,23 @@ export default function InvoiceView() {
                     <span className="text-slate-500">Subtotal:</span>
                     <span className="font-mono text-slate-700">Rs. {fmt(totals.subtotal)}</span>
                   </div>
+                  {discountEnabled && discountVal > 0 && (
+                    <div className="flex justify-between text-emerald-600">
+                      <span>Discount ({discountVal}%):</span>
+                      <span className="font-mono">-Rs. {fmt(totals.discountAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Taxable Amount:</span>
+                    <span className="font-mono text-slate-700">Rs. {fmt(totals.taxableAmount)}</span>
+                  </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Tax:</span>
                     <span className="font-mono text-slate-700">Rs. {fmt(totals.taxAmount)}</span>
                   </div>
-                  {discountEnabled && discountVal > 0 && (
-                    <div className="flex justify-between text-emerald-600">
-                      <span>Discount ({discountVal}%):</span>
-                      <span className="font-mono">-Rs. {fmt(totals.grandTotal * Math.min(discountVal, 100) / 100)}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between font-bold text-slate-800 pt-2 border-t border-slate-200">
                     <span>Total:</span>
-                    <span className="font-mono">Rs. {fmt(totals.grandTotal - (discountEnabled ? totals.grandTotal * Math.min(discountVal, 100) / 100 : 0))}</span>
+                    <span className="font-mono">Rs. {fmt(totals.grandTotal)}</span>
                   </div>
                 </div>
               </div>
@@ -701,6 +820,37 @@ export default function InvoiceView() {
           </div>
         </div>
       </div>
+
+      {showPdfPreview && pdfPreviewUrl && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-4" onClick={() => { setShowPdfPreview(false); URL.revokeObjectURL(pdfPreviewUrl.split("#")[0]); setPdfPreviewUrl(null); }}>
+          <div className="bg-white shadow-xl border-slate-200 w-full flex flex-col rounded-none sm:rounded-2xl sm:border h-full sm:h-[90vh] max-w-full sm:max-w-4xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex-shrink-0 gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <FileText className="w-5 h-5 text-indigo-600 shrink-0" />
+                <h2 className="text-sm font-bold text-slate-800 truncate">Invoice PDF</h2>
+              </div>
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <button onClick={() => printPDF(invoiceType)}
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-indigo-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
+                  <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Print</span>
+                </button>
+                <button onClick={() => downloadPDF(invoiceType)}
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-slate-800 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-slate-700 transition-all shadow-sm">
+                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Download</span>
+                </button>
+                <button onClick={() => { setShowPdfPreview(false); setPdfPreviewUrl(null); }}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 p-2 sm:p-4 bg-slate-100/50">
+              <embed src={pdfPreviewUrl} className="w-full h-full rounded-lg border border-slate-200" type="application/pdf" />
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

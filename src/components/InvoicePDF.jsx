@@ -1,6 +1,7 @@
 import React from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import { QRCodeSVG } from "qrcode.react";
 import CompanySeal from "./CompanySeal";
 import CompanyStamp from "./CompanyStamp";
 
@@ -72,12 +73,14 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
   const validItems = (items || []).filter((i) => i.itemName?.trim() && parseFloat(i.qty) > 0);
   const sigSrc = business?.signature ? `data:image/png;base64,${business.signature}` : null;
   const discPct = parseFloat(discountPercent) || 0;
-  const discAmt = totals.grandTotal * Math.min(discPct, 100) / 100;
+  const discAmt = totals.subtotal * Math.min(discPct, 100) / 100;
+  const taxableAmount = totals.subtotal - discAmt;
+  const discRatio = totals.subtotal > 0 ? (taxableAmount / totals.subtotal) : 0;
 
   let cgstTotal = 0, sgstTotal = 0;
   validItems.forEach((item) => {
     const gst = parseFloat(item.gstPercentage) || 0;
-    const taxable = parseFloat(item.taxableValue) || parseFloat(item.qty || 0) * parseFloat(item.rate || 0);
+    const taxable = (parseFloat(item.taxableValue) || parseFloat(item.qty || 0) * parseFloat(item.rate || 0)) * discRatio;
     const halfGst = gst / 2;
     cgstTotal += (taxable * halfGst) / 100;
     sgstTotal += (taxable * halfGst) / 100;
@@ -234,7 +237,12 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
                    </tr>
                 </thead>
                 <tbody>
-                  {validItems.length > 0 ? validItems.map((item, idx) => (
+                  {validItems.length > 0 ? validItems.map((item, idx) => {
+                    const iTaxable = (parseFloat(item.taxableValue) || 0) * discRatio;
+                    const iGst = parseFloat(item.gstPercentage) || 0;
+                    const iTax = (iTaxable * iGst) / 100;
+                    const iTotal = iTaxable + iTax;
+                    return (
                     <tr id={`section-item-row-${idx}`} key={idx} style={{ height: "28px" }}>
                        {[
                          { a: "center", v: idx + 1, w: 52 },
@@ -244,7 +252,7 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
                          { a: "center", v: parseFloat(item.qty).toFixed(2), w: 72 },
                          { a: "center", v: formatINR(item.rate), w: 76 },
                          { a: "center", v: "Piece", w: 42 },
-                         { a: "right", v: formatINR(item.total), w: 72 },
+                         { a: "right", v: formatINR(iTotal), w: 72 },
                        ].map((c, ci) => (
                           <td key={ci} style={{
                             ...cell(c.w),
@@ -259,7 +267,7 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
                           </td>
                         ))}
                      </tr>
-                    )) : (
+                    ); }) : (
           <tr>
                         <td colSpan={8} style={{ borderTop: S.border, borderLeft: S.border, borderBottom: S.border, textAlign: "center", padding: "8px", fontSize: "10px" }}>No items</td>
                      </tr>
@@ -269,7 +277,69 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
             </td>
           </tr>
 
-          {!isProforma && (
+          {isProforma ? (
+            <>
+          {/* PROFORMA ESTIMATED TOTALS */}
+          <tr id="section-subtotals">
+            <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <tbody>
+                  <tr>
+                    <td style={{ textAlign: "right", padding: "4px 10px", border: 0 }}>
+                      {totals.taxAmount > 0 ? (
+                        <>
+                          <div style={{ fontSize: "10px", marginBottom: "1px" }}>
+                            <span style={{ marginRight: "16px" }}>CGST (Estimated)</span>
+                            <span style={{ fontWeight: "bold" }}>{formatINR(cgstTotal)}</span>
+                          </div>
+                          <div style={{ fontSize: "10px", marginBottom: "1px" }}>
+                            <span style={{ marginRight: "16px" }}>SGST (Estimated)</span>
+                            <span style={{ fontWeight: "bold" }}>{formatINR(sgstTotal)}</span>
+                          </div>
+                        </>
+                      ) : null}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          {/* PROFORMA AMOUNT IN WORDS + TOTAL */}
+          <tr id="section-amount-words">
+            <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <tbody>
+                  <tr>
+                    <td style={{ width: "72%", borderRight: S.border, padding: "6px 10px", verticalAlign: "top" }}>
+                      <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "3px" }}>Estimated Amount (in words)</div>
+                      <div style={{ fontSize: "11px", fontWeight: "bold" }}>
+                        {(totals.grandTotal - discAmt) > 0 ? numberToWords(totals.grandTotal - discAmt) : "Zero Rupees Only"}
+                      </div>
+                    </td>
+                    <td style={{ width: "28%", padding: "6px 10px", verticalAlign: "top" }}>
+                      {discAmt > 0 && (
+                        <div style={{ fontSize: "9px", fontWeight: "bold", textAlign: "left", color: "#16a34a", marginBottom: "2px" }}>
+                          Discount ({discPct}%): -Rs. {formatINR(discAmt)}
+                        </div>
+                      )}
+                      <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "2px", textAlign: "left" }}>
+                        Estimated Total
+                      </div>
+                      <div style={{ fontSize: "18px", fontWeight: "bold", margin: "2px 0", textAlign: "left" }}>
+                        Rs: {formatINR(totals.grandTotal - discAmt)}
+                      </div>
+                      <div style={{ fontSize: "10px", fontStyle: "italic", textAlign: "right" }}>
+                        E. & O.E
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+            </>
+          ) : (
             <>
           {/* GST SUMMARY */}
           <tr id="section-subtotals">
@@ -346,47 +416,47 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
                     <th colSpan={2} style={{ width: "24%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "6px 6px 7px 6px", verticalAlign: "middle", lineHeight: "1.5" }}>CGST</th>
                      <th colSpan={2} style={{ width: "28%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "6px 6px 7px 6px", verticalAlign: "middle", lineHeight: "1.5" }}>SGST/UTGST</th>
                      <th rowSpan={2} style={{ width: "14%", borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "6px 6px 7px 6px", verticalAlign: "middle", lineHeight: "1.5" }}>Total Tax Amount</th>
-                   </tr>
-                   <tr style={{ height: "28px" }}>
-                     <td style={{ width: "12%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Rate</td>
-                     <td style={{ width: "12%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Amount</td>
-                     <td style={{ width: "14%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Rate</td>
-                     <td style={{ width: "14%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Amount</td>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {validItems.map((item, idx) => {
-                     const gst = parseFloat(item.gstPercentage) || 0;
-                     const halfGst = gst / 2;
-                     const taxable = parseFloat(item.taxableValue) || 0;
-                     const taxAmt = parseFloat(item.taxAmount) || 0;
-                     return (
-                         <tr id={`section-hsn-row-${idx}`} key={idx} style={{ height: "26px" }}>
-                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{item.hsn || "-"}</td>
-                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxable)}</td>
-                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
-                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
-                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
-                           <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
-                           <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(taxAmt)}</td>
-                        </tr>
-                      );
-                    })}
-                    <tr id="section-hsn-total" style={{ height: "26px" }}>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to right, transparent 1px, #f0f0f0 1px)" }}>Total</td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.subtotal)}</td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
-                      <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
-                      <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to left, transparent 1px, #f0f0f0 1px)" }}>{formatINR(totals.taxAmount)}</td>
                     </tr>
-                 </tbody>
-               </table>
-             </td>
-           </tr>
+                    <tr style={{ height: "28px" }}>
+                      <td style={{ width: "12%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Rate</td>
+                      <td style={{ width: "12%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Amount</td>
+                      <td style={{ width: "14%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Rate</td>
+                      <td style={{ width: "14%", borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>Amount</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                     {validItems.map((item, idx) => {
+                       const gst = parseFloat(item.gstPercentage) || 0;
+                       const halfGst = gst / 2;
+                       const taxable = (parseFloat(item.taxableValue) || 0) * discRatio;
+                       const taxAmt = (taxable * gst) / 100;
+                       return (
+                          <tr id={`section-hsn-row-${idx}`} key={idx} style={{ height: "26px" }}>
+                            <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{item.hsn || "-"}</td>
+                            <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxable)}</td>
+                            <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
+                            <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
+                            <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{halfGst.toFixed(1)}%</td>
+                            <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5" }}>{formatINR(taxAmt / 2)}</td>
+                            <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold" }}>{formatINR(taxAmt)}</td>
+                         </tr>
+                       );
+                     })}
+                     <tr id="section-hsn-total" style={{ height: "26px" }}>
+                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to right, transparent 1px, #f0f0f0 1px)" }}>Total</td>
+                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.subtotal)}</td>
+                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
+                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
+                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "center", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", background: "#f0f0f0" }}></td>
+                       <td style={{ borderRight: S.border, borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "#f0f0f0" }}>{formatINR(totals.taxAmount / 2)}</td>
+                       <td style={{ borderBottom: S.border, textAlign: "right", fontSize: "10px", padding: "5px 6px", lineHeight: "1.5", fontWeight: "bold", background: "linear-gradient(to left, transparent 1px, #f0f0f0 1px)" }}>{formatINR(totals.taxAmount)}</td>
+                     </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
 
-           {/* TAX AMOUNT WORDS */}
+            {/* TAX AMOUNT WORDS */}
           <tr id="section-hsn-words">
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: "5px 10px" }}>
               <span style={{ fontSize: "10px", fontWeight: "bold" }}>Tax Amount (in words): </span>
@@ -399,7 +469,7 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
           </>
           )}
 
-          {/* BOTTOM SECTION: Bank | Declaration | Signature */}
+          {/* BOTTOM SECTION: Bank + UPI QR | Declaration | Signature */}
           <tr id="section-footer">
             <td colSpan={2} style={{ borderLeft: S.border, borderRight: S.border, borderBottom: S.border, padding: 0 }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -409,19 +479,36 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
                       <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "8px", marginBottom: "6px" }}>
                         Company's Bank Details
                       </div>
-                      <div style={{ fontSize: "10px", lineHeight: "1.5" }}>Bank Name: {business?.bankName || "-"}</div>
-                      <div style={{ fontSize: "10px", lineHeight: "1.5" }}>A/c No: {business?.accountNo || "-"}</div>
-                      <div style={{ fontSize: "10px", lineHeight: "1.5" }}>Branch: {business?.branch || "-"}</div>
-                      <div style={{ fontSize: "10px", lineHeight: "1.5" }}>IFSC: {business?.ifsc || "-"}</div>
-                      <div style={{ fontSize: "10px", lineHeight: "1.5" }}>Address: {business?.bankAddress || "-"}</div>
+                      <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: "10px", lineHeight: "1.5" }}>Bank Name: {business?.bankName || "-"}</div>
+                          <div style={{ fontSize: "10px", lineHeight: "1.5" }}>A/c No: {business?.accountNo || "-"}</div>
+                          <div style={{ fontSize: "10px", lineHeight: "1.5" }}>Branch: {business?.branch || "-"}</div>
+                          <div style={{ fontSize: "10px", lineHeight: "1.5" }}>IFSC: {business?.ifsc || "-"}</div>
+                          <div style={{ fontSize: "10px", lineHeight: "1.5" }}>Address: {business?.bankAddress || "-"}</div>
+                        </div>
+                        {business?.upiId && (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                            <QRCodeSVG value={`upi://pay?pa=${business.upiId}&pn=${encodeURIComponent(business.businessName || "")}&am=${(totals.grandTotal - discAmt).toFixed(2)}&tr=${encodeURIComponent(displayInvNo)}&tn=${encodeURIComponent(displayInvNo)}&cu=INR`} size={74} />
+                            <div style={{ fontSize: "9px", marginTop: "2px", color: "#555" }}>Scan to Pay</div>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td style={{ width: "33%", borderRight: S.border, padding: "8px 8px 24px 8px", verticalAlign: "top" }}>
                       <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "8px", marginBottom: "6px" }}>
                         Declaration
                       </div>
                       <div style={{ fontSize: "10px", lineHeight: "1.4" }}>
-                        We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
+                        {isProforma
+                          ? "We declare that this Proforma Invoice is issued for quotation purposes only. It is not a demand for payment and not valid for GST input tax credit claims."
+                          : "We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct."}
                       </div>
+                      {isProforma && (
+                        <div style={{ fontSize: "9px", marginTop: "8px", fontStyle: "italic", color: "#666" }}>
+                          This is a Proforma Invoice — not a demand for payment and not valid for GST input tax credit claims.
+                        </div>
+                      )}
                     </td>
                       <td style={{ width: "30%", padding: "8px 8px 24px 8px", verticalAlign: "top" }}>
                         <div style={{ fontSize: "11px", fontWeight: "bold", borderBottom: S.border, paddingBottom: "8px", marginBottom: "6px" }}>
@@ -446,7 +533,7 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
                   <tr>
                     <td style={{ textAlign: "center", padding: 0 }}>
                       <div style={{ fontSize: "10px", fontWeight: "bold" }}>SUBJECT TO BENGALURU JURISDICTION</div>
-                      <div style={{ fontSize: "10px", marginTop: "1px" }}>This is a Computer Generated Invoice</div>
+                      <div style={{ fontSize: "10px", marginTop: "1px" }}>{isProforma ? "This is a Computer Generated Proforma Invoice" : "This is a Computer Generated Invoice"}</div>
                     </td>
                   </tr>
                   <tr>
@@ -589,6 +676,9 @@ export async function downloadInvoicePDF(element, filename) {
       isFirstPage = false;
     }
 
+    if (filename === null) {
+      return pdf.output("bloburl");
+    }
     pdf.save(filename);
   } catch (err) {
     console.error("PDF generation error:", err);

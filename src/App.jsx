@@ -22,7 +22,10 @@ import InvoiceView from "./pages/InvoiceView";
 import InvoicesList from "./pages/InvoicesList";
 import AddCustomer from "./pages/AddCustomer";
 import AddProduct from "./pages/AddProduct";
+import ProductsList from "./pages/ProductsList";
+import AdminProductsList from "./pages/AdminProductsList";
 import InvoiceTemplates from "./pages/InvoiceTemplates";
+import PaymentsList from "./pages/PaymentsList";
 import Profile from "./pages/Profile";
 import AdminAddUsers from "./pages/AdminAddUsers";
 import AdminUsersList from "./pages/AdminUsersList";
@@ -31,6 +34,7 @@ import AdminInvoiceView from "./pages/AdminInvoiceView";
 import AdminBusinessesList from "./pages/AdminBusinessesList";
 import AdminCustomersList from "./pages/AdminCustomersList";
 import AdminInvoicesList from "./pages/AdminInvoicesList";
+import CustomersList from "./pages/CustomersList";
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -62,13 +66,18 @@ function AppRoutes() {
       <Route path="/invoice/:id" element={<PrivateRoute><InvoiceView /></PrivateRoute>} />
       <Route path="/invoices" element={<PrivateRoute><InvoicesList /></PrivateRoute>} />
       <Route path="/customers/new" element={<PrivateRoute><AddCustomer /></PrivateRoute>} />
+      <Route path="/customers" element={<PrivateRoute><CustomersList /></PrivateRoute>} />
       <Route path="/products/new" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
+      <Route path="/products" element={<PrivateRoute><ProductsList /></PrivateRoute>} />
       <Route path="/invoice-templates" element={<PrivateRoute><InvoiceTemplates /></PrivateRoute>} />
+      <Route path="/payments" element={<PrivateRoute><PaymentsList /></PrivateRoute>} />
       <Route path="/settings" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      <Route path="/profile" element={<Navigate to="/settings" replace />} />
       <Route path="/admin/users" element={<PrivateRoute><AdminAddUsers /></PrivateRoute>} />
       <Route path="/admin/users-list" element={<PrivateRoute><AdminUsersList /></PrivateRoute>} />
       <Route path="/admin/businesses" element={<PrivateRoute><AdminBusinessesList /></PrivateRoute>} />
       <Route path="/admin/customers" element={<PrivateRoute><AdminCustomersList /></PrivateRoute>} />
+      <Route path="/admin/products" element={<PrivateRoute><AdminProductsList /></PrivateRoute>} />
       <Route path="/admin/invoices" element={<PrivateRoute><AdminInvoicesList /></PrivateRoute>} />
       <Route path="/admin/businesses/:businessId/invoices" element={<PrivateRoute><BusinessInvoices /></PrivateRoute>} />
       <Route path="/admin/invoices/:id" element={<PrivateRoute><AdminInvoiceView /></PrivateRoute>} />
