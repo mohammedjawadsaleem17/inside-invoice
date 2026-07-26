@@ -24,8 +24,8 @@ import axios from "axios";
      setSubmitting(true);
      setError("");
 
-     try {
-       await axios.post("/contact", {
+      try {
+        await axios.post("https://inside-invoice-backend.onrender.com/contact", {
          name: form.name,
          email: form.email,
          phone: form.phone,

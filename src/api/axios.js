@@ -3,7 +3,7 @@ import axios from "axios";
 const TOKEN_KEY = "ii_token";
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://inside-invoice-backend.onrender.com/api',
   headers: {
     "Content-Type": "application/json",
   },
