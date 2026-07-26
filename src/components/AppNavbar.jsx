@@ -6,6 +6,7 @@ import {
   UserCircle, LayoutDashboard, Shield, Package, FileText, Settings,
   ChevronDown, Menu, X
 } from "lucide-react";
+import insideInvoiceLogo from "../assets/inside-invoice-logo.svg";
 
 const sections = (isAdmin) => [
   {
@@ -61,7 +62,7 @@ export default function AppNavbar() {
       <div className="flex items-center justify-between max-w-full">
         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
           <button onClick={() => handleNav("/dashboard")} className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
-            <img src="/src/assets/inside-invoice-logo.svg" alt="Inside Invoice" className="w-7 h-7 sm:w-8 sm:h-8" />
+            <img src={insideInvoiceLogo} alt="Inside Invoice" className="w-7 h-7 sm:w-8 sm:h-8" />
             <span className="font-semibold text-slate-800 text-sm sm:text-base truncate">Inside Invoice</span>
           </button>
           <div className="items-center gap-1 hidden md:flex ml-2">
