@@ -159,17 +159,17 @@ export default function Dashboard() {
           {/* Quick Actions - 2x2 grid on mobile, 4-col on desktop */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {[
-              { label: "New Invoice", icon: PlusCircle, path: "/invoice", color: "bg-blue-500", gradient: "from-blue-500 to-blue-600" },
-              { label: "View Invoices", icon: List, path: "/invoices", color: "bg-indigo-500", gradient: "from-indigo-500 to-indigo-600" },
-              { label: "Add Customer", icon: Users, path: "/customers/new", color: "bg-emerald-500", gradient: "from-emerald-500 to-emerald-600" },
-              { label: "Add Product", icon: Package, path: "/products/new", color: "bg-purple-500", gradient: "from-purple-500 to-purple-600" },
+              { label: "New Invoice", icon: PlusCircle, path: "/invoice", iconBg: "bg-blue-50", iconColor: "text-blue-600", border: "border-blue-100 hover:border-blue-200" },
+              { label: "View Invoices", icon: List, path: "/invoices", iconBg: "bg-indigo-50", iconColor: "text-indigo-600", border: "border-indigo-100 hover:border-indigo-200" },
+              { label: "Add Customer", icon: Users, path: "/customers/new", iconBg: "bg-emerald-50", iconColor: "text-emerald-600", border: "border-emerald-100 hover:border-emerald-200" },
+              { label: "Add Product", icon: Package, path: "/products/new", iconBg: "bg-violet-50", iconColor: "text-violet-600", border: "border-violet-100 hover:border-violet-200" },
             ].map((card) => (
               <div key={card.label} onClick={() => navigate(card.path)}
-                className={`bg-gradient-to-br ${card.gradient} rounded-xl p-3 sm:p-4 cursor-pointer active:scale-[0.97] transition-transform shadow-sm`}>
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/20 flex items-center justify-center mb-2">
-                  <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                className={`bg-white rounded-xl p-3 sm:p-4 cursor-pointer active:scale-[0.97] transition-all shadow-sm border ${card.border} hover:shadow-md`}>
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${card.iconBg} flex items-center justify-center mb-2.5`}>
+                  <card.icon className={`w-4.5 h-4.5 sm:w-5 sm:h-5 ${card.iconColor}`} />
                 </div>
-                <div className="text-xs sm:text-sm font-semibold text-white">{card.label}</div>
+                <div className="text-xs sm:text-sm font-semibold text-slate-800">{card.label}</div>
               </div>
             ))}
           </div>
