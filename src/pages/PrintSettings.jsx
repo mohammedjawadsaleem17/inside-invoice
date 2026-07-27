@@ -148,7 +148,7 @@ export default function PrintSettings({ noWrapper }) {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
       <PageHeader title="Print Settings" />
-      <div className="m-[5px] pb-20 md:pb-6 grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="max-w-[1900px] mx-auto m-[5px] pb-20 md:pb-6 grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div className="p-4 sm:p-5">{docSettings}</div>
         <div className="p-4 sm:p-5">
           <PrinterSetup noWrapper />

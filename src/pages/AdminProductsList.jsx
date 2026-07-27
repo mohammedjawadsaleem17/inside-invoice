@@ -30,7 +30,7 @@ export default function AdminProductsList() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
         <AppNavbar />
-        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-20 md:pb-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-20 md:pb-6 max-w-[1900px] mx-auto">
           <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 mb-4" />
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden p-6 space-y-4">
             {[1,2,3].map(i => <div key={i} className="h-4 bg-slate-100 rounded animate-pulse w-full" />)}
@@ -43,7 +43,7 @@ export default function AdminProductsList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-20 md:pb-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-20 md:pb-6 max-w-[1900px] mx-auto">
         <PageHeader title="All Products" />
         <p className="text-xs text-slate-500 -mt-4 mb-6">All products across all businesses</p>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

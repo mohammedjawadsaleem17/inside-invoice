@@ -181,7 +181,7 @@ export default function AdminInvoiceView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
+      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="Invoice Details" backTo={-1} />
 
         {/* Hidden Invoice PDF for capture */}

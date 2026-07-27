@@ -146,7 +146,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50">
       <AppNavbar />
 
-      <div className="px-2 sm:px-4 lg:px-6 pb-20 md:pb-6">
+      <div className="px-3 sm:px-4 lg:px-6 pb-20 md:pb-6 max-w-[1900px] mx-auto">
         <main className="py-2 sm:py-3">
           {/* Welcome */}
           <div className="mb-4 sm:mb-6">
@@ -156,8 +156,8 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Quick Actions - 2x2 grid */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          {/* Quick Actions - 2x2 grid on mobile, 4-col on desktop */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {[
               { label: "New Invoice", icon: PlusCircle, path: "/invoice", color: "bg-blue-500", gradient: "from-blue-500 to-blue-600" },
               { label: "View Invoices", icon: List, path: "/invoices", color: "bg-indigo-500", gradient: "from-indigo-500 to-indigo-600" },
@@ -175,7 +175,7 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Row - 2-col grid on mobile, 4-col on desktop */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {[
               { label: "Revenue", value: `₹ ${invoiceAnalytics.totalRevenue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`, icon: DollarSign, color: "bg-emerald-500", gradient: "from-emerald-500 to-emerald-600" },
               { label: "Invoices", value: invoiceAnalytics.invoiceCount, icon: FileText, color: "bg-blue-500", gradient: "from-blue-500 to-blue-600" },

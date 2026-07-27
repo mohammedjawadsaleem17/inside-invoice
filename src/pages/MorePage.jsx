@@ -18,7 +18,7 @@ export default function MorePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <AppNavbar />
-      <div className="px-3 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
+      <div className="px-3 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 max-w-[1900px] mx-auto">
         <h1 className="text-xl font-bold text-slate-900 mb-4">Menu</h1>
 
         {/* Quick Actions */}

@@ -1,6 +1,7 @@
 import { Toaster } from "react-hot-toast";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import GSTBillingLanding from "./Landing/gst-landing-final";
 import PrivacyPolicy from "./Landing/PrivacyPolicy";
 import TermsandConditions from "./Landing/TermsandConditions";
@@ -40,7 +41,7 @@ import MorePage from "./pages/MorePage";
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-700 border-t-transparent rounded-full animate-spin"></div></div>;
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? <div className="lg:ml-60">{children}</div> : <Navigate to="/login" />;
 }
 
 function AppRoutes() {
@@ -91,6 +92,7 @@ function App() {
   return (
     <AuthProvider>
       <AppRoutes />
+      <PWAInstallPrompt />
       <Toaster position="top-right" toastOptions={{ duration: 4000, style: { fontSize: '14px' } }} />
     </AuthProvider>
   );

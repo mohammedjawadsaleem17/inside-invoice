@@ -285,7 +285,6 @@ export default function InvoiceView() {
 
   const viewPDF = async () => {
     try {
-      await new Promise((r) => setTimeout(r, 100));
       const { jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
@@ -315,7 +314,6 @@ export default function InvoiceView() {
 
   const printPDF = async () => {
     try {
-      await new Promise((r) => setTimeout(r, 100));
       const { jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
@@ -335,11 +333,30 @@ export default function InvoiceView() {
         pageStartPx += sliceH; isFirstPage = false;
       }
       const blob = pdf.output("blob");
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url);
-      if (w) w.print();
+      const filename = `Invoice_${form.invoiceNumber || "draft"}.pdf`;
+      const isStandalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (isIOS && isStandalone) {
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl; a.download = filename; a.click();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+        toast.success("PDF downloaded — open it from Files to print");
+      } else {
+        const url = URL.createObjectURL(blob);
+        const w = window.open(url);
+        if (w) {
+          w.onload = () => { w.print(); };
+        } else {
+          const a = document.createElement("a");
+          a.href = url; a.download = filename; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+          toast.success("PDF downloaded — open it to print");
+        }
+      }
     } catch (err) {
-      toast.error("Failed to print");
+      console.error("Print error:", err);
+      toast.error("Failed to print — try Download PDF instead");
     }
   };
 
@@ -401,7 +418,7 @@ export default function InvoiceView() {
           template={selectedTemplate}
         />
       </div>
-      <div className="max-w-[1800px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
+      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <div className="flex items-center justify-between mb-6">
           <PageHeader title="View Invoice" backTo="/invoices" />
           <div className="flex items-center gap-2">
@@ -423,8 +440,8 @@ export default function InvoiceView() {
                   <h2 className="text-sm font-bold text-slate-800">Seller</h2>
                 </div>
                   {business ? (
-                    <div className="flex gap-6">
-                      <div className="flex-1">
+                    <div>
+                      <div>
                         <p className="text-sm font-semibold text-slate-800">{business.businessName}</p>
                         <InfoRow label="GSTIN" value={business.gstIn} />
                         <InfoRow label="Phone" value={business.phone} />
@@ -432,13 +449,13 @@ export default function InvoiceView() {
                         {business.addressLine1 && <p className="text-xs text-slate-500 mt-1">{business.addressLine1}{business.city ? `, ${business.city}` : ""}{business.state ? `, ${business.state}` : ""}{business.pincode ? ` - ${business.pincode}` : ""}</p>}
                       </div>
                       {business.upiId && (
-                        <div className="flex-shrink-0 flex flex-col items-center justify-center border-l border-slate-100 pl-6">
+                        <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col items-center sm:items-start">
                           <div className="flex items-center gap-2 mb-2">
                             <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
                             <span className="text-xs font-medium text-emerald-700">Pay via UPI</span>
                           </div>
-                          <div className="bg-white p-1 rounded-lg border border-slate-200 inline-flex">
-                            <QRCodeSVG value={`upi://pay?pa=${business.upiId}&pn=${encodeURIComponent(business.businessName || "")}&am=${totals.grandTotal.toFixed(2)}&tr=${encodeURIComponent(form.invoiceNumber)}&tn=${encodeURIComponent(form.invoiceNumber)}&cu=INR`} size={70} />
+                          <div className="bg-white p-1.5 rounded-lg border border-slate-200 inline-flex overflow-hidden min-w-0">
+                            <QRCodeSVG value={`upi://pay?pa=${business.upiId}&pn=${encodeURIComponent(business.businessName || "")}&am=${totals.grandTotal.toFixed(2)}&tr=${encodeURIComponent(form.invoiceNumber)}&tn=${encodeURIComponent(form.invoiceNumber)}&cu=INR`} size={70} className="max-w-full h-auto" />
                           </div>
                         </div>
                       )}
@@ -625,20 +642,32 @@ export default function InvoiceView() {
               </div>
 
               {/* Desktop table */}
-              <div className="hidden md:block overflow-x-auto border border-slate-200 rounded-lg">
-                <table className="w-full text-sm border-collapse min-w-[700px]">
+              <div className="hidden md:block border border-slate-200 rounded-lg">
+                <table className="w-full text-sm border-collapse" style={{ tableLayout: "fixed" }}>
+                  <colgroup>
+                    <col style={{ width: "4%" }} />
+                    <col style={{ width: "26%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "10%" }} />
+                    {isEditing && <col style={{ width: "2%" }} />}
+                  </colgroup>
                   <thead>
                     <tr className="bg-slate-800">
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-10">#</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left w-72">Description</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-40">HSN/SAC</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-28">Qty</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-36">Rate</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-28">GST %</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-36">Taxable</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-28">Tax</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-36">Total</th>
-                      {isEditing && <th className="text-white w-12"></th>}
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">#</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left">Description</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">HSN/SAC</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Qty</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Rate</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">GST %</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Taxable</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Tax</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Total</th>
+                      {isEditing && <th className="text-white"></th>}
                     </tr>
                   </thead>
                   <tbody>

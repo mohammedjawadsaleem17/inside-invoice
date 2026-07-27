@@ -223,7 +223,7 @@ export default function PrinterSetup({ noWrapper }) {
   return noWrapper ? content : (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
+      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
           {content}
         </div>

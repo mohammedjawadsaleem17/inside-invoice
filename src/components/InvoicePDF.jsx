@@ -488,8 +488,8 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
                           <div style={{ fontSize: "10px", lineHeight: "1.5" }}>Address: {business?.bankAddress || "-"}</div>
                         </div>
                         {business?.upiId && (
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                            <QRCodeSVG value={`upi://pay?pa=${business.upiId}&pn=${encodeURIComponent(business.businessName || "")}&am=${(totals.grandTotal - discAmt).toFixed(2)}&tr=${encodeURIComponent(displayInvNo)}&tn=${encodeURIComponent(displayInvNo)}&cu=INR`} size={74} />
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, maxWidth: "90px" }}>
+                            <QRCodeSVG value={`upi://pay?pa=${business.upiId}&pn=${encodeURIComponent(business.businessName || "")}&am=${(totals.grandTotal - discAmt).toFixed(2)}&tr=${encodeURIComponent(displayInvNo)}&tn=${encodeURIComponent(displayInvNo)}&cu=INR`} size={74} style={{ width: "100%", height: "auto", maxWidth: "74px" }} />
                             <div style={{ fontSize: "9px", marginTop: "2px", color: "#555" }}>Scan to Pay</div>
                           </div>
                         )}

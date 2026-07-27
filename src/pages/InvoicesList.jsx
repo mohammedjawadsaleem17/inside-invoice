@@ -253,7 +253,7 @@ export default function InvoicesList() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
         <AppNavbar />
-        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-[1900px] mx-auto">
           <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 mb-4" />
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-6 space-y-4">
@@ -276,7 +276,7 @@ export default function InvoicesList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 max-w-[1900px] mx-auto">
         <PageHeader title="View Invoices" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-end">

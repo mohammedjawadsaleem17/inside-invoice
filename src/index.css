@@ -34,3 +34,8 @@ body {
   min-height: 100dvh;
   background-color: #f8fafc;
 }
+
+/* iOS Safari: prevent auto-zoom on input focus (requires font-size >= 16px) */
+input, textarea, select {
+  font-size: 16px !important;
+}

@@ -543,7 +543,6 @@ export default function InvoiceForm() {
     recalcAll();
     setSaving(true);
     try {
-      await new Promise((r) => setTimeout(r, 100));
       const { jsPDF } = await import("jspdf");
       const html2canvas = (await import("html2canvas")).default;
       const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
@@ -563,11 +562,30 @@ export default function InvoiceForm() {
         pageStartPx += sliceH; isFirstPage = false;
       }
       const blob = pdf.output("blob");
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url);
-      if (w) w.print();
+      const filename = `Invoice_draft.pdf`;
+      const isStandalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (isIOS && isStandalone) {
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl; a.download = filename; a.click();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+        toast.success("PDF downloaded — open it from Files to print");
+      } else {
+        const url = URL.createObjectURL(blob);
+        const w = window.open(url);
+        if (w) {
+          w.onload = () => { w.print(); };
+        } else {
+          const a = document.createElement("a");
+          a.href = url; a.download = filename; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+          toast.success("PDF downloaded — open it to print");
+        }
+      }
     } catch (err) {
-      toast.error("Failed to print");
+      console.error("Print error:", err);
+      toast.error("Failed to print — try Download PDF instead");
     } finally {
       setSaving(false);
     }
@@ -600,7 +618,7 @@ export default function InvoiceForm() {
           template={(getPrintSettings()[form.invoiceType] || {}).template}
         />
       </div>
-      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 max-w-full overflow-x-hidden">
+      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 overflow-x-hidden">
         <PageHeader title="Create Invoice" />
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
           <div className="xl:col-span-4 space-y-6">
@@ -866,20 +884,32 @@ export default function InvoiceForm() {
               </div>
 
               {/* Desktop table */}
-              <div className="hidden md:block overflow-x-auto border border-slate-200 rounded-lg">
-                <table className="w-full text-sm border-collapse min-w-[700px]">
+              <div className="hidden md:block border border-slate-200 rounded-lg">
+                <table className="w-full text-sm border-collapse" style={{ tableLayout: "fixed" }}>
+                  <colgroup>
+                    <col style={{ width: "3%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "21%" }} />
+                    <col style={{ width: "7%" }} />
+                    <col style={{ width: "9%" }} />
+                    <col style={{ width: "9%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "9%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "8%" }} />
+                  </colgroup>
                   <thead>
                     <tr className="bg-slate-800">
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[3%]">#</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[13%]">HSN/SAC</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left w-[27%]">Description</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">Qty</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[10%]">Rate</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">GST %</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[11%]">Taxable</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[8%]">Tax</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[10%]">Total</th>
-                      <th className="text-white w-[2%]"></th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">#</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left">HSN/SAC</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left">Description</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Qty</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Rate</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">GST %</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Taxable</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Tax</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Total</th>
+                      <th className="text-white"></th>
                     </tr>
                   </thead>
                   <tbody>
