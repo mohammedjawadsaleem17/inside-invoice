@@ -155,7 +155,8 @@ export default function AppNavbar() {
       </aside>
 
       {/* ===== MOBILE TOP NAV ===== */}
-      <nav className="lg:hidden bg-white border-b border-slate-200 px-3 sm:px-4 py-2 sm:py-3 relative z-[99]">
+      <nav className="lg:hidden bg-white border-b border-slate-200 px-3 sm:px-4 py-2 sm:py-3 relative z-[99]"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
         <div className="flex items-center justify-between max-w-full">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <button onClick={() => handleNav("/dashboard")} className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
