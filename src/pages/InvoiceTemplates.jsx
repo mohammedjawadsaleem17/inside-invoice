@@ -103,7 +103,7 @@ function TemplateCard({ template, isSelected, onSelect, onPreview }) {
         isSelected ? "border-indigo-500 ring-2 ring-indigo-200" : "border-slate-200 hover:border-slate-300 hover:shadow-md"
       }`}
     >
-      <div className="px-4 pt-4 pb-0 flex-1 flex flex-col min-h-0">
+      <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-0 flex-1 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-slate-800">{template.label}</h3>
           {isSelected && (
@@ -131,7 +131,7 @@ function TemplateCard({ template, isSelected, onSelect, onPreview }) {
           </div>
         </div>
       </div>
-      <div className="px-4 py-3 border-t border-slate-100 mt-3 flex items-center gap-2 justify-between">
+      <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-slate-100 mt-3 flex items-center gap-2 justify-between">
         <button
           onClick={() => onPreview(template.id)}
           className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors"
@@ -175,11 +175,11 @@ export default function InvoiceTemplates() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-6 pb-20 md:pb-6">
         <PageHeader title="Invoice Templates" />
         <p className="text-xs text-slate-500 -mt-4 mb-6">Choose a template style for your invoices</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {ALL_TEMPLATES.map((t) => (
             <TemplateCard
               key={t.id}
@@ -201,7 +201,7 @@ export default function InvoiceTemplates() {
           <div className="relative w-full sm:w-auto mx-0 sm:mx-4" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setPreviewId(null)}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white rounded-full shadow-md border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors hidden sm:flex"
+              className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white rounded-full shadow-md border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

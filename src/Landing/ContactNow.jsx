@@ -25,7 +25,7 @@ import axios from "axios";
      setError("");
 
       try {
-        await axios.post("https://inside-invoice-backend.onrender.com/contact", {
+        await axios.post("/contact", {
          name: form.name,
          email: form.email,
          phone: form.phone,
@@ -44,79 +44,70 @@ import axios from "axios";
      window.scrollTo(0, 0);
    }, []);
 
-   return (
-     <>
+    return (
+      <>
        <InvoiceNav
          scrolled={true}
          isMenuOpen={isMenuOpen}
          setIsMenuOpen={setIsMenuOpen}
        />
-       <div className="fixed top-0 left-0 w-full h-20 bg-white/90 backdrop-blur-md z-40 border-b border-gray-100"></div>
-       <div className="max-w-3xl mx-auto px-4 py-12 mt-20">
-         <h1 className="text-3xl font-bold mb-2">Contact Inside Invoice</h1>
-         <p className="text-slate-500 mb-8">
-           Have a question or need help? Our team is always happy to assist you.
-         </p>
+       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 pt-20">
+         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+           <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-900" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Contact Inside Invoice</h1>
+           <p className="text-slate-500 mb-6 sm:mb-8 text-sm sm:text-base">
+             Have a question or need help? Our team is always happy to assist you.
+           </p>
 
-          {submitted && (
-            <div className="mb-6 p-6 bg-green-50 border border-green-200 rounded-lg">
-              <h3 className="font-semibold text-green-800 mb-1">
-                Thank you for contacting Inside Invoice
-              </h3>
-              <p className="text-sm text-green-700">
-                We've received your message and one of our team members will
-                surely get back to you shortly.
-              </p>
-            </div>
-          )}
+           {submitted && (
+             <div className="mb-6 p-4 sm:p-6 bg-green-50 border border-green-200 rounded-xl">
+               <h3 className="font-semibold text-green-800 mb-1">
+                 Thank you for contacting Inside Invoice
+               </h3>
+               <p className="text-sm text-green-700">
+                 We've received your message and one of our team members will
+                 surely get back to you shortly.
+               </p>
+             </div>
+           )}
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-              {error}
-            </div>
-          )}
+           {error && (
+             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+               {error}
+             </div>
+           )}
 
-         <form
-           onSubmit={handleSubmit}
-           className="bg-white shadow-md rounded-xl p-6 space-y-4"
-         >
-           {/* Name */}
-           <div>
-             <label className="block text-sm font-medium mb-1 text-slate-700">
-               Full Name
-             </label>
-             <input
-               type="text"
-               name="name"
-               required
-               value={form.name}
-               onChange={handleChange}
-               placeholder="Enter your name"
-               className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800"
-             />
-           </div>
-
-           {/* Email */}
-           <div>
-             <label className="block text-sm font-medium mb-1 text-slate-700">
-               Email Address
-             </label>
-             <input
-               type="email"
-               name="email"
-               required
-               value={form.email}
-               onChange={handleChange}
-               placeholder="Enter your email"
-               className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800"
-             />
-           </div>
-
-            {/* Phone */}
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white shadow-sm rounded-xl p-4 sm:p-6 space-y-4 border border-slate-100"
+          >
             <div>
-              <label className="block text-sm font-medium mb-1 text-slate-700">
-                Phone Number
-              </label>
+              <label className="block text-sm font-medium mb-1.5 text-slate-700">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                required
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-slate-700">Email Address</label>
+              <input
+                type="email"
+                name="email"
+                required
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-slate-700">Phone Number</label>
               <input
                 type="tel"
                 name="phone"
@@ -124,39 +115,36 @@ import axios from "axios";
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="Enter your phone number"
-                className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
               />
             </div>
 
-           {/* Message */}
-           <div>
-             <label className="block text-sm font-medium mb-1 text-slate-700">
-               Message
-             </label>
-             <textarea
-               name="message"
-               required
-               value={form.message}
-               onChange={handleChange}
-               placeholder="Tell us how we can help you..."
-               rows="4"
-               className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800"
-             />
-           </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-slate-700">Message</label>
+              <textarea
+                name="message"
+                required
+                value={form.message}
+                onChange={handleChange}
+                placeholder="Tell us how we can help you..."
+                rows="4"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
+              />
+            </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-slate-900 text-white py-2 rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-slate-800 to-slate-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-slate-500/25 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 min-h-[48px] text-base"
             >
-              {submitting ? "Sending..." : "Contact Now"}
+              {submitting ? "Sending..." : "Send Message"}
             </button>
 
-            <p className="text-xs text-center text-slate-400 pt-2">
+            <p className="text-xs text-center text-slate-400 pt-1">
               Thank you for choosing Inside Invoice
             </p>
          </form>
+        </div>
        </div>
      </>
    );

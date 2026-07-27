@@ -80,7 +80,7 @@ export default function PaymentsList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="Payments" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex items-center gap-3">
@@ -101,50 +101,82 @@ export default function PaymentsList() {
               <p className="text-xs text-slate-400 mt-1">Payments appear when you record them against invoices</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoice</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mode</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Reference</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider"></th>
+          <>
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoice</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mode</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Reference</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((p, i) => (
+                  <tr key={p.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
+                    <td className="py-3 px-4 text-sm text-slate-600 whitespace-nowrap">{p.paymentDate}</td>
+                    <td className="py-3 px-4">
+                      <button onClick={() => navigate(`/invoice/${p.invoiceId}`)}
+                        className="font-mono text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline text-left">
+                        {p.invoiceNumber || `#${p.invoiceId}`}
+                      </button>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-slate-600">{p.customerName}</td>
+                    <td className="py-3 px-4">
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${MODE_COLORS[p.paymentMode] || "bg-slate-100 text-slate-600"}`}>
+                        {p.paymentMode}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-500 font-mono text-xs">{p.referenceNo || "-"}</td>
+                    <td className="py-3 px-4 text-right font-mono text-sm font-semibold text-emerald-600 whitespace-nowrap">
+                      Rs. {parseFloat(p.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button onClick={() => handleDelete(p.id)}
+                        className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-400 hover:text-red-500">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {payments.map((p, i) => (
-                    <tr key={p.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
-                      <td className="py-3 px-4 text-sm text-slate-600 whitespace-nowrap">{p.paymentDate}</td>
-                      <td className="py-3 px-4">
-                        <button onClick={() => navigate(`/invoice/${p.invoiceId}`)}
-                          className="font-mono text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline text-left">
-                          {p.invoiceNumber || `#${p.invoiceId}`}
-                        </button>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-slate-600">{p.customerName}</td>
-                      <td className="py-3 px-4">
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${MODE_COLORS[p.paymentMode] || "bg-slate-100 text-slate-600"}`}>
-                          {p.paymentMode}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-slate-500 font-mono text-xs">{p.referenceNo || "-"}</td>
-                      <td className="py-3 px-4 text-right font-mono text-sm font-semibold text-emerald-600 whitespace-nowrap">
-                        Rs. {parseFloat(p.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button onClick={() => handleDelete(p.id)}
-                          className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-400 hover:text-red-500">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {payments.map((p) => (
+              <div key={p.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-slate-500">{p.paymentDate}</span>
+                  <span className="font-mono text-sm font-semibold text-emerald-600">
+                    Rs. {parseFloat(p.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <button onClick={() => navigate(`/invoice/${p.invoiceId}`)}
+                    className="font-mono text-xs font-semibold text-indigo-600 hover:underline">
+                    {p.invoiceNumber || `#${p.invoiceId}`}
+                  </button>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${MODE_COLORS[p.paymentMode] || "bg-slate-100 text-slate-600"}`}>
+                    {p.paymentMode}
+                  </span>
+                </div>
+                <div className="text-sm text-slate-600 mb-2">{p.customerName}</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-mono">Ref: {p.referenceNo || "-"}</span>
+                  <button onClick={() => handleDelete(p.id)}
+                    className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-400 hover:text-red-500">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
           )}
         </div>
       </div>

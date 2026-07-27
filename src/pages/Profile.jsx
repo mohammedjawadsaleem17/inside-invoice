@@ -172,7 +172,7 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 py-6">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center gap-2 mb-5">
@@ -333,7 +333,7 @@ export default function Profile() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide uppercase">Phone</label>
-                <input type="text" name="phone" value={bizForm.phone} onChange={handleBizChange}
+                <input type="text" name="phone" value={bizForm.phone} onChange={handleBizChange} inputMode="numeric"
                   className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white transition-all" />
               </div>
               <div>

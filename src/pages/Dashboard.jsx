@@ -143,341 +143,302 @@ export default function Dashboard() {
   }, [invoices]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
+    <div className="min-h-screen bg-slate-50">
       <AppNavbar />
 
-      <div className="flex px-4 sm:px-6 lg:px-8">
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="mb-8">
-            <div>
-              <h1 className="text-2xl font-semibold text-slate-900">Welcome, {user?.name}</h1>
-              <p className="text-slate-500 text-sm mt-1">
-                {isAdmin ? "Overview of the entire platform" : "Manage your invoices, customers, and products"}
-              </p>
-            </div>
+      <div className="px-2 sm:px-4 lg:px-6 pb-20 md:pb-6">
+        <main className="py-2 sm:py-3">
+          {/* Welcome */}
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Welcome, {user?.name?.charAt(0).toUpperCase() + user?.name?.slice(1)}</h1>
+            <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
+              {isAdmin ? "Platform overview" : "Manage your invoices & customers"}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Quick Actions - 2x2 grid */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {[
-              { label: "New Invoice", icon: PlusCircle, path: "/invoice", color: "from-blue-500 to-blue-600", desc: "Create invoice" },
-              { label: "View Invoices", icon: List, path: "/invoices", color: "from-indigo-500 to-indigo-600", desc: "Browse all" },
-              { label: "Add Customer", icon: Users, path: "/customers/new", color: "from-emerald-500 to-emerald-600", desc: "New customer" },
-              { label: "Add Product", icon: Package, path: "/products/new", color: "from-purple-500 to-purple-600", desc: "New product" },
+              { label: "New Invoice", icon: PlusCircle, path: "/invoice", color: "bg-blue-500", gradient: "from-blue-500 to-blue-600" },
+              { label: "View Invoices", icon: List, path: "/invoices", color: "bg-indigo-500", gradient: "from-indigo-500 to-indigo-600" },
+              { label: "Add Customer", icon: Users, path: "/customers/new", color: "bg-emerald-500", gradient: "from-emerald-500 to-emerald-600" },
+              { label: "Add Product", icon: Package, path: "/products/new", color: "bg-purple-500", gradient: "from-purple-500 to-purple-600" },
             ].map((card) => (
               <div key={card.label} onClick={() => navigate(card.path)}
-                className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all cursor-pointer hover:shadow-md hover:-translate-y-0.5">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center mb-3 shadow-sm`}>
-                  <card.icon className="w-5 h-5 text-white" />
+                className={`bg-gradient-to-br ${card.gradient} rounded-xl p-3 sm:p-4 cursor-pointer active:scale-[0.97] transition-transform shadow-sm`}>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/20 flex items-center justify-center mb-2">
+                  <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <div className="text-sm font-semibold text-slate-800">{card.label}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">{card.desc}</div>
+                <div className="text-xs sm:text-sm font-semibold text-white">{card.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Revenue overview stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-                  <DollarSign className="w-5 h-5 text-white" />
+          {/* Stats Row - 2-col grid on mobile, 4-col on desktop */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            {[
+              { label: "Revenue", value: `₹ ${invoiceAnalytics.totalRevenue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`, icon: DollarSign, color: "bg-emerald-500", gradient: "from-emerald-500 to-emerald-600" },
+              { label: "Invoices", value: invoiceAnalytics.invoiceCount, icon: FileText, color: "bg-blue-500", gradient: "from-blue-500 to-blue-600" },
+              { label: "Customers", value: isAdmin ? (stats?.totalCustomers || 0) : customerCount, icon: Users, color: "bg-indigo-500", gradient: "from-indigo-500 to-indigo-600" },
+              { label: "This Month", value: `₹ ${(invoiceAnalytics.salesByMonth.length > 0 ? invoiceAnalytics.salesByMonth[invoiceAnalytics.salesByMonth.length - 1].sales : 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`, icon: Calendar, color: "bg-amber-500", gradient: "from-amber-500 to-amber-600" },
+            ].map((stat) => (
+              <div key={stat.label} className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${stat.gradient} flex items-center justify-center`}>
+                    <stat.icon className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{stat.label}</span>
                 </div>
-                <div>
-                  <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Total Revenue</div>
-                  <div className="text-lg font-bold text-slate-900">₹ {invoiceAnalytics.totalRevenue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
-                </div>
+                <div className="text-base sm:text-lg font-bold text-slate-900 truncate">{stat.value}</div>
               </div>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm">
-                  <FileText className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Total Invoices</div>
-                  <div className="text-lg font-bold text-slate-900">{invoiceAnalytics.invoiceCount}</div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-                  <Users className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Total Customers</div>
-                  <div className="text-lg font-bold text-slate-900">{isAdmin ? (stats?.totalCustomers || 0) : customerCount}</div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-sm">
-                  <Calendar className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">This Month</div>
-                  <div className="text-lg font-bold text-slate-900">₹ {(invoiceAnalytics.salesByMonth.length > 0 ? invoiceAnalytics.salesByMonth[invoiceAnalytics.salesByMonth.length - 1].sales : 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Sales charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-emerald-600" />
-                <h2 className="text-base font-semibold text-slate-900">Sales vs Months</h2>
+          {/* Charts */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Sales vs Months */}
+            <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                <h2 className="text-sm font-semibold text-slate-900">Sales Trend</h2>
               </div>
               {invoiceAnalytics.salesByMonth.length > 0 ? (
-                <div className="h-48 sm:h-56 lg:h-64">
+                <div className="h-44 sm:h-56">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={invoiceAnalytics.salesByMonth} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <LineChart data={invoiceAnalytics.salesByMonth} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                      <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
-                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} labelStyle={{ fontWeight: 600, color: '#1e293b' }} />
-                      <Line type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} dot={{ r: 4, fill: "#10b981" }} name="Sales (₹)" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }} />
+                      <Line type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} dot={{ r: 3, fill: "#10b981" }} name="Sales (₹)" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400 text-center py-12">No sales data yet</p>
+                <p className="text-xs text-slate-400 text-center py-10">No sales data yet</p>
               )}
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <BarChart3 className="w-5 h-5 text-indigo-600" />
-                <h2 className="text-base font-semibold text-slate-900">Last 7 Days Sales</h2>
+
+            {/* Last 7 Days */}
+            <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className="w-4 h-4 text-indigo-600" />
+                <h2 className="text-sm font-semibold text-slate-900">Last 7 Days</h2>
               </div>
               {invoiceAnalytics.last7Days.length > 0 ? (
-                <div className="h-48 sm:h-56 lg:h-64">
+                <div className="h-44 sm:h-56">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={invoiceAnalytics.last7Days} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <BarChart data={invoiceAnalytics.last7Days} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#64748b' }} />
-                      <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
-                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} labelStyle={{ fontWeight: 600, color: '#1e293b' }} cursor={{ fill: '#f8fafc' }} />
-                      <Bar dataKey="sales" fill="#6366f1" radius={[6, 6, 0, 0]} maxBarSize={50} name="Sales (₹)" />
+                      <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }} cursor={{ fill: '#f8fafc' }} />
+                      <Bar dataKey="sales" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} name="Sales (₹)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400 text-center py-12">No sales in last 7 days</p>
+                <p className="text-xs text-slate-400 text-center py-10">No sales in last 7 days</p>
               )}
             </div>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
-              <h2 className="text-base font-semibold text-slate-900">Monthly Revenue</h2>
-            </div>
-            {invoiceAnalytics.salesByMonth.length > 0 ? (
-              <div className="h-48 sm:h-56 lg:h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={invoiceAnalytics.salesByMonth} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                    <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} labelStyle={{ fontWeight: 600, color: '#1e293b' }} cursor={{ fill: '#f8fafc' }} />
-                    <Bar dataKey="revenue" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={50} name="Revenue (₹)" />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* Monthly Revenue */}
+            <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <DollarSign className="w-4 h-4 text-emerald-600" />
+                <h2 className="text-sm font-semibold text-slate-900">Monthly Revenue</h2>
               </div>
-            ) : (
-              <p className="text-sm text-slate-400 text-center py-12">No revenue data yet</p>
-            )}
-            {invoiceAnalytics.salesByMonth.length > 0 && (
-              <div className="mt-4 border-t border-slate-200 pt-4 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Month</th>
-                      <th className="text-right py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Sales</th>
-                      <th className="text-right py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Revenue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoiceAnalytics.salesByMonth.slice().reverse().map((row, i) => (
-                      <tr key={row.month} className={`border-b border-slate-50 ${i % 2 === 1 ? "bg-slate-50/50" : ""} transition-colors`}>
-                        <td className="py-1.5 text-xs font-medium text-slate-700">{row.month}</td>
-                        <td className="py-1.5 text-xs text-right text-slate-600 font-mono">₹ {row.sales.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-1.5 text-xs text-right text-emerald-600 font-semibold font-mono">₹ {row.revenue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+              {invoiceAnalytics.salesByMonth.length > 0 ? (
+                <div className="h-44 sm:h-56">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={invoiceAnalytics.salesByMonth} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }} cursor={{ fill: '#f8fafc' }} />
+                      <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} name="Revenue (₹)" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 text-center py-10">No revenue data yet</p>
+              )}
+              {invoiceAnalytics.salesByMonth.length > 0 && (
+                <div className="mt-3 border-t border-slate-100 pt-3 overflow-x-auto -mx-1 px-1">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100">
+                        <th className="text-left py-1.5 text-[10px] font-semibold text-slate-500 uppercase">Month</th>
+                        <th className="text-right py-1.5 text-[10px] font-semibold text-slate-500 uppercase">Sales</th>
+                        <th className="text-right py-1.5 text-[10px] font-semibold text-slate-500 uppercase">Revenue</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {invoiceAnalytics.salesByMonth.slice().reverse().map((row, i) => (
+                        <tr key={row.month} className={`border-b border-slate-50 ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
+                          <td className="py-1.5 font-medium text-slate-700">{row.month}</td>
+                          <td className="py-1.5 text-right text-slate-600 font-mono">₹ {row.sales.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                          <td className="py-1.5 text-right text-emerald-600 font-semibold font-mono">₹ {row.revenue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Admin sections */}
+            {isAdmin && (
+              <>
+                {/* Admin Stats Grid */}
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                  {[
+                    { label: "Users", count: stats?.totalUsers, color: "from-indigo-500 to-indigo-600", path: "/admin/users-list" },
+                    { label: "Businesses", count: stats?.totalBusinesses, color: "from-amber-500 to-amber-600", path: "/admin/businesses" },
+                    { label: "Invoices", count: stats?.totalInvoices, color: "from-blue-500 to-blue-600", path: "/admin/invoices" },
+                    { label: "Customers", count: stats?.totalCustomers, color: "from-emerald-500 to-emerald-600", path: "/admin/customers" },
+                    { label: "Active", count: users.length || 0, color: "from-teal-500 to-teal-600", path: "/admin/users-list" },
+                    { label: "Role", count: user?.role === "ADMIN" ? "Admin" : "Client", color: "from-purple-500 to-purple-600", path: "/settings" },
+                  ].map((card) => (
+                    <div key={card.label}
+                      onClick={() => card.path && navigate(card.path)}
+                      className="bg-white rounded-xl border border-slate-200 p-3 cursor-pointer active:scale-[0.97] transition-transform shadow-sm">
+                      <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center mb-2`}>
+                        <span className="text-[10px] font-bold text-white">{typeof card.count === "number" ? (card.count > 99 ? "99+" : card.count) : card.count?.[0]}</span>
+                      </div>
+                      <div className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                        {loadingStats ? <span className="inline-block w-8 h-5 bg-slate-200 rounded animate-pulse" /> : (card.count ?? 0)}
+                      </div>
+                      <div className="text-[10px] text-slate-500">{card.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Platform Chart */}
+                <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BarChart3 className="w-4 h-4 text-indigo-600" />
+                    <h2 className="text-sm font-semibold text-slate-900">Platform Overview</h2>
+                  </div>
+                  {chartData.length > 0 ? (
+                    <div className="h-44 sm:h-56">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                          <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} />
+                          <YAxis tick={{ fontSize: 10, fill: '#64748b' }} allowDecimals={false} />
+                          <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }} cursor={{ fill: '#f8fafc' }} />
+                          <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={50}>
+                            {chartData.map((entry, idx) => {
+                              const colors = ['#6366f1', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'];
+                              return <Cell key={idx} fill={colors[idx % colors.length]} />;
+                            })}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 text-center py-10">No data yet</p>
+                  )}
+                </div>
+
+                {/* User Signups & Invoices */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Users className="w-4 h-4 text-indigo-600" />
+                      <h2 className="text-sm font-semibold text-slate-900">User Signups</h2>
+                    </div>
+                    {analytics?.usersByMonth?.length > 0 ? (
+                      <div className="h-40 sm:h-48">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={analytics.usersByMonth} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                            <XAxis dataKey="month" tick={{ fontSize: 9, fill: '#64748b' }} />
+                            <YAxis tick={{ fontSize: 9, fill: '#64748b' }} allowDecimals={false} />
+                            <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }} />
+                            <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} name="Users" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-400 text-center py-8">No data yet</p>
+                    )}
+                  </div>
+                  <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <FileText className="w-4 h-4 text-slate-600" />
+                      <h2 className="text-sm font-semibold text-slate-900">Invoices</h2>
+                    </div>
+                    {analytics?.invoicesByMonth?.length > 0 ? (
+                      <div className="h-40 sm:h-48">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={analytics.invoicesByMonth} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                            <XAxis dataKey="month" tick={{ fontSize: 9, fill: '#64748b' }} />
+                            <YAxis tick={{ fontSize: 9, fill: '#64748b' }} allowDecimals={false} />
+                            <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }} />
+                            <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={40} name="Invoices" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-400 text-center py-8">No data yet</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Businesses - mobile cards */}
+                {businesses.length > 0 && (
+                  <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Building2 className="w-4 h-4 text-slate-600" />
+                      <h2 className="text-sm font-semibold text-slate-900">Businesses</h2>
+                      <span className="text-[10px] text-slate-400">({businesses.length})</span>
+                    </div>
+                    {/* Mobile cards */}
+                    <div className="sm:hidden space-y-3">
+                      {businesses.slice(0, 5).map((b) => (
+                        <div key={b.id} onClick={() => navigate(`/admin/businesses/${b.id}/invoices`)}
+                          className="bg-slate-50 rounded-lg p-3 active:bg-slate-100 transition-colors">
+                          <div className="text-xs font-semibold text-slate-800 mb-1">{b.businessName}</div>
+                          <div className="text-[10px] text-slate-500">{b.ownerName || "-"}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Desktop table */}
+                    <div className="hidden sm:block overflow-x-auto max-h-72">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-200">
+                            <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase">Business</th>
+                            <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase">Owner</th>
+                            <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase">Phone</th>
+                            <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase">GST</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {businesses.map((b, i) => (
+                            <tr key={b.id} className={`border-b border-slate-100 hover:bg-slate-50 ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
+                              <td className="py-2 px-3 font-medium">
+                                <button onClick={() => navigate(`/admin/businesses/${b.id}/invoices`)}
+                                  className="text-slate-800 hover:text-indigo-600 hover:underline">{b.businessName}</button>
+                              </td>
+                              <td className="py-2 px-3 text-slate-600">{b.ownerName || "-"}</td>
+                              <td className="py-2 px-3 text-slate-600">{b.phone || "-"}</td>
+                              <td className="py-2 px-3 text-slate-600 font-mono">{b.gstIn || "-"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
-
-          {isAdmin && (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-                {[
-                  { label: "Users", icon: Users, count: stats?.totalUsers, color: "from-indigo-500 to-indigo-600", path: "/admin/users-list" },
-                  { label: "Businesses", icon: Building2, count: stats?.totalBusinesses, color: "from-amber-500 to-amber-600", path: "/admin/businesses" },
-                  { label: "Invoices", icon: FileText, count: stats?.totalInvoices, color: "from-blue-500 to-blue-600", path: "/admin/invoices" },
-                  { label: "Customers", icon: UserCheck, count: stats?.totalCustomers, color: "from-emerald-500 to-emerald-600", path: "/admin/customers" },
-                  { label: "Active Users", icon: Users, count: users.length || 0, color: "from-teal-500 to-teal-600", path: "/admin/users-list" },
-                  { label: "Settings", icon: Settings, count: user?.role === "ADMIN" ? "Admin" : "Client", color: "from-purple-500 to-purple-600", path: "/settings" },
-                ].map((card) => (
-                  <div key={card.label}
-                    onClick={() => card.path && navigate(card.path)}
-                    className={`bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all ${card.path ? "cursor-pointer hover:shadow-md hover:-translate-y-0.5" : "hover:shadow-sm"}`}>
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center mb-3 shadow-sm`}>
-                      <card.icon className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="text-2xl font-bold text-slate-900">
-                      {loadingStats ? <span className="inline-block w-12 h-7 bg-slate-200 rounded animate-pulse" /> : (card.count ?? 0)}
-                    </div>
-                    <div className="text-sm text-slate-500">{card.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <BarChart3 className="w-5 h-5 text-indigo-600" />
-                  <h2 className="text-base font-semibold text-slate-900">Platform Overview</h2>
-                </div>
-                {chartData.length > 0 ? (
-                  <div className="h-48 sm:h-56 lg:h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} />
-                        <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
-                        <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} labelStyle={{ fontWeight: 600, color: '#1e293b' }} cursor={{ fill: '#f8fafc' }} />
-                        <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
-                          {chartData.map((entry, idx) => {
-                            const colors = ['#6366f1', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'];
-                            return <Cell key={idx} fill={colors[idx % colors.length]} />;
-                          })}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <p className="text-sm text-slate-400 text-center py-12">No data yet</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Users className="w-5 h-5 text-indigo-600" />
-                    <h2 className="text-base font-semibold text-slate-900">User Signups</h2>
-                    <span className="text-xs text-slate-400 ml-1">(monthly)</span>
-                  </div>
-                  {analytics?.usersByMonth?.length > 0 ? (
-                    <div className="h-48 sm:h-56">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={analytics.usersByMonth} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                          <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
-                          <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} labelStyle={{ fontWeight: 600, color: '#1e293b' }} />
-                          <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={50} name="Users" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-slate-400 text-center py-12">No data yet</p>
-                  )}
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <FileText className="w-5 h-5 text-slate-600" />
-                    <h2 className="text-base font-semibold text-slate-900">Invoices Generated</h2>
-                    <span className="text-xs text-slate-400 ml-1">(monthly)</span>
-                  </div>
-                  {analytics?.invoicesByMonth?.length > 0 ? (
-                    <div className="h-48 sm:h-56">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={analytics.invoicesByMonth} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                          <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                          <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
-                          <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} labelStyle={{ fontWeight: 600, color: '#1e293b' }} />
-                          <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={50} name="Invoices" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-slate-400 text-center py-12">No data yet</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Building2 className="w-5 h-5 text-slate-600" />
-                  <h2 className="text-base font-semibold text-slate-900">Registered Businesses</h2>
-                  <span className="text-xs text-slate-400 ml-1">({businesses.length} total)</span>
-                </div>
-                {businesses.length > 0 ? (
-                  <div className="overflow-x-auto max-h-72">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-slate-200">
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Business Name</th>
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Owner</th>
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Email</th>
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Phone</th>
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">GST</th>
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Website</th>
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Invoice Prefix</th>
-                          <th className="text-left py-2 px-3 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Address</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {businesses.map((b, i) => (
-                          <tr key={b.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
-                            <td className="py-2 px-3 text-xs font-medium whitespace-nowrap">
-                              <button onClick={() => navigate(`/admin/businesses/${b.id}/invoices`)}
-                                className="text-slate-800 hover:text-indigo-600 hover:underline transition-colors text-left">
-                                {b.businessName}
-                              </button>
-                            </td>
-                            <td className="py-2 px-3 text-xs whitespace-nowrap">
-                              <button onClick={() => navigate(`/admin/businesses/${b.id}/invoices`)}
-                                className="text-slate-600 hover:text-indigo-600 hover:underline transition-colors text-left">
-                                {b.ownerName || "-"}
-                              </button>
-                            </td>
-                            <td className="py-2 px-3 text-xs text-slate-600 whitespace-nowrap">{b.email || "-"}</td>
-                            <td className="py-2 px-3 text-xs text-slate-600 whitespace-nowrap">{b.phone || "-"}</td>
-                            <td className="py-2 px-3 text-xs text-slate-600 whitespace-nowrap">{b.gstIn || "-"}</td>
-                            <td className="py-2 px-3 text-xs text-slate-600 whitespace-nowrap">{b.website || "-"}</td>
-                            <td className="py-2 px-3 text-xs text-slate-600 whitespace-nowrap">{b.invoicePrefix || "-"}</td>
-                            <td className="py-2 px-3 text-xs text-slate-600">{[b.addressLine1, b.addressLine2, b.city, b.state, b.pincode].filter(Boolean).join(", ") || "-"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className="text-sm text-slate-400">No businesses registered yet</p>
-                )}
-              </div>
-            </>
-          )}
-
-          {!isAdmin && (
-            <></>
-          )}
         </main>
       </div>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
-        * { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-        input, select, textarea, button { font-family: inherit; }
-      `}</style>
     </div>
   );
 }

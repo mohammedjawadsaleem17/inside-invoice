@@ -181,7 +181,7 @@ export default function AdminInvoiceView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="Invoice Details" backTo={-1} />
 
         {/* Hidden Invoice PDF for capture */}
@@ -314,15 +314,15 @@ export default function AdminInvoiceView() {
                         </td>
                         <td className="py-2 px-2">
                           <input type="number" step="any" value={item.qty} onChange={(e) => handleItemChange(idx, "qty", e.target.value)}
-                            className="w-16 px-2 py-1 border border-slate-200 rounded text-xs text-right focus:outline-none focus:border-slate-400" />
+                            inputMode="decimal" className="w-16 px-2 py-1 border border-slate-200 rounded text-xs text-right focus:outline-none focus:border-slate-400" />
                         </td>
                         <td className="py-2 px-2">
                           <input type="number" step="any" value={item.rate} onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
-                            className="w-24 px-2 py-1 border border-slate-200 rounded text-xs text-right focus:outline-none focus:border-slate-400" />
+                            inputMode="decimal" className="w-24 px-2 py-1 border border-slate-200 rounded text-xs text-right focus:outline-none focus:border-slate-400" />
                         </td>
                         <td className="py-2 px-2">
                           <input type="number" step="any" value={item.gstPercentage} onChange={(e) => handleItemChange(idx, "gstPercentage", e.target.value)}
-                            className="w-16 px-2 py-1 border border-slate-200 rounded text-xs text-right focus:outline-none focus:border-slate-400" />
+                            inputMode="decimal" className="w-16 px-2 py-1 border border-slate-200 rounded text-xs text-right focus:outline-none focus:border-slate-400" />
                         </td>
                         <td className="py-2 px-2 text-xs text-slate-600 text-right">₹{Number(item.taxableValue).toLocaleString()}</td>
                         <td className="py-2 px-2 text-xs text-slate-600 text-right">₹{Number(item.taxAmount).toLocaleString()}</td>

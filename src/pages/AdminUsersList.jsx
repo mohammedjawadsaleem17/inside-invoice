@@ -90,7 +90,7 @@ export default function AdminUsersList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="User Management" />
         <p className="text-xs text-slate-500 -mt-4 mb-6">{users.length} total user{users.length !== 1 ? "s" : ""} on the platform</p>
 
@@ -101,74 +101,118 @@ export default function AdminUsersList() {
         ) : users.length === 0 ? (
           <div className="text-center py-16 text-sm text-slate-400">No users found</div>
         ) : (
-          <div className="overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
-            <table className="w-full text-sm min-w-[640px]">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">#</th>
-                  <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Name</th>
-                  <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Username</th>
-                  <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Email</th>
-                  <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Role</th>
-                  <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Password</th>
-                  <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u, idx) => (
-                  <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-6 text-xs text-slate-400">{idx + 1}</td>
-                    <td className="py-3 px-6 text-sm text-slate-800 font-medium">{u.name}</td>
-                    <td className="py-3 px-6 text-sm text-slate-500 font-mono">{u.username || '-'}</td>
-                    <td className="py-3 px-6 text-sm text-slate-600">{u.email}</td>
-                    <td className="py-3 px-6">
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${u.role === "ADMIN" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
-                        {u.role}
-                      </span>
-                    </td>
-                    <td className="py-3 px-6">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-mono text-slate-600">
-                          {visiblePasswords[u.id] ? (u.rawPassword || u.password) : "••••••••••••••••"}
-                        </span>
-                        <button onClick={() => setVisiblePasswords((prev) => ({ ...prev, [u.id]: !prev[u.id] }))}
-                          className="p-1.5 hover:bg-slate-200 rounded-lg transition-colors">
-                          {visiblePasswords[u.id] ? <EyeOff className="w-4 h-4 text-slate-500" /> : <Eye className="w-4 h-4 text-slate-400" />}
-                        </button>
-                      </div>
-                    </td>
-                    <td className="py-3 px-6">
-                      <div className="flex items-center gap-2">
-                        {u.email !== currentUser?.email && (
-                          <>
-                            <button onClick={() => handleToggleRole(u)}
-                              className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
-                              title={u.role === "ADMIN" ? "Revoke admin access" : "Grant admin access"}>
-                              {u.role === "ADMIN" ? <ToggleRight className="w-3.5 h-3.5 text-amber-500" /> : <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />}
-                              {u.role === "ADMIN" ? "Revoke" : "Promote"}
-                            </button>
-                            <button onClick={() => setPasswordModal({ open: true, user: u, password: "" })}
-                              className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
-                              title="Change password">
-                              <KeyRound className="w-3.5 h-3.5" /> Password
-                            </button>
-                            <button onClick={() => handleDelete(u)}
-                              className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-red-50 transition-colors text-red-500"
-                              title="Delete user">
-                              <Trash2 className="w-3.5 h-3.5" /> Delete
-                            </button>
-                          </>
-                        )}
-                        {u.email === currentUser?.email && (
-                          <span className="text-xs text-slate-400 italic">You</span>
-                        )}
-                      </div>
-                    </td>
+          <>
+            <div className="hidden md:block overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
+              <table className="w-full text-sm min-w-[640px]">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">#</th>
+                    <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Name</th>
+                    <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Username</th>
+                    <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Email</th>
+                    <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Role</th>
+                    <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Password</th>
+                    <th className="text-left py-3 px-6 text-[10px] font-medium text-slate-500 uppercase whitespace-nowrap">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {users.map((u, idx) => (
+                    <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-6 text-xs text-slate-400">{idx + 1}</td>
+                      <td className="py-3 px-6 text-sm text-slate-800 font-medium">{u.name}</td>
+                      <td className="py-3 px-6 text-sm text-slate-500 font-mono">{u.username || '-'}</td>
+                      <td className="py-3 px-6 text-sm text-slate-600">{u.email}</td>
+                      <td className="py-3 px-6">
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${u.role === "ADMIN" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td className="py-3 px-6">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-mono text-slate-600">
+                            {visiblePasswords[u.id] ? (u.rawPassword || u.password) : "••••••••••••••••"}
+                          </span>
+                          <button onClick={() => setVisiblePasswords((prev) => ({ ...prev, [u.id]: !prev[u.id] }))}
+                            className="p-1.5 hover:bg-slate-200 rounded-lg transition-colors">
+                            {visiblePasswords[u.id] ? <EyeOff className="w-4 h-4 text-slate-500" /> : <Eye className="w-4 h-4 text-slate-400" />}
+                          </button>
+                        </div>
+                      </td>
+                      <td className="py-3 px-6">
+                        <div className="flex items-center gap-2">
+                          {u.email !== currentUser?.email && (
+                            <>
+                              <button onClick={() => handleToggleRole(u)}
+                                className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
+                                title={u.role === "ADMIN" ? "Revoke admin access" : "Grant admin access"}>
+                                {u.role === "ADMIN" ? <ToggleRight className="w-3.5 h-3.5 text-amber-500" /> : <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />}
+                                {u.role === "ADMIN" ? "Revoke" : "Promote"}
+                              </button>
+                              <button onClick={() => setPasswordModal({ open: true, user: u, password: "" })}
+                                className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
+                                title="Change password">
+                                <KeyRound className="w-3.5 h-3.5" /> Password
+                              </button>
+                              <button onClick={() => handleDelete(u)}
+                                className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg hover:bg-red-50 transition-colors text-red-500"
+                                title="Delete user">
+                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                              </button>
+                            </>
+                          )}
+                          {u.email === currentUser?.email && (
+                            <span className="text-xs text-slate-400 italic">You</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="md:hidden divide-y divide-slate-100">
+              {users.map((u, idx) => (
+                <div key={u.id} className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-slate-800">{u.name}</span>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${u.role === "ADMIN" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
+                      {u.role}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-500 space-y-0.5 mb-3">
+                    <div className="flex items-center gap-1 min-h-[44px]">
+                      <span className="font-medium text-slate-600 w-16">Email:</span>
+                      <span className="font-mono">{u.email}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium text-slate-600 w-16">User:</span>
+                      <span className="font-mono">{u.username || '-'}</span>
+                    </div>
+                  </div>
+                  {u.email !== currentUser?.email && (
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => handleToggleRole(u)}
+                        className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600 min-h-[44px]">
+                        {u.role === "ADMIN" ? <ToggleRight className="w-3.5 h-3.5 text-amber-500" /> : <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />}
+                        {u.role === "ADMIN" ? "Revoke" : "Promote"}
+                      </button>
+                      <button onClick={() => setPasswordModal({ open: true, user: u, password: "" })}
+                        className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600 min-h-[44px]">
+                        <KeyRound className="w-3.5 h-3.5" /> Password
+                      </button>
+                      <button onClick={() => handleDelete(u)}
+                        className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg hover:bg-red-50 transition-colors text-red-500 min-h-[44px]">
+                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                      </button>
+                    </div>
+                  )}
+                  {u.email === currentUser?.email && (
+                    <span className="text-xs text-slate-400 italic">You</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

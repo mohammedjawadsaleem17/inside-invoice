@@ -24,17 +24,23 @@ const InvoiceTemplateRenderer = React.forwardRef((props, ref) => {
   const templateId = template || globalTemplate;
   const width = PAPER_WIDTHS[paperSize] || 794;
 
+  const wrapperStyle = { width: `${width}px`, maxWidth: "100%", overflow: "hidden" };
+
   if (templateId === "template-1") {
     return (
-      <div style={{ width: `${width}px`, overflow: "hidden" }}>
-        <InvoicePDF ref={ref} {...props} />
+      <div style={{ overflowX: "auto", width: "100%" }}>
+        <div style={wrapperStyle}>
+          <InvoicePDF ref={ref} {...props} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ width: `${width}px`, overflow: "hidden" }}>
-      <InvoiceTemplateVariants ref={ref} theme={templateId} {...props} />
+    <div style={{ overflowX: "auto", width: "100%" }}>
+      <div style={wrapperStyle}>
+        <InvoiceTemplateVariants ref={ref} theme={templateId} {...props} />
+      </div>
     </div>
   );
 });

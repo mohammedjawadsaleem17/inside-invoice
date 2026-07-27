@@ -49,12 +49,14 @@ const ViewItemRow = memo(({ item, idx, isEditing, onItemChange, onRemove, onAdd 
           <input type="number" step="0.01" min="0" value={item.qty} name={`qty-${idx + 1}`}
             onChange={(e) => onItemChange(idx, "qty", e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const rate = document.querySelector(`input[name="rate-${idx + 1}"]`); rate?.focus(); } }}
+            inputMode="decimal"
             className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
         </td>
         <td className="py-3 px-3 border-b border-slate-100">
           <input type="number" step="0.01" min="0" value={item.rate} name={`rate-${idx + 1}`}
             onChange={(e) => onItemChange(idx, "rate", e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const gst = document.querySelector(`input[name="gst-${idx + 1}"]`); gst?.focus(); } }}
+            inputMode="decimal"
             className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
         </td>
         <td className="py-3 px-3 border-b border-slate-100">
@@ -62,6 +64,7 @@ const ViewItemRow = memo(({ item, idx, isEditing, onItemChange, onRemove, onAdd 
             <input type="number" step="0.01" min="0" max="100" value={item.gstPercentage} name={`gst-${idx + 1}`}
               onChange={(e) => onItemChange(idx, "gstPercentage", e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onAdd(); } }}
+              inputMode="decimal"
               className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono pr-7 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
             <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
           </div>
@@ -98,7 +101,7 @@ const ViewItemRow = memo(({ item, idx, isEditing, onItemChange, onRemove, onAdd 
 
 export default function InvoiceView() {
   const { id } = useParams();
-  const { logout } = useAuth();
+  const { logout, selectedTemplate } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -379,7 +382,7 @@ export default function InvoiceView() {
           type={invoiceType}
           invoiceNumber={form.invoiceNumber}
           paperSize={(getPrintSettings()[invoiceType] || {}).paperSize || "A4_PORTRAIT"}
-          template={(getPrintSettings()[invoiceType] || {}).template}
+          template={selectedTemplate}
         />
       </div>
       {/* Hidden Proforma renderer (always rendered for instant capture) */}
@@ -395,10 +398,10 @@ export default function InvoiceView() {
           type="PROFORMA_INVOICE"
           invoiceNumber={form.invoiceNumber}
           paperSize={(getPrintSettings()["PROFORMA_INVOICE"] || {}).paperSize || "A4_PORTRAIT"}
-          template={(getPrintSettings()["PROFORMA_INVOICE"] || {}).template}
+          template={selectedTemplate}
         />
       </div>
-      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <div className="flex items-center justify-between mb-6">
           <PageHeader title="View Invoice" backTo="/invoices" />
           <div className="flex items-center gap-2">
@@ -414,7 +417,7 @@ export default function InvoiceView() {
           <div className="xl:col-span-4 space-y-6">
             {/* Seller & Buyer Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Building2 className="w-5 h-5 text-slate-600" />
                   <h2 className="text-sm font-bold text-slate-800">Seller</h2>
@@ -444,7 +447,7 @@ export default function InvoiceView() {
                   <p className="text-sm text-slate-400">Business details not available</p>
                 )}
               </div>
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <User className="w-5 h-5 text-slate-600" />
                   <h2 className="text-sm font-bold text-slate-800">Buyer</h2>
@@ -489,7 +492,7 @@ export default function InvoiceView() {
             </div>
 
             {/* Invoice Details */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
               <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-slate-100">
                 <FileText className="w-5 h-5 text-slate-600" />
                 <h2 className="text-sm font-bold text-slate-800">Invoice Details</h2>
@@ -607,22 +610,23 @@ export default function InvoiceView() {
             </div>
 
             {/* Items */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2.5">
                   <Package className="w-4 h-4 text-slate-600" />
                   <h2 className="text-sm font-bold text-slate-800">Items</h2>
                 </div>
                 {isEditing && (
                   <button onClick={addItem}
-                    className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm">
+                    className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[44px]">
                     <Plus className="w-3.5 h-3.5" /> Add Item
                   </button>
                 )}
               </div>
 
-              <div className="overflow-x-auto border border-slate-200 rounded-lg">
-                <table className="w-full text-sm border-collapse table-fixed min-w-[700px]">
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto border border-slate-200 rounded-lg">
+                <table className="w-full text-sm border-collapse min-w-[700px]">
                   <thead>
                     <tr className="bg-slate-800">
                       <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-10">#</th>
@@ -645,7 +649,82 @@ export default function InvoiceView() {
                 </table>
               </div>
 
-              <div className="flex justify-end mt-5 pt-4 border-t border-slate-200">
+              {/* Mobile cards */}
+              <div className="md:hidden space-y-3">
+                {items.map((item, idx) => (
+                  <div key={idx} className="bg-slate-50 rounded-lg border border-slate-200 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-400">Item #{idx + 1}</span>
+                      {isEditing && (
+                        <button onClick={() => removeItem(idx)}
+                          className="p-1.5 hover:bg-red-50 rounded transition-colors text-slate-400 hover:text-red-500 min-h-[44px] min-w-[44px] flex items-center justify-center">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <>
+                        <div>
+                          <label className="text-[10px] font-semibold text-slate-500 uppercase">Description</label>
+                          <input type="text" value={item.itemName}
+                            onChange={(e) => handleItemChange(idx, "itemName", e.target.value)}
+                            className="w-full px-3 py-2 border border-slate-200 rounded text-sm bg-white min-h-[44px]" placeholder="Item name" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] font-semibold text-slate-500 uppercase">HSN/SAC</label>
+                            <input type="text" value={item.hsn}
+                              onChange={(e) => handleItemChange(idx, "hsn", e.target.value)}
+                              className="w-full px-3 py-2 border border-slate-200 rounded text-sm bg-white font-mono min-h-[44px]" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-semibold text-slate-500 uppercase">GST %</label>
+                            <input type="number" step="0.01" min="0" max="100" value={item.gstPercentage}
+                              onChange={(e) => handleItemChange(idx, "gstPercentage", e.target.value)}
+                              inputMode="decimal"
+                              className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right bg-white font-mono min-h-[44px]" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="text-[10px] font-semibold text-slate-500 uppercase">Qty</label>
+                            <input type="number" step="0.01" min="0" value={item.qty}
+                              onChange={(e) => handleItemChange(idx, "qty", e.target.value)}
+                              inputMode="decimal"
+                              className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right bg-white font-mono min-h-[44px]" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-semibold text-slate-500 uppercase">Rate</label>
+                            <input type="number" step="0.01" min="0" value={item.rate}
+                              onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
+                              inputMode="decimal"
+                              className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right bg-white font-mono min-h-[44px]" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-semibold text-slate-500 uppercase">Total</label>
+                            <div className="w-full px-3 py-2 border border-slate-200 rounded text-sm text-right bg-slate-100 font-mono min-h-[44px] flex items-center justify-end text-slate-700">
+                              Rs. {fmt(item.total)}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-sm font-medium text-slate-800">{item.itemName}</div>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div><span className="text-slate-400">HSN:</span> <span className="font-mono">{item.hsn || "-"}</span></div>
+                          <div><span className="text-slate-400">Qty:</span> <span className="font-mono">{item.qty}</span></div>
+                          <div><span className="text-slate-400">Rate:</span> <span className="font-mono">{fmt(item.rate)}</span></div>
+                          <div><span className="text-slate-400">GST:</span> <span className="font-mono">{item.gstPercentage}%</span></div>
+                          <div className="col-span-2"><span className="text-slate-400">Total:</span> <span className="font-mono font-semibold">{fmt(item.total)}</span></div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end mt-4 pt-3 border-t border-slate-200">
                 <div className="w-full sm:w-72 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">Subtotal:</span>
@@ -664,7 +743,7 @@ export default function InvoiceView() {
             </div>
 
             {/* Notes */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
               <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
               {isEditing ? (
                 <textarea name="notes" value={form.notes} onChange={handleFieldChange}
@@ -699,6 +778,7 @@ export default function InvoiceView() {
                     max="100"
                     value={discountPercent}
                     onChange={(e) => setDiscountPercent(e.target.value)}
+                    inputMode="numeric"
                     placeholder="0"
                     className="w-20 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400"
                   />

@@ -1,12 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import InvoiceNav from "./Navigation/InvoiceNav";
 
 export default function PrivacyPolicy() {
   const year = new Date().getFullYear();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10 text-slate-700 leading-relaxed">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
+      <InvoiceNav scrolled={true} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 pt-20 text-slate-700 leading-relaxed">
       <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
       <p className="text-sm text-slate-500 mb-6">
         Last Updated: December 14, 2025
@@ -110,6 +114,7 @@ export default function PrivacyPolicy() {
       <p className="mt-10 text-sm text-slate-500">
         © {year} Inside Invoice by 2X+1. All rights reserved.
       </p>
+    </div>
     </div>
   );
 }

@@ -128,6 +128,99 @@ const ItemRow = ({ item, idx, onItemChange, onRemove, onAdd, onHsnLookup }) => {
   );
 };
 
+const ItemCard = ({ item, idx, onItemChange, onRemove, onAdd, onHsnLookup, totalItems }) => {
+  const handleKeyDown = (e, field) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      onAdd();
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const fieldIndex = FOCUS_FIELDS.indexOf(field);
+      if (fieldIndex === FOCUS_FIELDS.length - 1) {
+        onAdd();
+      } else {
+        const nextField = FOCUS_FIELDS[fieldIndex + 1];
+        const next = document.querySelector(`[data-mobile-field="${nextField}-${idx}"]`);
+        next?.focus();
+      }
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Item #{idx + 1}</span>
+        <button onClick={() => onRemove(idx)}
+          className="p-2 hover:bg-red-50 rounded-lg transition-colors text-slate-400 hover:text-red-500 min-h-[44px] min-w-[44px] flex items-center justify-center">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="space-y-3">
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Description</label>
+          <input type="text" value={item.itemName} data-mobile-field={`desc-${idx}`}
+            onChange={(e) => onItemChange(idx, "itemName", e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, "desc")}
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white min-h-[44px]" placeholder="Item name" />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">HSN/SAC</label>
+          <input type="text" value={item.hsn} data-mobile-field={`hsn-${idx}`}
+            onChange={(e) => onItemChange(idx, "hsn", e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !(e.metaKey || e.ctrlKey)) {
+                e.target.dataset.enterPressed = "true";
+                onHsnLookup(idx, item.hsn);
+              }
+              handleKeyDown(e, "hsn");
+            }}
+            onBlur={(e) => { if (item.hsn && !e.target.dataset.enterPressed) onHsnLookup(idx, item.hsn); delete e.target.dataset.enterPressed; }}
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono min-h-[44px]" placeholder="Scan or type" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Qty</label>
+            <input type="number" step="0.01" min="0" value={item.qty} data-mobile-field={`qty-${idx}`}
+              onChange={(e) => onItemChange(idx, "qty", e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, "qty")}
+              inputMode="decimal"
+              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono min-h-[44px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Rate</label>
+            <input type="number" step="0.01" min="0" value={item.rate} data-mobile-field={`rate-${idx}`}
+              onChange={(e) => onItemChange(idx, "rate", e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, "rate")}
+              inputMode="decimal"
+              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono min-h-[44px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">GST %</label>
+            <div className="relative">
+              <input type="number" step="0.01" min="0" max="40" value={item.gstPercentage} data-mobile-field={`gst-${idx}`}
+                onChange={(e) => onItemChange(idx, "gstPercentage", e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, "gst")}
+                inputMode="decimal"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-right focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 bg-white font-mono min-h-[44px] pr-7 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Amount</label>
+            <div className="w-full px-3 py-2.5 border border-slate-100 rounded-lg text-sm text-right bg-slate-50 font-mono text-slate-700 min-h-[44px] flex items-center justify-end">
+              Rs. {(parseFloat(item.total) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function InvoiceForm() {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -507,7 +600,7 @@ export default function InvoiceForm() {
           template={(getPrintSettings()[form.invoiceType] || {}).template}
         />
       </div>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-full overflow-x-hidden">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 max-w-full overflow-x-hidden">
         <PageHeader title="Create Invoice" />
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
           <div className="xl:col-span-4 space-y-6">
@@ -611,7 +704,7 @@ export default function InvoiceForm() {
                 </div>
                 <h2 className="text-sm font-bold text-slate-800">Invoice Details</h2>
               </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className={labelClass}>Type</label>
                   <select name="invoiceType" value={form.invoiceType} onChange={handleFieldChange}
@@ -703,7 +796,7 @@ export default function InvoiceForm() {
                 </div>
                 <h2 className="text-sm font-bold text-slate-800">References & Delivery</h2>
               </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className={labelClass}>Delivery Note</label>
                   <input type="text" name="deliveryNote" value={form.deliveryNote} onChange={handleFieldChange}
@@ -757,6 +850,83 @@ export default function InvoiceForm() {
               </div>
             </div>
 
+            {/* Items */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 my-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-5 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <Package className="w-4 h-4 text-slate-600" />
+                  </div>
+                  <h2 className="text-sm font-bold text-slate-800">Items</h2>
+                </div>
+                <button onClick={addItem}
+                  className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[44px]">
+                  <Plus className="w-3.5 h-3.5" /> Add Item
+                </button>
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto border border-slate-200 rounded-lg">
+                <table className="w-full text-sm border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="bg-slate-800">
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[3%]">#</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[13%]">HSN/SAC</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left w-[27%]">Description</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">Qty</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[10%]">Rate</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">GST %</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[11%]">Taxable</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[8%]">Tax</th>
+                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[10%]">Total</th>
+                      <th className="text-white w-[2%]"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item, idx) => (
+                      <ItemRow key={idx} item={item} idx={idx} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="md:hidden space-y-3">
+                {items.map((item, idx) => (
+                  <ItemCard key={idx} item={item} idx={idx} totalItems={items.length} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
+                ))}
+                <button onClick={addItem}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[48px] sticky bottom-20 md:bottom-6 z-10">
+                  <Plus className="w-4 h-4" /> Add Item
+                </button>
+              </div>
+
+              <div className="mt-5 pt-4 border-t border-slate-200 flex justify-end">
+                <div className="w-72 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Subtotal:</span>
+                    <span className="font-mono font-medium text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Tax Amount:</span>
+                    <span className="font-mono font-medium text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between text-base font-bold pt-2 border-t-2 border-slate-800">
+                    <span className="text-slate-800">Grand Total:</span>
+                    <span className="font-mono text-slate-800">Rs. {totals.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
+              <textarea name="notes" value={form.notes} onChange={handleFieldChange}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("notes"); } }}
+                rows={2} className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 resize-none"
+                placeholder="Additional notes or remarks..." />
+            </div>
           </div>
           <div className="xl:col-span-1 space-y-4">
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
@@ -892,72 +1062,6 @@ export default function InvoiceForm() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* Items Table - Full Width */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 my-6">
-          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                <Package className="w-4 h-4 text-slate-600" />
-              </div>
-              <h2 className="text-sm font-bold text-slate-800">Items</h2>
-            </div>
-            <button onClick={addItem}
-              className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[44px]">
-              <Plus className="w-3.5 h-3.5" /> Add Item
-            </button>
-          </div>
-
-          <div className="overflow-x-auto sm:overflow-x-visible border border-slate-200 rounded-lg">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-slate-800">
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[3%]">#</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[13%]">HSN/SAC</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-left w-[27%]">Description</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">Qty</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[10%]">Rate</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center w-[8%]">GST %</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[11%]">Taxable</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[8%]">Tax</th>
-                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right w-[10%]">Total</th>
-                  <th className="text-white w-[2%]"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, idx) => (
-                  <ItemRow key={idx} item={item} idx={idx} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-5 pt-4 border-t border-slate-200 flex justify-end">
-            <div className="w-72 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Subtotal:</span>
-                <span className="font-mono font-medium text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Tax Amount:</span>
-                <span className="font-mono font-medium text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-              </div>
-              <div className="flex justify-between text-base font-bold pt-2 border-t-2 border-slate-800">
-                <span className="text-slate-800">Grand Total:</span>
-                <span className="font-mono text-slate-800">Rs. {totals.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Notes */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
-          <textarea name="notes" value={form.notes} onChange={handleFieldChange}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("notes"); } }}
-            rows={2} className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 resize-none"
-            placeholder="Additional notes or remarks..." />
         </div>
       </div>
     </div>

@@ -35,6 +35,7 @@ import AdminBusinessesList from "./pages/AdminBusinessesList";
 import AdminCustomersList from "./pages/AdminCustomersList";
 import AdminInvoicesList from "./pages/AdminInvoicesList";
 import CustomersList from "./pages/CustomersList";
+import MorePage from "./pages/MorePage";
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -72,6 +73,7 @@ function AppRoutes() {
       <Route path="/invoice-templates" element={<PrivateRoute><InvoiceTemplates /></PrivateRoute>} />
       <Route path="/payments" element={<PrivateRoute><PaymentsList /></PrivateRoute>} />
       <Route path="/settings" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      <Route path="/more" element={<PrivateRoute><MorePage /></PrivateRoute>} />
       <Route path="/profile" element={<Navigate to="/settings" replace />} />
       <Route path="/admin/users" element={<PrivateRoute><AdminAddUsers /></PrivateRoute>} />
       <Route path="/admin/users-list" element={<PrivateRoute><AdminUsersList /></PrivateRoute>} />

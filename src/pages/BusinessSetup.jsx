@@ -58,7 +58,7 @@ export default function BusinessSetup() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="Business Setup" />
         <div className="max-w-2xl mx-auto glass-effect rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
           <div className="text-center mb-6">
@@ -88,7 +88,7 @@ export default function BusinessSetup() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">Phone</label>
-                <input type="text" name="phone" value={formData.phone} onChange={handleChange}
+                <input type="text" name="phone" value={formData.phone} onChange={handleChange} inputMode="numeric"
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-slate-400" placeholder="+919876543210" />
               </div>
               <div>

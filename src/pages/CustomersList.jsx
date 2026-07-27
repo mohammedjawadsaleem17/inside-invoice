@@ -44,15 +44,15 @@ export default function CustomersList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="View Customers" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h1 className="text-base sm:text-lg font-semibold text-slate-900">Customers</h1>
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email, phone or GSTIN..."
-                className="w-56 pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white" />
+                className="w-full md:w-56 pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white" />
             </div>
           </div>
           {filtered.length === 0 ? (
@@ -68,34 +68,50 @@ export default function CustomersList() {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">GSTIN</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Billing Address</th>
+          <>
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">GSTIN</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Billing Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((c, i) => (
+                  <tr key={c.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
+                    <td className="py-3 px-4">
+                      <span className="text-sm font-medium text-slate-800">{c.name}</span>
+                    </td>
+                    <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{c.email || "-"}</td>
+                    <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{c.phone || "-"}</td>
+                    <td className="py-3 px-4">
+                      <span className="font-mono text-xs text-slate-600">{c.gstIn || "-"}</span>
+                    </td>
+                    <td className="py-3 px-4 text-xs text-slate-600">{c.billingAddress || "-"}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((c, i) => (
-                    <tr key={c.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
-                      <td className="py-3 px-4">
-                        <span className="text-sm font-medium text-slate-800">{c.name}</span>
-                      </td>
-                      <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{c.email || "-"}</td>
-                      <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{c.phone || "-"}</td>
-                      <td className="py-3 px-4">
-                        <span className="font-mono text-xs text-slate-600">{c.gstIn || "-"}</span>
-                      </td>
-                      <td className="py-3 px-4 text-xs text-slate-600">{c.billingAddress || "-"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((c) => (
+              <div key={c.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+                <div className="text-sm font-semibold text-slate-800 mb-1">{c.name}</div>
+                <div className="space-y-0.5 text-xs text-slate-500">
+                  {c.email && <div>Email: {c.email}</div>}
+                  {c.phone && <div>Phone: {c.phone}</div>}
+                  {c.gstIn && <div className="font-mono">GSTIN: {c.gstIn}</div>}
+                  {c.billingAddress && <div>Address: {c.billingAddress}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
           )}
         </div>
       </div>

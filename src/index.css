@@ -9,8 +9,28 @@
   overflow-wrap: break-word;
 }
 
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+html {
+  background-color: #f8fafc;
+}
+
 body {
   margin: 0;
-  padding: 0 18px;
+  padding: 0;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  background-color: #f8fafc;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  min-height: 100dvh;
+  background-color: #f8fafc;
 }

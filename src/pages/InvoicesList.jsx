@@ -100,6 +100,7 @@ export default function InvoicesList() {
             totals={totals}
             type={invoice.invoiceType}
             invoiceNumber={invoice.invoiceNumber}
+            template={localStorage.getItem("invoice_template") || "template-1"}
           />
         );
       });
@@ -236,6 +237,7 @@ export default function InvoicesList() {
             totals={totals}
             type={invoice.invoiceType}
             invoiceNumber={invoice.invoiceNumber}
+            template={localStorage.getItem("invoice_template") || "template-1"}
           />
         );
       });
@@ -274,11 +276,11 @@ export default function InvoicesList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="View Invoices" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-end">
-            <div className="relative w-56">
+            <div className="relative w-full md:w-56">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by invoice no. or customer..."
                 className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white" />
@@ -297,65 +299,102 @@ export default function InvoicesList() {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoice No.</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoices.map((inv, i) => (
-                    <tr key={inv.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
-                      <td className="py-3 px-4">
-                        <button onClick={() => navigate(`/invoice/${inv.id}`)} className="font-mono text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline text-left">
-                          {inv.invoiceNumber}
-                        </button>
-                      </td>
-                      <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{inv.customerName}</td>
-                      <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{inv.invoiceDate}</td>
-                      <td className="py-3 px-4">
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                          inv.invoiceType === "PROFORMA_INVOICE" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
-                        }`}>
-                          {inv.invoiceType === "PROFORMA_INVOICE" ? "Proforma" : "Tax"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono text-xs sm:text-sm font-semibold text-slate-800">
-                        Rs. {parseFloat(inv.grandTotal || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button onClick={() => navigate(`/invoice/${inv.id}`)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
-                            <Eye className="w-3.5 h-3.5" /> View
-                          </button>
-                          <button onClick={() => downloadPDF(inv)}
-                            className="p-2 hover:bg-indigo-50 rounded-lg transition-colors text-slate-400 hover:text-indigo-600" title="Download PDF">
-                            <Download className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => printInvoice(inv)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
-                            <Printer className="w-3.5 h-3.5" /> Print
-                          </button>
-                          {ghostMode && (
-                            <button onClick={() => deleteInvoice(inv.id)}
-                              className="p-2 hover:bg-red-50 rounded-lg transition-colors text-slate-400 hover:text-red-600" title="Delete Invoice">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
+            <>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoice No.</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                      <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
+                      <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {invoices.map((inv, i) => (
+                      <tr key={inv.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
+                        <td className="py-3 px-4">
+                          <button onClick={() => navigate(`/invoice/${inv.id}`)} className="font-mono text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline text-left">
+                            {inv.invoiceNumber}
+                          </button>
+                        </td>
+                        <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{inv.customerName}</td>
+                        <td className="py-3 px-4 text-xs sm:text-sm text-slate-600">{inv.invoiceDate}</td>
+                        <td className="py-3 px-4">
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            inv.invoiceType === "PROFORMA_INVOICE" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
+                          }`}>
+                            {inv.invoiceType === "PROFORMA_INVOICE" ? "Proforma" : "Tax"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right font-mono text-xs sm:text-sm font-semibold text-slate-800">
+                          Rs. {parseFloat(inv.grandTotal || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button onClick={() => navigate(`/invoice/${inv.id}`)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                              <Eye className="w-3.5 h-3.5" /> View
+                            </button>
+                            <button onClick={() => downloadPDF(inv)}
+                              className="p-2 hover:bg-indigo-50 rounded-lg transition-colors text-slate-400 hover:text-indigo-600" title="Download PDF">
+                              <Download className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => printInvoice(inv)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                              <Printer className="w-3.5 h-3.5" /> Print
+                            </button>
+                            {ghostMode && (
+                              <button onClick={() => deleteInvoice(inv.id)}
+                                className="p-2 hover:bg-red-50 rounded-lg transition-colors text-slate-400 hover:text-red-600" title="Delete Invoice">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="md:hidden space-y-3">
+                {filtered.map((inv) => (
+                  <div key={inv.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 hover:bg-slate-50 transition-colors" onClick={() => navigate(`/invoice/${inv.id}`)}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-mono text-xs font-semibold text-indigo-600">{inv.invoiceNumber}</span>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                        inv.invoiceType === "PROFORMA_INVOICE" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
+                      }`}>
+                        {inv.invoiceType === "PROFORMA_INVOICE" ? "Proforma" : "Tax"}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium text-slate-800 mb-2">{inv.customerName}</div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-500">{inv.invoiceDate}</span>
+                      <span className="font-mono text-sm font-semibold text-slate-800">
+                        Rs. {parseFloat(inv.grandTotal || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
+                      <button onClick={(e) => { e.stopPropagation(); navigate(`/invoice/${inv.id}`); }}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors min-h-[44px]">
+                        <Eye className="w-3.5 h-3.5" /> View
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); downloadPDF(inv); }}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors min-h-[44px]">
+                        <Download className="w-3.5 h-3.5" /> PDF
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); printInvoice(inv); }}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors min-h-[44px]">
+                        <Printer className="w-3.5 h-3.5" /> Print
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>

@@ -53,7 +53,7 @@ export default function AddProduct() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 py-4 sm:py-6">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="Add New Product" />
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -75,14 +75,14 @@ export default function AddProduct() {
               <label className={labelClass}>Rate (Rs.) <span className="text-red-500">*</span></label>
               <div className="relative">
                 <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type="number" step="0.01" min="0" name="rate" value={form.rate} onChange={handleChange} className={"pl-10 " + inputClass} placeholder="e.g. 1000" />
+                <input type="number" step="0.01" min="0" name="rate" value={form.rate} onChange={handleChange} inputMode="decimal" className={"pl-10 " + inputClass} placeholder="e.g. 1000" />
               </div>
             </div>
             <div>
               <label className={labelClass}>GST %</label>
               <div className="relative">
                 <Percent className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type="number" step="0.01" min="0" max="100" name="gstPercentage" value={form.gstPercentage} onChange={handleChange} className={"pl-10 " + inputClass} />
+                <input type="number" step="0.01" min="0" max="100" name="gstPercentage" value={form.gstPercentage} onChange={handleChange} inputMode="decimal" className={"pl-10 " + inputClass} />
               </div>
             </div>
           </div>

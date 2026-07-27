@@ -50,15 +50,15 @@ export default function ProductsList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
         <PageHeader title="Products" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h1 className="text-base sm:text-lg font-semibold text-slate-900">Product Items</h1>
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or HSN/SAC..."
-                className="w-56 pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white" />
+                className="w-full md:w-56 pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white" />
             </div>
           </div>
           {filtered.length === 0 ? (
@@ -74,39 +74,59 @@ export default function ProductsList() {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">HSN/SAC</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Rate</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">GST %</th>
+          <>
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">HSN/SAC</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Rate</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">GST %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((p, i) => (
+                  <tr key={p.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span className="text-sm font-medium text-slate-800">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-mono text-xs text-slate-600">{p.hsn || "-"}</span>
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-sm text-slate-800">
+                      Rs. {parseFloat(p.rate || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="text-xs font-semibold text-slate-600">{p.gstPercentage || 0}%</span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((p, i) => (
-                    <tr key={p.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <Package className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span className="text-sm font-medium text-slate-800">{p.name}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="font-mono text-xs text-slate-600">{p.hsn || "-"}</span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono text-sm text-slate-800">
-                        Rs. {parseFloat(p.rate || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <span className="text-xs font-semibold text-slate-600">{p.gstPercentage || 0}%</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((p) => (
+              <div key={p.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Package className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="text-sm font-semibold text-slate-800">{p.name}</span>
+                </div>
+                <div className="space-y-0.5 text-xs text-slate-500">
+                  <div className="font-mono">HSN/SAC: {p.hsn || "-"}</div>
+                  <div className="flex items-center justify-between">
+                    <span>Rate: Rs. {parseFloat(p.rate || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                    <span className="font-semibold text-slate-600">{p.gstPercentage || 0}% GST</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
           )}
         </div>
       </div>
