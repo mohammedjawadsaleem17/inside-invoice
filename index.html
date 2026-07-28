@@ -18,6 +18,18 @@
     <style>
       @media (max-width: 767px) { body { -webkit-tap-highlight-color: transparent; } }
     </style>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          registrations.forEach(function (reg) { reg.unregister(); });
+        });
+      }
+      if ("caches" in window) {
+        caches.keys().then(function (names) {
+          names.forEach(function (name) { caches.delete(name); });
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
