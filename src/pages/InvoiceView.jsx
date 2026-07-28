@@ -5,12 +5,12 @@ import AppNavbar from "../components/AppNavbar";
 import PageHeader from "../components/PageHeader";
 import { invoiceAPI, businessAPI, customerAPI } from "../api/auth";
 import toast from "react-hot-toast";
-import { ArrowLeft, Download, Save, Edit3, Plus, Trash2, FileText, AlertCircle, User, Building2, Phone, MapPin, Hash, Package, Mail, Globe, X, Printer, Smartphone } from "lucide-react";
+import { ArrowLeft, Download, Save, Edit3, Plus, Trash2, FileText, AlertCircle, User, Building2, Phone, MapPin, Hash, Package, Mail, Globe, X, Share2, Smartphone } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { processQueue } from "../utils/retryQueue";
 import { processPrint } from "../utils/printInvoice";
-import { getPrintSettings } from "../constants/paperSizes";
+import { getPrintSettings, getPaperDimensions } from "../constants/paperSizes";
 import { INDIAN_STATES, DELIVERY_TERMS, PAYMENT_TERMS } from "../constants/indianStates";
 
 const emptyItem = () => ({ itemName: "", hsn: "", qty: "1", rate: "", gstPercentage: "18", taxableValue: "0", taxAmount: "0", total: "0" });
@@ -277,7 +277,8 @@ export default function InvoiceView() {
     try {
       const filename = `${type === "PROFORMA_INVOICE" ? "Proforma" : "Tax"}_Invoice_${form.invoiceNumber}.pdf`;
       const captureRef = type === "PROFORMA_INVOICE" ? proformaRef : invoiceRef;
-      await processPrint(captureRef, type, filename);
+      const ps = (getPrintSettings()[type] || {}).paperSize || "A4_PORTRAIT";
+      await processPrint(captureRef, type, filename, ps);
     } catch (err) {
       toast.error("Failed to generate");
     }
@@ -287,10 +288,11 @@ export default function InvoiceView() {
     try {
       const { jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
+      const dim = getPaperDimensions((getPrintSettings()[invoiceType] || {}).paperSize || "A4_PORTRAIT");
       const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
-      const pdf = new jsPDF("p", "mm", "a4");
-      const PAGE_W = 210, PAGE_H = 297, LEFT = 10, CONTENT_W = 190, PY = 10;
-      const usableH = PAGE_H - PY * 2;
+      const pdf = new jsPDF(dim.orientation, "mm", dim.format);
+      const PAGE_W = dim.pageW, PAGE_H = dim.pageH, LEFT = dim.left, CONTENT_W = dim.contentW, PY = 10;
+      const usableH = dim.usableH;
       const pxToMm = CONTENT_W / canvas.width;
       const onePagePx = usableH / pxToMm;
       let pageStartPx = 0, isFirstPage = true;
@@ -316,10 +318,11 @@ export default function InvoiceView() {
     try {
       const { jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
+      const dim = getPaperDimensions((getPrintSettings()[invoiceType] || {}).paperSize || "A4_PORTRAIT");
       const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
-      const pdf = new jsPDF("p", "mm", "a4");
-      const PAGE_W = 210, PAGE_H = 297, LEFT = 10, CONTENT_W = 190, PY = 10;
-      const usableH = PAGE_H - PY * 2;
+      const pdf = new jsPDF(dim.orientation, "mm", dim.format);
+      const PAGE_W = dim.pageW, PAGE_H = dim.pageH, LEFT = dim.left, CONTENT_W = dim.contentW, PY = 10;
+      const usableH = dim.usableH;
       const pxToMm = CONTENT_W / canvas.width;
       const onePagePx = usableH / pxToMm;
       let pageStartPx = 0, isFirstPage = true;
@@ -334,29 +337,26 @@ export default function InvoiceView() {
       }
       const blob = pdf.output("blob");
       const filename = `Invoice_${form.invoiceNumber || "draft"}.pdf`;
-      const isStandalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      if (isIOS && isStandalone) {
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = blobUrl; a.download = filename; a.click();
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-        toast.success("PDF downloaded — open it from Files to print");
-      } else {
-        const url = URL.createObjectURL(blob);
-        const w = window.open(url);
-        if (w) {
-          w.onload = () => { w.print(); };
-        } else {
-          const a = document.createElement("a");
-          a.href = url; a.download = filename; a.click();
-          setTimeout(() => URL.revokeObjectURL(url), 5000);
-          toast.success("PDF downloaded — open it to print");
+      let shared = false;
+      try {
+        if (navigator.share) {
+          const file = new File([blob], filename, { type: "application/pdf" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: filename });
+            shared = true;
+          }
         }
+      } catch (_) {}
+      if (!shared) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = filename; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        toast.success("PDF downloaded");
       }
     } catch (err) {
       console.error("Print error:", err);
-      toast.error("Failed to print — try Download PDF instead");
+      toast.error("Failed to generate PDF");
     }
   };
 
@@ -418,7 +418,7 @@ export default function InvoiceView() {
           template={selectedTemplate}
         />
       </div>
-      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
+      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5">
         <div className="flex items-center justify-between mb-6">
           <PageHeader title="View Invoice" backTo="/invoices" />
           <div className="flex items-center gap-2">
@@ -886,7 +886,7 @@ export default function InvoiceView() {
                 </button>
                 <button onClick={printPDF}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-all shadow-sm">
-                  <Printer className="w-4 h-4" /> Print Invoice
+                  <Share2 className="w-4 h-4" /> Share PDF
                 </button>
                 <button onClick={() => downloadPDF("PROFORMA_INVOICE")} disabled={sealRequired}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-emerald-300 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50 disabled:opacity-50 transition-all">
@@ -939,9 +939,9 @@ export default function InvoiceView() {
                 <h2 className="text-sm font-bold text-slate-800 truncate">Invoice PDF</h2>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <button onClick={() => printPDF(invoiceType)}
+                <button onClick={() => printPDF()}
                   className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-indigo-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
-                  <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Print</span>
+                  <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Share</span>
                 </button>
                 <button onClick={() => downloadPDF(invoiceType)}
                   className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-slate-800 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-slate-700 transition-all shadow-sm">

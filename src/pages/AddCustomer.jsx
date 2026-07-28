@@ -45,7 +45,7 @@ export default function AddCustomer() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 max-w-[1900px] mx-auto">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-[1900px] mx-auto">
         <PageHeader title="Add New Customer" />
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8 lg:p-10 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

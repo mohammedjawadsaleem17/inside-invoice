@@ -575,13 +575,15 @@ const InvoicePDF = React.memo(React.forwardRef(({ business, customer, form, item
 
 InvoicePDF.displayName = "InvoicePDF";
 
-export async function downloadInvoicePDF(element, filename) {
+export async function downloadInvoicePDF(element, filename, paperSizeId) {
   if (!element) return;
   try {
+    const { getPaperDimensions } = await import("../constants/paperSizes");
+    const dim = getPaperDimensions(paperSizeId);
     const SCALE = 2;
-    const CONTENT_W = 190;
-    const LEFT = 10;
-    const PAGE_H = 277;
+    const CONTENT_W = dim.contentW;
+    const LEFT = dim.left;
+    const PAGE_H = dim.usableH;
 
     const rowSelectors = [
       '[id^="section-item-row-"]',
@@ -605,7 +607,7 @@ export async function downloadInvoicePDF(element, filename) {
       backgroundColor: "#ffffff",
     });
 
-    const pdf = new jsPDF("p", "mm", "a4");
+    const pdf = new jsPDF(dim.orientation, "mm", dim.format);
     const pxToMm = CONTENT_W / canvas.width;
     const onePagePx = PAGE_H / pxToMm;
 

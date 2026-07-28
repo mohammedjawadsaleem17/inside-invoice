@@ -101,3 +101,16 @@ export function getPrintSettings() {
 export function savePrintSettings(settings) {
   localStorage.setItem("print_settings", JSON.stringify(settings));
 }
+
+const PDF_DIMENSIONS = {
+  A4_PORTRAIT:  { orientation: "p", format: "a4",     pageW: 210,    pageH: 297,    contentW: 190,   left: 10,  usableH: 277 },
+  A4_LANDSCAPE: { orientation: "l", format: "a4",     pageW: 297,    pageH: 210,    contentW: 277,   left: 10,  usableH: 190 },
+  A5:           { orientation: "p", format: "a5",     pageW: 148,    pageH: 210,    contentW: 128,   left: 10,  usableH: 190 },
+  LETTER:       { orientation: "p", format: "letter", pageW: 215.9,  pageH: 279.4,  contentW: 195.9, left: 10,  usableH: 262 },
+  THERMAL_58MM: { orientation: "p", format: [58, 200], pageW: 58,    pageH: 200,    contentW: 48,    left: 5,   usableH: 200 },
+  THERMAL_80MM: { orientation: "p", format: [80, 200], pageW: 80,    pageH: 200,    contentW: 70,    left: 5,   usableH: 200 },
+};
+
+export function getPaperDimensions(paperSizeId) {
+  return PDF_DIMENSIONS[paperSizeId] || PDF_DIMENSIONS.A4_PORTRAIT;
+}

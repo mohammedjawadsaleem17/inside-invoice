@@ -77,7 +77,7 @@ export default function AuthPage() {
   return (
     <div
       className="min-h-screen min-h-[100dvh] flex flex-col bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100"
-      style={{ paddingTop: "env(safe-area-inset-top, 0px)", paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <InvoiceNav scrolled={true} setIsMenuOpen={setIsMenuOpen} isMenuOpen={isMenuOpen} />
 

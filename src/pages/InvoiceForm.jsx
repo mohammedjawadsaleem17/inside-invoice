@@ -8,12 +8,12 @@ import toast from "react-hot-toast";
 import {
   ArrowLeft, Plus, Trash2, Save, FileText, Download,
   User, Building2, Phone, MapPin, Hash,
-  Package, FileSpreadsheet, Printer
+  Package, FileSpreadsheet, Share2
 } from "lucide-react";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { processQueue } from "../utils/retryQueue";
 import { processPrint } from "../utils/printInvoice";
-import { getPrintSettings } from "../constants/paperSizes";
+import { getPrintSettings, getPaperDimensions } from "../constants/paperSizes";
 import { INDIAN_STATES, DELIVERY_TERMS, PAYMENT_TERMS } from "../constants/indianStates";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
@@ -514,19 +514,18 @@ export default function InvoiceForm() {
 
     const expectedNumber = savedInvoiceNumber || customInvoiceNumber || nextInvoiceNumber || "";
 
-    // 1. Generate and download PDF instantly (capture HTML component)
     setSaving(true);
     try {
       const filename = `${type === "PROFORMA_INVOICE" ? "Proforma_Invoice" : "Tax_Invoice"}_${form.invoiceDate || new Date().toISOString().split("T")[0]}.pdf`;
+      const ps = (getPrintSettings()[type] || {}).paperSize || "A4_PORTRAIT";
       await new Promise((r) => setTimeout(r, 100));
-      await processPrint(invoiceRef, type, filename);
+      await processPrint(invoiceRef, type, filename, ps);
     } catch (err) {
       toast.error("Failed to generate PDF");
       setSaving(false);
       return;
     }
 
-    // 2. Persist to backend asynchronously
     if (!savedInvoiceId) {
       try {
         const res = await saveInvoice();
@@ -545,10 +544,11 @@ export default function InvoiceForm() {
     try {
       const { jsPDF } = await import("jspdf");
       const html2canvas = (await import("html2canvas")).default;
+      const dim = getPaperDimensions((getPrintSettings()[form.invoiceType] || {}).paperSize || "A4_PORTRAIT");
       const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" });
-      const pdf = new jsPDF("p", "mm", "a4");
-      const PAGE_W = 210, PAGE_H = 297, LEFT = 10, CONTENT_W = 190, PY = 10;
-      const usableH = PAGE_H - PY * 2;
+      const pdf = new jsPDF(dim.orientation, "mm", dim.format);
+      const LEFT = dim.left, CONTENT_W = dim.contentW;
+      const usableH = dim.usableH;
       const pxToMm = CONTENT_W / canvas.width;
       const onePagePx = usableH / pxToMm;
       let pageStartPx = 0, isFirstPage = true;
@@ -558,34 +558,31 @@ export default function InvoiceForm() {
         sc.width = canvas.width; sc.height = sliceH;
         sc.getContext("2d").drawImage(canvas, 0, pageStartPx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
         if (!isFirstPage) pdf.addPage();
-        pdf.addImage(sc.toDataURL("image/png"), "PNG", LEFT, PY, CONTENT_W, sliceH * pxToMm);
+        pdf.addImage(sc.toDataURL("image/png"), "PNG", LEFT, 10, CONTENT_W, sliceH * pxToMm);
         pageStartPx += sliceH; isFirstPage = false;
       }
       const blob = pdf.output("blob");
       const filename = `Invoice_draft.pdf`;
-      const isStandalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      if (isIOS && isStandalone) {
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = blobUrl; a.download = filename; a.click();
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-        toast.success("PDF downloaded — open it from Files to print");
-      } else {
-        const url = URL.createObjectURL(blob);
-        const w = window.open(url);
-        if (w) {
-          w.onload = () => { w.print(); };
-        } else {
-          const a = document.createElement("a");
-          a.href = url; a.download = filename; a.click();
-          setTimeout(() => URL.revokeObjectURL(url), 5000);
-          toast.success("PDF downloaded — open it to print");
+      let shared = false;
+      try {
+        if (navigator.share) {
+          const file = new File([blob], filename, { type: "application/pdf" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: filename });
+            shared = true;
+          }
         }
+      } catch (_) {}
+      if (!shared) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = filename; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        toast.success("PDF downloaded");
       }
     } catch (err) {
       console.error("Print error:", err);
-      toast.error("Failed to print — try Download PDF instead");
+      toast.error("Failed to generate PDF");
     } finally {
       setSaving(false);
     }
@@ -618,7 +615,7 @@ export default function InvoiceForm() {
           template={(getPrintSettings()[form.invoiceType] || {}).template}
         />
       </div>
-      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 overflow-x-hidden">
+      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 overflow-x-hidden">
         <PageHeader title="Create Invoice" />
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
           <div className="xl:col-span-4 space-y-6">
@@ -1044,7 +1041,7 @@ export default function InvoiceForm() {
                 </button>
                 <button onClick={handlePrint} disabled={sealRequired || totals.grandTotal <= 0}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-all shadow-sm min-h-[44px]">
-                  <Printer className="w-4 h-4" /> Print Invoice
+                  <Share2 className="w-4 h-4" /> Share PDF
                 </button>
               </div>
 

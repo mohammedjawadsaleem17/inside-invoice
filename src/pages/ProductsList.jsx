@@ -50,7 +50,7 @@ export default function ProductsList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 max-w-[1900px] mx-auto">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-[1900px] mx-auto">
         <PageHeader title="Products" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

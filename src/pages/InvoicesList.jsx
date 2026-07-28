@@ -6,9 +6,10 @@ import AppNavbar from "../components/AppNavbar";
 import PageHeader from "../components/PageHeader";
 import { invoiceAPI, businessAPI } from "../api/auth";
 import toast from "react-hot-toast";
-import { ArrowLeft, FileText, Download, Eye, PlusCircle, Printer, Trash2, Search } from "lucide-react";
+import { ArrowLeft, FileText, Download, Eye, PlusCircle, Share2, Trash2, Search } from "lucide-react";
 import { downloadInvoicePDF } from "../components/InvoicePDF";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
+import { getPrintSettings, getPaperDimensions } from "../constants/paperSizes";
 
 export default function InvoicesList() {
   const { logout } = useAuth();
@@ -146,6 +147,7 @@ export default function InvoicesList() {
     document.body.appendChild(container);
     const root = createRoot(container);
     const filename = `${invoice.invoiceType === "PROFORMA_INVOICE" ? "Proforma" : "Tax"}_Invoice_${invoice.invoiceNumber}.pdf`;
+    const paperSizeId = (getPrintSettings()[invoice.invoiceType] || {}).paperSize || "A4_PORTRAIT";
 
     try {
       await new Promise((resolve, reject) => {
@@ -159,10 +161,11 @@ export default function InvoicesList() {
                   try {
                     const { jsPDF } = await import("jspdf");
                     const html2canvas = (await import("html2canvas")).default;
+                    const dim = getPaperDimensions(paperSizeId);
                     const SCALE = 2;
-                    const CONTENT_W = 190;
-                    const LEFT = 10;
-                    const PAGE_H = 277;
+                    const CONTENT_W = dim.contentW;
+                    const LEFT = dim.left;
+                    const PAGE_H = dim.usableH;
                     const rowSelectors = [
                       '[id^="section-item-row-"]', '[id^="section-hsn-row-"]',
                       "#section-subtotals", "#section-amount-words",
@@ -175,7 +178,7 @@ export default function InvoicesList() {
                     const imgData = canvas.toDataURL("image/png");
                     const imgW = CONTENT_W;
                     const imgH = (canvas.height / canvas.width) * imgW;
-                    const pdf = new jsPDF("p", "mm", "a4");
+                    const pdf = new jsPDF(dim.orientation, "mm", dim.format);
                     let hPos = 0;
                     const firstRow = allRowEls.length > 0 ? allRowEls[0] : el;
                     const firstRowTop = firstRow.getBoundingClientRect().top - invoiceRect.top;
@@ -201,9 +204,23 @@ export default function InvoicesList() {
                       hPos += availH;
                     }
                     const blob = pdf.output("blob");
-                    const url = URL.createObjectURL(blob);
-                    const w = window.open(url);
-                    if (w) w.print();
+                    let shared = false;
+                    try {
+                      if (navigator.share) {
+                        const file = new File([blob], filename, { type: "application/pdf" });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                          await navigator.share({ files: [file], title: filename });
+                          shared = true;
+                        }
+                      }
+                    } catch (_) {}
+                    if (!shared) {
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url; a.download = filename; a.click();
+                      setTimeout(() => URL.revokeObjectURL(url), 5000);
+                      toast.success("PDF downloaded");
+                    }
                     resolve();
                   } catch (e) { reject(e); }
                 }, 150);
@@ -237,6 +254,7 @@ export default function InvoicesList() {
             totals={totals}
             type={invoice.invoiceType}
             invoiceNumber={invoice.invoiceNumber}
+            paperSize={paperSizeId}
             template={localStorage.getItem("invoice_template") || "template-1"}
           />
         );
@@ -276,7 +294,7 @@ export default function InvoicesList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6 max-w-[1900px] mx-auto">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-[1900px] mx-auto">
         <PageHeader title="View Invoices" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-end">
@@ -344,7 +362,7 @@ export default function InvoicesList() {
                             </button>
                             <button onClick={() => printInvoice(inv)}
                               className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
-                              <Printer className="w-3.5 h-3.5" /> Print
+                              <Share2 className="w-3.5 h-3.5" /> Share
                             </button>
                             {ghostMode && (
                               <button onClick={() => deleteInvoice(inv.id)}
@@ -388,7 +406,7 @@ export default function InvoicesList() {
                       </button>
                       <button onClick={(e) => { e.stopPropagation(); printInvoice(inv); }}
                         className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors min-h-[44px]">
-                        <Printer className="w-3.5 h-3.5" /> Print
+                        <Share2 className="w-3.5 h-3.5" /> Share
                       </button>
                     </div>
                   </div>

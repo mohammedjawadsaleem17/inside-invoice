@@ -7,6 +7,7 @@ import AppNavbar from "../components/AppNavbar";
 import PageHeader from "../components/PageHeader";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { processPrint } from "../utils/printInvoice";
+import { getPrintSettings } from "../constants/paperSizes";
 
 const emptyItem = { itemName: "", hsn: "", qty: "", rate: "", gstPercentage: "18", taxableValue: 0, taxAmount: 0, total: 0 };
 
@@ -104,8 +105,10 @@ export default function AdminInvoiceView() {
   const downloadPDF = async () => {
     try {
       const filename = `Invoice_${form.invoiceNumber || invoice?.invoiceNumber || "DRAFT"}.pdf`;
+      const docType = form.invoiceType || invoice?.invoiceType || "TAX_INVOICE";
+      const ps = (getPrintSettings()[docType] || {}).paperSize || "A4_PORTRAIT";
       await new Promise((r) => setTimeout(r, 100));
-      await processPrint(invoiceRef, form.invoiceType || invoice?.invoiceType || "TAX_INVOICE", filename);
+      await processPrint(invoiceRef, docType, filename, ps);
     } catch (err) {
       toast.error("Failed to generate");
     }
@@ -181,7 +184,7 @@ export default function AdminInvoiceView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       <AppNavbar />
-      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 pb-20 md:pb-6">
+      <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5">
         <PageHeader title="Invoice Details" backTo={-1} />
 
         {/* Hidden Invoice PDF for capture */}

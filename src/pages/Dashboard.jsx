@@ -146,7 +146,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50">
       <AppNavbar />
 
-      <div className="px-3 sm:px-4 lg:px-6 pb-20 md:pb-6 max-w-[1900px] mx-auto">
+      <div className="px-3 sm:px-4 lg:px-6 max-w-[1900px] mx-auto">
         <main className="py-2 sm:py-3">
           {/* Welcome */}
           <div className="mb-4 sm:mb-6">
