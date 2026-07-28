@@ -6,50 +6,44 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-white/90 backdrop-blur-md shadow-xl" : "bg-transparent"
+        scrolled ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-100" : "bg-transparent"
       }`}
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="max-w-full mx-auto px-3 sm:px-4 lg:px-12">
-        <div className="flex justify-between items-center h-14 sm:h-16 lg:h-20">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="relative group">
-              <div className="relative w-9 h-9 sm:w-10 sm:h-10 lg:w-14 lg:h-14 bg-gradient-to-br from-slate-700 via-gray-700 to-slate-900 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
-                <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="lg:hidden">
-                  <circle cx="10" cy="8" r="2.5" fill="white" />
-                  <rect x="8.5" y="12" width="3" height="12" rx="1.5" fill="white" />
-                  <circle cx="20" cy="11" r="1.8" fill="white" opacity="0.9" />
-                  <rect x="18.6" y="15" width="2.8" height="9" rx="1.4" fill="white" opacity="0.9" />
-                </svg>
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden lg:block">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex justify-between items-center h-14">
+          <div className="flex items-center gap-2.5">
+            <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-slate-700 via-gray-700 to-slate-900 rounded-lg flex items-center justify-center shadow-md overflow-hidden">
+                <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="10" cy="8" r="2.5" fill="white" />
                   <rect x="8.5" y="12" width="3" height="12" rx="1.5" fill="white" />
                   <circle cx="20" cy="11" r="1.8" fill="white" opacity="0.9" />
                   <rect x="18.6" y="15" width="2.8" height="9" rx="1.4" fill="white" opacity="0.9" />
                 </svg>
               </div>
-            </div>
-            <div>
-              <span className="text-base sm:text-lg lg:text-2xl font-black text-slate-700" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                <Link to="/">Inside Invoice</Link>
-              </span>
-              <div className="text-[8px] sm:text-[9px] lg:text-[10px] text-slate-600 font-semibold tracking-wider">
-                BY <a href="https://twoxplusone.netlify.app/" target="_blank">2X+1</a>
+              <div className="hidden sm:flex flex-col shrink-0">
+                <span className="text-sm font-bold text-slate-800 leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Inside Invoice
+                </span>
+                <span className="text-[8px] text-slate-500 font-semibold tracking-wider leading-tight">
+                  BY <a href="https://twoxplusone.netlify.app/" target="_blank" className="hover:text-slate-700 transition-colors">2X+1</a>
+                </span>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/contact" className="text-slate-700 hover:text-slate-900 transition-colors font-semibold">
+          <div className="hidden md:flex items-center gap-1">
+            <Link to="/contact" className="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors font-medium">
               Contact
             </Link>
-            <Link to="/login" className="text-slate-700 hover:text-slate-900 transition-colors font-semibold">
+            <Link to="/login" className="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors font-medium">
               Login
             </Link>
-            <Link to="/login">
-              <button className="px-6 py-2.5 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-800 text-white rounded-xl hover:shadow-2xl hover:shadow-slate-500/50 hover:scale-105 transition-all duration-300 font-bold">
-                Start Billing →
+            <Link to="/login" className="ml-2">
+              <button className="px-5 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 active:scale-[0.98] transition-all duration-200 shadow-sm">
+                Start Billing
               </button>
             </Link>
           </div>
@@ -74,8 +68,8 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
             </Link>
             <div className="px-4 pt-2">
               <Link to="/login">
-                <button className="w-full px-6 py-3 bg-gradient-to-r from-slate-700 to-gray-800 text-white rounded-xl font-bold min-h-[48px]">
-                  Start Billing →
+                <button className="w-full px-6 py-3 bg-slate-900 text-white rounded-xl font-bold min-h-[48px] text-sm">
+                  Start Billing
                 </button>
               </Link>
             </div>
