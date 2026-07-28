@@ -617,8 +617,8 @@ export default function InvoiceForm() {
       </div>
       <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 overflow-x-hidden">
         <PageHeader title="Create Invoice" />
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-          <div className="xl:col-span-4 space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 items-start">
+          <div className="space-y-6">
 
             {/* Customer Details - Inline Fields */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
@@ -861,101 +861,12 @@ export default function InvoiceForm() {
                   <input type="text" name="otherReferences" value={form.otherReferences} onChange={handleFieldChange}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("otherReferences"); } }}
                     className={inputClass} />
-                </div>
               </div>
-            </div>
-
-            {/* Items */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 my-6">
-              <div className="flex items-center justify-between mb-4 sm:mb-5 pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Package className="w-4 h-4 text-slate-600" />
-                  </div>
-                  <h2 className="text-sm font-bold text-slate-800">Items</h2>
-                </div>
-                <button onClick={addItem}
-                  className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[44px]">
-                  <Plus className="w-3.5 h-3.5" /> Add Item
-                </button>
-              </div>
-
-              {/* Desktop table */}
-              <div className="hidden md:block border border-slate-200 rounded-lg">
-                <table className="w-full text-sm border-collapse" style={{ tableLayout: "fixed" }}>
-                  <colgroup>
-                    <col style={{ width: "3%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "21%" }} />
-                    <col style={{ width: "7%" }} />
-                    <col style={{ width: "9%" }} />
-                    <col style={{ width: "9%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "9%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "8%" }} />
-                  </colgroup>
-                  <thead>
-                    <tr className="bg-slate-800">
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">#</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left">HSN/SAC</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-left">Description</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Qty</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Rate</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">GST %</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Taxable</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Tax</th>
-                      <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Total</th>
-                      <th className="text-white"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item, idx) => (
-                      <ItemRow key={idx} item={item} idx={idx} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile cards */}
-              <div className="md:hidden space-y-3">
-                {items.map((item, idx) => (
-                  <ItemCard key={idx} item={item} idx={idx} totalItems={items.length} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
-                ))}
-                <button onClick={addItem}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[48px] sticky bottom-20 md:bottom-6 z-10">
-                  <Plus className="w-4 h-4" /> Add Item
-                </button>
-              </div>
-
-              <div className="mt-5 pt-4 border-t border-slate-200 flex justify-end">
-                <div className="w-72 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Subtotal:</span>
-                    <span className="font-mono font-medium text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Tax Amount:</span>
-                    <span className="font-mono font-medium text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  <div className="flex justify-between text-base font-bold pt-2 border-t-2 border-slate-800">
-                    <span className="text-slate-800">Grand Total:</span>
-                    <span className="font-mono text-slate-800">Rs. {totals.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
-              <textarea name="notes" value={form.notes} onChange={handleFieldChange}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("notes"); } }}
-                rows={2} className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 resize-none"
-                placeholder="Additional notes or remarks..." />
             </div>
           </div>
-          <div className="xl:col-span-1 space-y-4">
+          </div>
+
+          <div className="xl:sticky xl:top-6 space-y-4">
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Discount</h3>
@@ -1048,29 +959,29 @@ export default function InvoiceForm() {
               <div className="mt-6 pt-4 border-t border-slate-100">
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Summary</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-3">
                     <span className="text-slate-500">Items:</span>
                     <span className="font-semibold text-slate-800">{items.filter((i) => i.itemName.trim() && parseFloat(i.qty) > 0).length}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-3">
                     <span className="text-slate-500">Subtotal:</span>
                     <span className="font-mono text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                   {discountEnabled && discountVal > 0 && (
-                    <div className="flex justify-between text-emerald-600">
+                    <div className="flex justify-between gap-3 text-emerald-600">
                       <span>Discount ({discountVal}%):</span>
                       <span className="font-mono">-Rs. {totals.discountAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Taxable Amount:</span>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-slate-500 whitespace-nowrap">Taxable Amount:</span>
                     <span className="font-mono text-slate-700">Rs. {totals.taxableAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-3">
                     <span className="text-slate-500">Tax:</span>
                     <span className="font-mono text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between font-bold text-slate-800 pt-2 border-t border-slate-200">
+                  <div className="flex justify-between gap-3 font-bold text-slate-800 pt-2 border-t border-slate-200">
                     <span>Total:</span>
                     <span className="font-mono">Rs. {totals.grandTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                   </div>
@@ -1090,6 +1001,96 @@ export default function InvoiceForm() {
             </div>
           </div>
         </div>
+
+      {/* Items — full width below the two-column grid, inside max-w container */}
+      <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 my-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-5 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                <Package className="w-4 h-4 text-slate-600" />
+              </div>
+              <h2 className="text-sm font-bold text-slate-800">Items</h2>
+            </div>
+            <button onClick={addItem}
+              className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[44px]">
+              <Plus className="w-3.5 h-3.5" /> Add Item
+            </button>
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block border border-slate-200 rounded-lg w-full overflow-x-auto">
+            <table className="w-full text-sm border-collapse" style={{ tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "3%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "21%" }} />
+                <col style={{ width: "9%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "8%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "11%" }} />
+                <col style={{ width: "4%" }} />
+              </colgroup>
+              <thead>
+                <tr className="bg-slate-800">
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">#</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-left">HSN/SAC</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-left">Description</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Qty</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">Rate</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-center">GST %</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Taxable</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Tax</th>
+                  <th className="text-white text-xs font-semibold py-3.5 px-3 text-right">Total</th>
+                  <th className="text-white"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, idx) => (
+                  <ItemRow key={idx} item={item} idx={idx} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {items.map((item, idx) => (
+              <ItemCard key={idx} item={item} idx={idx} totalItems={items.length} onItemChange={handleItemChange} onRemove={removeItem} onAdd={addItem} onHsnLookup={handleHsnLookup} />
+            ))}
+            <button onClick={addItem}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition-all shadow-sm min-h-[48px] sticky bottom-20 md:bottom-6 z-10">
+              <Plus className="w-4 h-4" /> Add Item
+            </button>
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-slate-200 flex justify-end">
+            <div className="w-72 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Subtotal:</span>
+                <span className="font-mono font-medium text-slate-700">Rs. {totals.subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Tax Amount:</span>
+                <span className="font-mono font-medium text-slate-700">Rs. {totals.taxAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div className="flex justify-between text-base font-bold pt-2 border-t-2 border-slate-800">
+                <span className="text-slate-800">Grand Total:</span>
+                <span className="font-mono text-slate-800">Rs. {totals.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              </div>
+            </div>
+          </div>
+      </div>
+
+      {/* Notes — full width below Items */}
+      <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h2 className="text-sm font-bold text-slate-800 mb-3">Notes</h2>
+        <textarea name="notes" value={form.notes} onChange={handleFieldChange}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); focusNext("notes"); } }}
+          rows={2} className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 resize-none"
+          placeholder="Additional notes or remarks..." />
+      </div>
       </div>
     </div>
   );
