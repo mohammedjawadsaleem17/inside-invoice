@@ -17,6 +17,8 @@ export default function InvoicesList() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
 
   const fetchInvoices = async () => {
     try {
@@ -32,11 +34,35 @@ export default function InvoicesList() {
   useEffect(() => { fetchInvoices(); }, []);
 
   const filtered = invoices.filter((inv) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (inv.invoiceNumber || "").toLowerCase().includes(q)
-      || (inv.customerName || "").toLowerCase().includes(q);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const matchesSearch = (inv.invoiceNumber || "").toLowerCase().includes(q)
+        || (inv.customerName || "").toLowerCase().includes(q);
+      if (!matchesSearch) return false;
+    }
+    if (selectedMonth || selectedYear) {
+      const dateStr = inv.invoiceDate || "";
+      if (!dateStr) return false;
+      const parts = dateStr.split(/[-/]/);
+      const invMonth = parts.length >= 2 ? parseInt(parts[1], 10) : 0;
+      const invYear = parts.length >= 3 ? parseInt(parts[2] || parts[0], 10) : 0;
+      if (selectedMonth && invMonth !== parseInt(selectedMonth, 10)) return false;
+      if (selectedYear && invYear !== parseInt(selectedYear, 10)) return false;
+    }
+    return true;
   });
+
+  const availableMonths = [...new Set(invoices.map((inv) => {
+    const parts = (inv.invoiceDate || "").split(/[-/]/);
+    return parts.length >= 2 ? parseInt(parts[1], 10) : 0;
+  }).filter((m) => m > 0))].sort((a, b) => a - b);
+
+  const availableYears = [...new Set(invoices.map((inv) => {
+    const parts = (inv.invoiceDate || "").split(/[-/]/);
+    return parts.length >= 3 ? parseInt(parts[2] || parts[0], 10) : 0;
+  }).filter((y) => y > 0))].sort((a, b) => b - a);
+
+  const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const downloadPDF = async (invoice) => {
     let business = null;
@@ -297,11 +323,27 @@ export default function InvoicesList() {
       <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-[1900px] mx-auto">
         <PageHeader title="View Invoices" />
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-end">
-            <div className="relative w-full md:w-56">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by invoice no. or customer..."
-                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white" />
+          <div className="p-4 sm:p-5 border-b border-slate-200">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3">
+              <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}
+                className="px-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white">
+                <option value="">All Months</option>
+                {availableMonths.map((m) => (
+                  <option key={m} value={m}>{monthNames[m]}</option>
+                ))}
+              </select>
+              <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}
+                className="px-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white">
+                <option value="">All Years</option>
+                {availableYears.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              <div className="relative w-full sm:w-56">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by invoice no. or customer..."
+                  className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 bg-white" />
+              </div>
             </div>
           </div>
           {filtered.length === 0 ? (
@@ -331,7 +373,7 @@ export default function InvoicesList() {
                     </tr>
                   </thead>
                   <tbody>
-                    {invoices.map((inv, i) => (
+                    {filtered.map((inv, i) => (
                       <tr key={inv.id} className={`border-b border-slate-100 hover:bg-slate-100 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
                         <td className="py-3 px-4">
                           <button onClick={() => navigate(`/invoice/${inv.id}`)} className="font-mono text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline text-left">

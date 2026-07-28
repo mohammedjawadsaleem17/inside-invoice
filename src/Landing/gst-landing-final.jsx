@@ -818,7 +818,7 @@ export default function GSTBillingLanding() {
                     Inside Invoice
                   </span>
                   <div className="text-[7px] sm:text-[8px] text-slate-400 font-medium tracking-widest">
-                    BY <a href="https://twoxplusone.netlify.app/" target="_blank">2X+1</a>
+                    BY 2X+1
                   </div>
                 </div>
               </div>
@@ -850,7 +850,7 @@ export default function GSTBillingLanding() {
             <div>
               <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Company</h4>
               <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-normal">
-                <li><a href="https://twoxplusone.netlify.app/" target="_blank" className="hover:text-slate-400 transition-colors">About 2X+1</a></li>
+                <li><span className="text-slate-400">About 2X+1</span></li>
                 <li><Link to="/terms-and-condition" className="hover:text-slate-400 transition-colors">Terms & Conditions</Link></li>
                 <li><Link to="/refund-policy" className="hover:text-slate-400 transition-colors">Refund Policy</Link></li>
                 <li><Link to="/privacy-policy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link></li>
@@ -860,7 +860,7 @@ export default function GSTBillingLanding() {
 
           <div className="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
             <p className="text-[10px] sm:text-xs text-gray-400 font-normal">
-              &copy; {year} Inside Invoice by <a href="https://twoxplusone.netlify.app/" target="_blank">2X+1</a>. All rights reserved.
+              &copy; {year} Inside Invoice by 2X+1. All rights reserved.
             </p>
             <div className="flex gap-4 sm:gap-6">
               <a href="#" className="text-gray-400 hover:text-slate-400 transition-colors">

@@ -27,7 +27,7 @@ export default function InvoiceNav({ scrolled, setIsMenuOpen, isMenuOpen }) {
                   Inside Invoice
                 </span>
                 <span className="text-[8px] text-slate-500 font-semibold tracking-wider leading-tight">
-                  BY <a href="https://twoxplusone.netlify.app/" target="_blank" className="hover:text-slate-700 transition-colors">2X+1</a>
+                  BY 2X+1
                 </span>
               </div>
             </Link>
