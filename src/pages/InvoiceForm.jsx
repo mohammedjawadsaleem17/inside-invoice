@@ -617,7 +617,7 @@ export default function InvoiceForm() {
       </div>
       <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 overflow-x-hidden">
         <PageHeader title="Create Invoice" />
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 items-start">
           <div className="space-y-6">
 
             {/* Customer Details - Inline Fields */}
