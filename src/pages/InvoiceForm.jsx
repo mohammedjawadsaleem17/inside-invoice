@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppNavbar from "../components/AppNavbar";
 import PageHeader from "../components/PageHeader";
@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import {
   ArrowLeft, Plus, Trash2, Save, FileText, Download,
   User, Building2, Phone, MapPin, Hash,
-  Package, FileSpreadsheet, Share2
+  Package, FileSpreadsheet, Share2, Info, X
 } from "lucide-react";
 import InvoiceTemplateRenderer from "../components/InvoiceTemplateRenderer";
 import { processQueue } from "../utils/retryQueue";
@@ -224,6 +224,9 @@ const ItemCard = ({ item, idx, onItemChange, onRemove, onAdd, onHsnLookup, total
 export default function InvoiceForm() {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const prefilled = location.state?.prefilled;
+  const prefilledData = prefilled ? location.state : null;
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -236,13 +239,18 @@ export default function InvoiceForm() {
   const sealRequired = sealEnabled && !sealType;
   const [discountPercent, setDiscountPercent] = useState("");
   const [discountEnabled, setDiscountEnabled] = useState(false);
+  const [showPrefillBanner, setShowPrefillBanner] = useState(!!prefilledData);
   const discountVal = parseFloat(discountPercent) || 0;
   const invoiceRef = useRef(null);
 
   const today = new Date().toISOString().split("T")[0];
 
   const [customer, setCustomer] = useState({
-    name: "", email: "", phone: "", billingAddress: "", gstIn: "",
+    name: prefilledData?.customerName || "",
+    email: "",
+    phone: prefilledData?.customerPhone || "",
+    billingAddress: "",
+    gstIn: "",
   });
   const [existingCustomer, setExistingCustomer] = useState(null);
   const [customerCheckLoading, setCustomerCheckLoading] = useState(false);
@@ -250,7 +258,7 @@ export default function InvoiceForm() {
 
   const [form, setForm] = useState({
     invoiceType: "TAX_INVOICE",
-    invoiceDate: today,
+    invoiceDate: prefilledData?.invoiceDate || today,
     dueDate: today,
     placeOfSupply: "Karnataka",
     deliveryNote: "",
@@ -267,7 +275,11 @@ export default function InvoiceForm() {
     notes: "",
   });
 
-  const [items, setItems] = useState([{ ...emptyItem }]);
+  const [items, setItems] = useState(
+    prefilledData?.items?.length
+      ? prefilledData.items.map((item) => ({ ...emptyItem, ...item }))
+      : [{ ...emptyItem }]
+  );
 
   const nextInvoiceNumber = business
     ? `INV-${new Date().getFullYear()}-${String(business.nextInvoiceSequence).padStart(3, "0")}`
@@ -617,6 +629,15 @@ export default function InvoiceForm() {
       </div>
       <div className="max-w-[1900px] mx-auto px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 overflow-x-hidden">
         <PageHeader title="Create Invoice" />
+        {showPrefillBanner && (
+          <div className="flex items-center gap-2 p-3 bg-indigo-50 border border-indigo-200 rounded-lg mb-4">
+            <Info className="w-4 h-4 text-indigo-500 shrink-0" />
+            <p className="text-xs text-indigo-700 flex-1">We've filled in what we could read from your bill — please review before saving.</p>
+            <button onClick={() => setShowPrefillBanner(false)} className="p-1 hover:bg-indigo-100 rounded transition-colors">
+              <X className="w-3.5 h-3.5 text-indigo-400" />
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 items-start">
           <div className="space-y-6">
 
