@@ -13,7 +13,12 @@ createRoot(document.getElementById("root")).render(
 );
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/service-worker.js");
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => registration.unregister());
+  });
+}
+if ("caches" in window) {
+  caches.keys().then((names) => {
+    names.forEach((name) => caches.delete(name));
   });
 }
