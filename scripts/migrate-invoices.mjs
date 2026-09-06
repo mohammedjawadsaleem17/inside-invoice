@@ -1,4 +1,5 @@
-const BASE = "https://inside-invoice-backend.onrender.com/api";
+// Change this URL to match your environment
+const BASE = "https://insideinvoice-production.up.railway.app/api";
 const TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzIiwidXNlcklkIjozLCJidXNpbmVzc0lkIjozLCJ1c2VyTmFtZSI6IkZhaGFkIFBhc2hhIiwiZW1haWwiOiJyc2hhcmR3YXJlMjIxMEBnbWFpbC5jb20iLCJpYXQiOjE3ODUxODQzNzIsImV4cCI6MTc4NTIwNTk3Mn0.oqZ9aHH48tZuO_rl05AeJ87dZB7LroBrxnZwndIwrQ0A3m8Q1eLpWfwVMKGwTFrO5DZz9rhdF6HeZjR73FO2KQ";
 
 const headers = {
