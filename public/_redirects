@@ -1,2 +1,5 @@
-https://insideinvoice.netlify.app/*  https://insideinvoice.in/:splat  301!
+# Redirect all traffic (including .in domain) to .com with 301 permanent redirect
+*  https://insideinvoice.com/:splat  301
+
+# SPA fallback for client-side routing
 /*    /index.html   200
