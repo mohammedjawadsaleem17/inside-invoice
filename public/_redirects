@@ -1,5 +1,10 @@
-# Redirect all traffic (including .in domain) to .com with 301 permanent redirect
-*  https://insideinvoice.com/:splat  301
+# Redirect .in domain to .com (301 permanent)
+https://insideinvoice.in/*  https://insideinvoice.com/:splat  301!
+http://insideinvoice.in/*   https://insideinvoice.com/:splat  301!
 
-# SPA fallback for client-side routing
-/*    /index.html   200
+# Redirect www .in subdomain
+https://www.insideinvoice.in/*  https://insideinvoice.com/:splat  301!
+http://www.insideinvoice.in/*   https://insideinvoice.com/:splat  301!
+
+# SPA fallback for client-side routing (must be LAST)
+/*  /index.html  200

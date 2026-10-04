@@ -1,3 +1,29 @@
+# Domain redirects (.in → .com)
+[[redirects]]
+  from = "https://insideinvoice.in/*"
+  to = "https://insideinvoice.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://insideinvoice.in/*"
+  to = "https://insideinvoice.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.insideinvoice.in/*"
+  to = "https://insideinvoice.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.insideinvoice.in/*"
+  to = "https://insideinvoice.com/:splat"
+  status = 301
+  force = true
+
+# SPA fallback for client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
